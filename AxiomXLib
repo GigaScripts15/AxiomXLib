@@ -393,9 +393,9 @@ local AxiomXLib = (function()
         shadow.ZIndex = -1
         shadow.Parent = self.MainFrame
         
-        -- Barra de título
+        -- Barra de título (AUMENTADA para 50 pixels)
         self.TitleBar = Instance.new("Frame")
-        self.TitleBar.Size = UDim2.new(1, 0, 0, 40)
+        self.TitleBar.Size = UDim2.new(1, 0, 0, 50)  -- Aumentada de 40 para 50
         self.TitleBar.BackgroundColor3 = self.Theme.Secondary
         self.TitleBar.BackgroundTransparency = 0.2
         
@@ -419,7 +419,7 @@ local AxiomXLib = (function()
         self.TitleLabel.BackgroundTransparency = 1
         self.TitleLabel.Text = self.Title
         self.TitleLabel.TextColor3 = self.Theme.Text
-        self.TitleLabel.TextSize = 18
+        self.TitleLabel.TextSize = 20  -- Aumentado para combinar com a barra maior
         self.TitleLabel.Font = Enum.Font.GothamBold
         self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
         self.TitleLabel.TextTransparency = 0
@@ -428,10 +428,10 @@ local AxiomXLib = (function()
         -- Botões de controle
         self:CreateControlButtons()
         
-        -- Container de abas
+        -- Container de abas (ajustado para começar após a barra de título maior)
         self.TabContainer = Instance.new("Frame")
         self.TabContainer.Size = UDim2.new(1, -30, 0, 35)
-        self.TabContainer.Position = UDim2.new(0, 15, 0, 50)
+        self.TabContainer.Position = UDim2.new(0, 15, 0, 60)  -- Ajustado de 50 para 60
         self.TabContainer.BackgroundTransparency = 1
         
         local tabListLayout = Instance.new("UIListLayout")
@@ -440,10 +440,10 @@ local AxiomXLib = (function()
         tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         tabListLayout.Parent = self.TabContainer
         
-        -- Container de conteúdo
+        -- Container de conteúdo (ajustado para começar após a barra de título maior)
         self.ContentContainer = Instance.new("Frame")
-        self.ContentContainer.Size = UDim2.new(1, -30, 1, -100)
-        self.ContentContainer.Position = UDim2.new(0, 15, 0, 90)
+        self.ContentContainer.Size = UDim2.new(1, -30, 1, -110)  -- Ajustado de -100 para -110
+        self.ContentContainer.Position = UDim2.new(0, 15, 0, 100)  -- Ajustado de 90 para 100
         self.ContentContainer.BackgroundTransparency = 1
         self.ContentContainer.ClipsDescendants = true
         
@@ -512,10 +512,10 @@ local AxiomXLib = (function()
             self.MinimizedTopBar:Destroy()
         end
         
-        -- Criar top bar para janela minimizada
+        -- Criar top bar para janela minimizada (também aumentada para 50 pixels)
         self.MinimizedTopBar = Instance.new("Frame")
         self.MinimizedTopBar.Name = "MinimizedTopBar"
-        self.MinimizedTopBar.Size = UDim2.new(0, 250, 0, 40)
+        self.MinimizedTopBar.Size = UDim2.new(0, 250, 0, 50)  -- Aumentada de 40 para 50
         self.MinimizedTopBar.Position = UDim2.new(1, -260, 0, 10)
         self.MinimizedTopBar.BackgroundColor3 = self.Theme.Secondary
         self.MinimizedTopBar.BackgroundTransparency = 0.1
@@ -560,8 +560,8 @@ local AxiomXLib = (function()
         
         -- Ícone de janela minimizada
         local icon = Instance.new("ImageLabel")
-        icon.Size = UDim2.new(0, 20, 0, 20)
-        icon.Position = UDim2.new(0, 10, 0.5, -10)
+        icon.Size = UDim2.new(0, 24, 0, 24)  -- Aumentado de 20 para 24
+        icon.Position = UDim2.new(0, 10, 0.5, -12)  -- Ajustado para centralizar verticalmente
         icon.BackgroundTransparency = 1
         icon.Image = Library.Icons.Minimize
         icon.ImageColor3 = self.Theme.Text
@@ -570,11 +570,11 @@ local AxiomXLib = (function()
         -- Título na top bar
         local title = Instance.new("TextLabel")
         title.Size = UDim2.new(0, 150, 1, 0)
-        title.Position = UDim2.new(0, 35, 0, 0)
+        title.Position = UDim2.new(0, 40, 0, 0)  -- Ajustado de 35 para 40
         title.BackgroundTransparency = 1
         title.Text = self.Title
         title.TextColor3 = self.Theme.Text
-        title.TextSize = 14
+        title.TextSize = 16  -- Aumentado de 14 para 16
         title.Font = Enum.Font.GothamSemibold
         title.TextXAlignment = Enum.TextXAlignment.Left
         title.TextTruncate = Enum.TextTruncate.AtEnd
@@ -582,13 +582,13 @@ local AxiomXLib = (function()
         
         -- Botão para restaurar
         local restoreBtn = Instance.new("TextButton")
-        restoreBtn.Size = UDim2.new(0, 30, 0, 30)
-        restoreBtn.Position = UDim2.new(1, -35, 0.5, -15)
+        restoreBtn.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
+        restoreBtn.Position = UDim2.new(1, -40, 0.5, -17.5)  -- Ajustado para centralizar verticalmente
         restoreBtn.BackgroundColor3 = self.Theme.Primary
         restoreBtn.BackgroundTransparency = 0.8
         restoreBtn.Text = "↗"
         restoreBtn.TextColor3 = self.Theme.Text
-        restoreBtn.TextSize = 16
+        restoreBtn.TextSize = 18  -- Aumentado de 16 para 18
         restoreBtn.Font = Enum.Font.GothamBold
         
         -- Habilitar toque no botão
@@ -622,13 +622,13 @@ local AxiomXLib = (function()
         
         -- Botão para fechar da top bar
         local closeBtn = Instance.new("TextButton")
-        closeBtn.Size = UDim2.new(0, 30, 0, 30)
-        closeBtn.Position = UDim2.new(1, -5, 0.5, -15)
+        closeBtn.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
+        closeBtn.Position = UDim2.new(1, -5, 0.5, -17.5)  -- Ajustado para centralizar verticalmente
         closeBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
         closeBtn.BackgroundTransparency = 0.8
         closeBtn.Text = "×"
         closeBtn.TextColor3 = self.Theme.Text
-        closeBtn.TextSize = 18
+        closeBtn.TextSize = 20  -- Aumentado de 18 para 20
         closeBtn.Font = Enum.Font.GothamBold
         
         -- Habilitar toque no botão
@@ -679,7 +679,7 @@ local AxiomXLib = (function()
                 
                 Utilities.Tween(self.MinimizedTopBar, {
                     BackgroundTransparency = 0.05,
-                    Size = UDim2.new(0, 260, 0, 45)
+                    Size = UDim2.new(0, 260, 0, 50)  -- Ajustado para manter 50
                 }, 0.1)
                 
                 -- Efeito visual de seleção
@@ -694,7 +694,7 @@ local AxiomXLib = (function()
                         
                         Utilities.Tween(self.MinimizedTopBar, {
                             BackgroundTransparency = 0.1,
-                            Size = UDim2.new(0, 250, 0, 40)
+                            Size = UDim2.new(0, 250, 0, 50)  -- Ajustado para manter 50
                         }, 0.1)
                         
                         Utilities.Tween(self.MinimizedTopBar.UIStroke, {
@@ -757,12 +757,12 @@ local AxiomXLib = (function()
         
         -- Botão minimizar
         self.MinimizeButton = Instance.new("TextButton")
-        self.MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+        self.MinimizeButton.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
         self.MinimizeButton.BackgroundColor3 = self.Theme.Primary
         self.MinimizeButton.BackgroundTransparency = 0.8
         self.MinimizeButton.Text = "-"
         self.MinimizeButton.TextColor3 = self.Theme.Text
-        self.MinimizeButton.TextSize = 20
+        self.MinimizeButton.TextSize = 22  -- Aumentado de 20 para 22
         self.MinimizeButton.Font = Enum.Font.GothamBold
         self.MinimizeButton.LayoutOrder = 1
         
@@ -785,12 +785,12 @@ local AxiomXLib = (function()
         
         -- Botão fechar
         self.CloseButton = Instance.new("TextButton")
-        self.CloseButton.Size = UDim2.new(0, 30, 0, 30)
+        self.CloseButton.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
         self.CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
         self.CloseButton.BackgroundTransparency = 0.8
         self.CloseButton.Text = "×"
         self.CloseButton.TextColor3 = self.Theme.Text
-        self.CloseButton.TextSize = 20
+        self.CloseButton.TextSize = 22  -- Aumentado de 20 para 22
         self.CloseButton.Font = Enum.Font.GothamBold
         self.CloseButton.LayoutOrder = 2
         
