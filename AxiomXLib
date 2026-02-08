@@ -284,26 +284,22 @@ local AxiomXLib = (function()
         tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         tabListLayout.Parent = self.TabContainer
         
-        self.ContentContainer = Instance.new("Frame")
+        self.ContentContainer = Instance.new("ScrollingFrame")
+        self.ContentContainer.Name = "ContentContainer"
         self.ContentContainer.Size = UDim2.new(1, -200, 1, -60)
         self.ContentContainer.Position = UDim2.new(0, 190, 0, 50)
         self.ContentContainer.BackgroundTransparency = 1
+        self.ContentContainer.BorderSizePixel = 0
+        self.ContentContainer.ScrollBarThickness = 3
+        self.ContentContainer.ScrollBarImageColor3 = self.Theme.Primary
+        self.ContentContainer.ScrollBarImageTransparency = 0.5
         self.ContentContainer.ClipsDescendants = true
-        
-        local contentScrolling = Instance.new("ScrollingFrame")
-        contentScrolling.Size = UDim2.new(1, 0, 1, 0)
-        contentScrolling.BackgroundTransparency = 1
-        contentScrolling.BorderSizePixel = 0
-        contentScrolling.ScrollBarThickness = 3
-        contentScrolling.ScrollBarImageColor3 = self.Theme.Primary
-        contentScrolling.ScrollBarImageTransparency = 0.5
-        contentScrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        contentScrolling.Parent = self.ContentContainer
+        self.ContentContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
         
         local contentLayout = Instance.new("UIListLayout")
         contentLayout.Padding = UDim.new(0, 10)
         contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        contentLayout.Parent = contentScrolling
+        contentLayout.Parent = self.ContentContainer
         
         self.TitleBar.Parent = self.MainFrame
         self.TabContainer.Parent = self.MainFrame
@@ -567,7 +563,7 @@ local AxiomXLib = (function()
         buttonContent.Parent = Tab.Button
         Indicator.Parent = Tab.Button
         Tab.Button.Parent = self.TabContainer
-        ContentScrolling.Parent = self.ContentContainer:FindFirstChildWhichIsA("ScrollingFrame")
+        ContentScrolling.Parent = self.ContentContainer
         Tab.Content = ContentScrolling
         
         -- Tab Methods
