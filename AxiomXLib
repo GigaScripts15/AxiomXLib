@@ -1,7 +1,8 @@
 --[[
-    AxiomXLib v1.3.0 - Com Keybind Control+Left e Top Bar
+    AxiomXLib v1.4.0 - Com Touch Drag e Keybind Control+Left
     Biblioteca completa de UI para Roblox com centralização automática
     Keybind: Control + Left para minimizar/desminimizar janelas
+    Touch: Arrastar top bar com toque
     
     Para usar: copiar todo este código e executar com loadstring()
     
@@ -22,7 +23,7 @@ local AxiomXLib = (function()
     
     -- Biblioteca principal
     local Library = {
-        Version = "1.3.0",
+        Version = "1.4.0",
         Windows = {},
         ActiveWindows = {},
         MinimizedWindows = {},
@@ -235,7 +236,7 @@ local AxiomXLib = (function()
         return UDim2.new(0, centerX, 0, centerY)
     end
     
-    -- Sistema de Keybinds
+    -- Sistema de Keybinds aprimorado
     function Library:SetupKeybinds()
         self.Keybinds = {
             MinimizeAll = {
@@ -260,6 +261,26 @@ local AxiomXLib = (function()
                 self.Keybinds.MinimizeAll.IsPressed = false
             end
         end)
+        
+        -- Feedback visual quando o keybind é usado
+        task.spawn(function()
+            while true do
+                if self.Keybinds.MinimizeAll.IsPressed then
+                    for _, window in ipairs(self.ActiveWindows) do
+                        if window.MainFrame and window.MainFrame.UIStroke then
+                            window.MainFrame.UIStroke.Color = Color3.fromRGB(255, 255, 0)
+                        end
+                    end
+                else
+                    for _, window in ipairs(self.ActiveWindows) do
+                        if window.MainFrame and window.MainFrame.UIStroke then
+                            window.MainFrame.UIStroke.Color = window.Theme.Primary
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
     end
     
     function Library:ToggleAllWindowsMinimize()
@@ -274,9 +295,14 @@ local AxiomXLib = (function()
                 end
             end
         end
+        
+        -- Feedback sonoro (opcional)
+        if self.Config.EnableSounds then
+            -- Implementar som aqui se necessário
+        end
     end
     
-    -- Classe Window com centralização automática e keybinds
+    -- Classe Window com centralização automática, keybinds e touch
     local Window = {}
     Window.__index = Window
     
@@ -307,7 +333,9 @@ local AxiomXLib = (function()
         self.DragStart = nil
         self.StartPos = nil
         self.MinimizedTopBar = nil
-        self.MinimizedContainer = nil
+        self.TopBarDragging = false
+        self.TopBarDragStart = nil
+        self.TopBarStartPos = nil
         
         self:CreateUI()
         self:SetupDrag()
@@ -493,6 +521,10 @@ local AxiomXLib = (function()
         self.MinimizedTopBar.BackgroundTransparency = 0.1
         self.MinimizedTopBar.AnchorPoint = Vector2.new(1, 0)
         
+        -- Habilitar toque na top bar
+        self.MinimizedTopBar.Active = true
+        self.MinimizedTopBar.Selectable = true
+        
         local corner = Instance.new("UICorner")
         corner.CornerRadius = UDim.new(0, 8)
         corner.Parent = self.MinimizedTopBar
@@ -559,11 +591,21 @@ local AxiomXLib = (function()
         restoreBtn.TextSize = 16
         restoreBtn.Font = Enum.Font.GothamBold
         
+        -- Habilitar toque no botão
+        restoreBtn.Active = true
+        restoreBtn.Selectable = true
+        
         local btnCorner = Instance.new("UICorner")
         btnCorner.CornerRadius = UDim.new(0, 6)
         btnCorner.Parent = restoreBtn
         
         restoreBtn.MouseButton1Click:Connect(function()
+            Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
+            self:ToggleMinimize()
+        end)
+        
+        -- Suporte a toque para o botão
+        restoreBtn.TouchTap:Connect(function()
             Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
             self:ToggleMinimize()
         end)
@@ -589,11 +631,21 @@ local AxiomXLib = (function()
         closeBtn.TextSize = 18
         closeBtn.Font = Enum.Font.GothamBold
         
+        -- Habilitar toque no botão
+        closeBtn.Active = true
+        closeBtn.Selectable = true
+        
         local closeCorner = Instance.new("UICorner")
         closeCorner.CornerRadius = UDim.new(0, 6)
         closeCorner.Parent = closeBtn
         
         closeBtn.MouseButton1Click:Connect(function()
+            Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
+            self:Destroy()
+        end)
+        
+        -- Suporte a toque para o botão
+        closeBtn.TouchTap:Connect(function()
             Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
             self:Destroy()
         end)
@@ -611,20 +663,29 @@ local AxiomXLib = (function()
         -- Adicionar ao container de janelas minimizadas
         self.MinimizedTopBar.Parent = self.Library.MinimizedContainer
         
-        -- Adicionar arrastar para a top bar
+        -- Adicionar arrastar para a top bar com suporte a toque
         self:SetupTopBarDrag()
     end
     
     function Window:SetupTopBarDrag()
+        -- Suporte a mouse e toque
         self.MinimizedTopBar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or 
                input.UserInputType == Enum.UserInputType.Touch then
+                
                 self.TopBarDragging = true
                 self.TopBarDragStart = input.Position
                 self.TopBarStartPos = self.MinimizedTopBar.Position
                 
                 Utilities.Tween(self.MinimizedTopBar, {
-                    BackgroundTransparency = 0.05
+                    BackgroundTransparency = 0.05,
+                    Size = UDim2.new(0, 260, 0, 45)
+                }, 0.1)
+                
+                -- Efeito visual de seleção
+                Utilities.Tween(self.MinimizedTopBar.UIStroke, {
+                    Thickness = 2,
+                    Transparency = 0.1
                 }, 0.1)
                 
                 input.Changed:Connect(function()
@@ -632,7 +693,13 @@ local AxiomXLib = (function()
                         self.TopBarDragging = false
                         
                         Utilities.Tween(self.MinimizedTopBar, {
-                            BackgroundTransparency = 0.1
+                            BackgroundTransparency = 0.1,
+                            Size = UDim2.new(0, 250, 0, 40)
+                        }, 0.1)
+                        
+                        Utilities.Tween(self.MinimizedTopBar.UIStroke, {
+                            Thickness = 1,
+                            Transparency = 0.3
                         }, 0.1)
                     end
                 end)
@@ -642,6 +709,7 @@ local AxiomXLib = (function()
         UserInputService.InputChanged:Connect(function(input)
             if self.TopBarDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
                input.UserInputType == Enum.UserInputType.Touch) then
+                
                 local delta = input.Position - self.TopBarDragStart
                 local newPos = UDim2.new(
                     self.TopBarStartPos.X.Scale, 
@@ -749,6 +817,7 @@ local AxiomXLib = (function()
     end
     
     function Window:SetupDrag()
+        -- Suporte a mouse e toque
         self.TitleBar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or 
                input.UserInputType == Enum.UserInputType.Touch then
@@ -1170,7 +1239,8 @@ local AxiomXLib = (function()
             Transparency = config.Transparency or 0.9,
             EnableSounds = config.EnableSounds or false,
             PerformanceMode = config.PerformanceMode or false,
-            EnableKeybinds = config.EnableKeybinds ~= false -- Ativado por padrão
+            EnableKeybinds = config.EnableKeybinds ~= false, -- Ativado por padrão
+            EnableTouch = config.EnableTouch ~= false -- Ativado por padrão
         }
         
         -- Tema atual
@@ -1309,84 +1379,15 @@ local AxiomXLib = (function()
         local section = tab:AddSection("Configure Keybinds")
         
         section:AddLabel("Current Keybinds:")
-        section:AddLabel("Control + Left: Minimize/Restore All Windows")
+        section:AddLabel("Control (Left) + Left: Minimize/Restore All Windows")
         
-        local infoSection = tab:AddSection("Information")
-        infoSection:AddLabel("• Press Left Control and then Left Arrow key")
-        infoSection:AddLabel("• This will minimize all open windows")
-        infoSection:AddLabel("• Press again to restore all minimized windows")
-        infoSection:AddLabel("• Individual windows can be minimized with their own buttons")
+        local infoSection = tab:AddSection("Touch Support")
+        infoSection:AddLabel("• Touch enabled for all UI elements")
+        infoSection:AddLabel("• Drag top bars with touch")
+        infoSection:AddLabel("• Tap buttons with touch")
+        infoSection:AddLabel("• Drag main windows with touch")
         
         return window
-    end
-    
-    function Library:GetExampleCode()
-        return [[
--- Exemplo de uso da AxiomXLib com keybinds
-local Library = AxiomXLib.new({
-    Theme = "Matrix",
-    Size = UDim2.new(0, 550, 0, 450),
-    Roundness = 16,
-    EnableKeybinds = true -- Ativar keybinds
-})
-
--- Criar janela (será automaticamente centralizada)
-local Window = Library:CreateWindow({
-    Title = "AxiomX Control Panel"
-})
-
--- Adicionar aba
-local MainTab = Window:AddTab("Main", Library:GetIcon("Home"))
-
--- Adicionar seção
-local ActionsSection = MainTab:AddSection("Actions")
-
--- Botão para testar minimizar
-ActionsSection:AddButton({
-    Text = "Minimize Window",
-    Icon = Library:GetIcon("Minimize"),
-    Callback = function()
-        Window:ToggleMinimize()
-    end
-})
-
--- Toggle
-ActionsSection:AddToggle({
-    Text = "Enable Feature",
-    Default = true,
-    Callback = function(state)
-        print("Feature:", state)
-    end
-})
-
--- Slider
-ActionsSection:AddSlider({
-    Text = "Volume",
-    Min = 0,
-    Max = 100,
-    Default = 50,
-    Callback = function(value)
-        print("Volume:", value)
-    end
-})
-
--- Keybind personalizado
-ActionsSection:AddKeybind({
-    Text = "Custom Keybind",
-    Default = Enum.KeyCode.RightControl,
-    Callback = function()
-        print("Custom keybind pressed!")
-    end
-})
-
--- Para usar o keybind global (Control+Left):
--- 1. Pressione e segure Left Control
--- 2. Pressione Left Arrow (seta para esquerda)
--- 3. Todas as janelas serão minimizadas/restauradas
-
--- Para criar uma janela de configuração de keybinds:
--- local KeybindsWindow = Library:CreateKeybindsWindow()
-]]
     end
     
     return Library
@@ -1395,13 +1396,14 @@ end)()
 -- Carregar a biblioteca
 -- Nota: Se estiver usando loadstring, este é o código completo para carregar
 
--- Exemplo de uso COM KEYBIND Control+Left:
-local function exemploComKeybind()
+-- Exemplo de uso COM KEYBIND Control+Left e TOUCH:
+local function exemploComKeybindETouch()
     -- Inicializar - janelas serão centralizadas automaticamente
     local Library = AxiomXLib.new({
         Theme = "Matrix",
         Size = UDim2.new(0, 500, 0, 400), -- Tamanho da janela
-        EnableKeybinds = true -- Keybinds habilitados por padrão
+        EnableKeybinds = true, -- Keybinds habilitados por padrão
+        EnableTouch = true -- Touch habilitado por padrão
     })
     
     -- Criar janela (será automaticamente centralizada na tela)
@@ -1428,7 +1430,7 @@ local function exemploComKeybind()
     -- Adicionar informações sobre o keybind
     local KeybindSection = Tab:AddSection("Keybinds Info")
     
-    KeybindSection:AddLabel("Global Keybind: Control + Left")
+    KeybindSection:AddLabel("Global Keybind: Control (Left) + Left")
     KeybindSection:AddLabel("Minimize/Restore All Windows")
     KeybindSection:AddButton({
         Text = "Test Keybind Now",
@@ -1437,8 +1439,9 @@ local function exemploComKeybind()
             print("Pressione Control+Left para minimizar/restaurar todas as janelas!")
             print("Funcionalidades:")
             print("• Control+Left: Minimiza/Restaura todas as janelas")
+            print("• Touch: Arraste top bars com toque")
+            print("• Touch: Clique em botões com toque")
             print("• Top Bar: Janelas minimizadas aparecem como barras no canto")
-            print("• Clique em '↗' na Top Bar para restaurar individualmente")
         end
     })
     
@@ -1467,6 +1470,6 @@ local function exemploComKeybind()
 end
 
 -- Executar o exemplo (opcional)
--- exemploComKeybind()
+-- exemploComKeybindETouch()
 
 return AxiomXLib
