@@ -1,9 +1,12 @@
 --[[
-    AxiomXLib v1.0.0 - Loadstring Version com Minimizar Linear
-    Biblioteca completa de UI para Roblox em um único loadstring
-    Minimizar com animação linear e suave
+    AxiomXLib v1.3.0 - Com Keybind Control+Left e Top Bar
+    Biblioteca completa de UI para Roblox com centralização automática
+    Keybind: Control + Left para minimizar/desminimizar janelas
     
     Para usar: copiar todo este código e executar com loadstring()
+    
+    Exemplo de uso:
+    local AxiomXLib = loadstring(game:HttpGet("URL"))()
 --]]
 
 local AxiomXLib = (function()
@@ -19,13 +22,15 @@ local AxiomXLib = (function()
     
     -- Biblioteca principal
     local Library = {
-        Version = "1.1.0",
+        Version = "1.3.0",
         Windows = {},
         ActiveWindows = {},
+        MinimizedWindows = {},
         Themes = {},
         Config = {},
         Icons = {},
-        Utilities = {}
+        Utilities = {},
+        Keybinds = {}
     }
     
     -- Temas pré-definidos
@@ -156,7 +161,9 @@ local AxiomXLib = (function()
         Image = "rbxassetid://10723389113",
         Video = "rbxassetid://10723389375",
         Music = "rbxassetid://10723389637",
-        Game = "rbxassetid://10723389899"
+        Game = "rbxassetid://10723389899",
+        Keyboard = "rbxassetid://10723384001",
+        Mouse = "rbxassetid://10723383739"
     }
     
     -- Funções utilitárias
@@ -228,7 +235,48 @@ local AxiomXLib = (function()
         return UDim2.new(0, centerX, 0, centerY)
     end
     
-    -- Classe Window com minimizar linear
+    -- Sistema de Keybinds
+    function Library:SetupKeybinds()
+        self.Keybinds = {
+            MinimizeAll = {
+                Key = Enum.KeyCode.LeftControl,
+                AdditionalKey = Enum.KeyCode.Left,
+                IsPressed = false,
+                Connection = nil
+            }
+        }
+        
+        -- Conexão para detectar Control+Left
+        self.Keybinds.MinimizeAll.Connection = UserInputService.InputBegan:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.LeftControl then
+                self.Keybinds.MinimizeAll.IsPressed = true
+            elseif input.KeyCode == Enum.KeyCode.Left and self.Keybinds.MinimizeAll.IsPressed then
+                self:ToggleAllWindowsMinimize()
+            end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.LeftControl then
+                self.Keybinds.MinimizeAll.IsPressed = false
+            end
+        end)
+    end
+    
+    function Library:ToggleAllWindowsMinimize()
+        -- Se houver janelas minimizadas, restaurar todas
+        if #self.MinimizedWindows > 0 then
+            self:RestoreAllMinimized()
+        else
+            -- Caso contrário, minimizar todas as janelas ativas
+            for _, window in ipairs(self.ActiveWindows) do
+                if not window.Minimized then
+                    window:ToggleMinimize()
+                end
+            end
+        end
+    end
+    
+    -- Classe Window com centralização automática e keybinds
     local Window = {}
     Window.__index = Window
     
@@ -258,6 +306,8 @@ local AxiomXLib = (function()
         self.Dragging = false
         self.DragStart = nil
         self.StartPos = nil
+        self.MinimizedTopBar = nil
+        self.MinimizedContainer = nil
         
         self:CreateUI()
         self:SetupDrag()
@@ -277,11 +327,17 @@ local AxiomXLib = (function()
         -- Frame principal
         self.MainFrame = Instance.new("Frame")
         self.MainFrame.Size = self.Size
-        self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+        self.MainFrame.Position = self.Position
         self.MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
         self.MainFrame.BackgroundColor3 = self.Theme.Background
         self.MainFrame.BackgroundTransparency = 0.1
         self.MainFrame.ClipsDescendants = true
+        
+        -- Ajustar posição para centralizar com anchor point
+        local viewportSize = workspace.CurrentCamera.ViewportSize
+        local centerX = viewportSize.X / 2
+        local centerY = viewportSize.Y / 2
+        self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
         
         -- Corner
         local uiCorner = Instance.new("UICorner")
@@ -374,6 +430,9 @@ local AxiomXLib = (function()
         self.ContentContainer.Parent = self.MainFrame
         self.MainFrame.Parent = self.ScreenGui
         
+        -- Criar container para janelas minimizadas
+        self:CreateMinimizedContainer()
+        
         -- Adicionar ao CoreGui para maior compatibilidade
         local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
         if playerGui then
@@ -387,22 +446,227 @@ local AxiomXLib = (function()
         self.TitleBar.BackgroundTransparency = 1
         self.TitleLabel.TextTransparency = 1
         
-        -- Animação de entrada suave do centro
+        -- Animação de entrada do centro
         self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
         Utilities.Tween(self.MainFrame, {
             Size = self.Size,
             BackgroundTransparency = 0.1
-        }, 0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+        }, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         
-        Utilities.Tween(self.TitleBar, {BackgroundTransparency = 0.2}, 0.3, Enum.EasingStyle.Linear)
-        Utilities.Tween(self.TitleLabel, {TextTransparency = 0}, 0.3, Enum.EasingStyle.Linear)
+        Utilities.Tween(self.TitleBar, {BackgroundTransparency = 0.2}, 0.5)
+        Utilities.Tween(self.TitleLabel, {TextTransparency = 0}, 0.5)
         
         -- Atualizar tamanho quando a tela mudar
         self:SetupResizeListener()
     end
     
+    function Window:CreateMinimizedContainer()
+        -- Container para janelas minimizadas
+        if not self.Library.MinimizedContainer then
+            self.Library.MinimizedContainer = Instance.new("ScreenGui")
+            self.Library.MinimizedContainer.Name = "AxiomX_MinimizedContainer"
+            self.Library.MinimizedContainer.ResetOnSpawn = false
+            self.Library.MinimizedContainer.ZIndexBehavior = Enum.ZIndexBehavior.Global
+            self.Library.MinimizedContainer.IgnoreGuiInset = true
+            self.Library.MinimizedContainer.DisplayOrder = 998
+            
+            local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+            if playerGui then
+                self.Library.MinimizedContainer.Parent = playerGui
+            else
+                self.Library.MinimizedContainer.Parent = CoreGui
+            end
+        end
+    end
+    
+    function Window:CreateMinimizedTopBar()
+        if self.MinimizedTopBar then
+            self.MinimizedTopBar:Destroy()
+        end
+        
+        -- Criar top bar para janela minimizada
+        self.MinimizedTopBar = Instance.new("Frame")
+        self.MinimizedTopBar.Name = "MinimizedTopBar"
+        self.MinimizedTopBar.Size = UDim2.new(0, 250, 0, 40)
+        self.MinimizedTopBar.Position = UDim2.new(1, -260, 0, 10)
+        self.MinimizedTopBar.BackgroundColor3 = self.Theme.Secondary
+        self.MinimizedTopBar.BackgroundTransparency = 0.1
+        self.MinimizedTopBar.AnchorPoint = Vector2.new(1, 0)
+        
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 8)
+        corner.Parent = self.MinimizedTopBar
+        
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = self.Theme.Primary
+        stroke.Thickness = 1
+        stroke.Transparency = 0.3
+        stroke.Parent = self.MinimizedTopBar
+        
+        -- Gradiente
+        local gradient = Utilities.CreateGradient(
+            self.Theme.Primary,
+            self.Theme.Accent,
+            90
+        )
+        gradient.Transparency = NumberSequence.new(0.9)
+        gradient.Parent = self.MinimizedTopBar
+        
+        -- Sombra
+        local shadow = Instance.new("ImageLabel")
+        shadow.Name = "Shadow"
+        shadow.Size = UDim2.new(1, 20, 1, 20)
+        shadow.Position = UDim2.new(0, -10, 0, -10)
+        shadow.BackgroundTransparency = 1
+        shadow.Image = "rbxassetid://5554236805"
+        shadow.ImageColor3 = self.Theme.Shadow or Color3.new(0, 0, 0)
+        shadow.ImageTransparency = 0.7
+        shadow.ScaleType = Enum.ScaleType.Slice
+        shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+        shadow.ZIndex = -1
+        shadow.Parent = self.MinimizedTopBar
+        
+        -- Ícone de janela minimizada
+        local icon = Instance.new("ImageLabel")
+        icon.Size = UDim2.new(0, 20, 0, 20)
+        icon.Position = UDim2.new(0, 10, 0.5, -10)
+        icon.BackgroundTransparency = 1
+        icon.Image = Library.Icons.Minimize
+        icon.ImageColor3 = self.Theme.Text
+        icon.Parent = self.MinimizedTopBar
+        
+        -- Título na top bar
+        local title = Instance.new("TextLabel")
+        title.Size = UDim2.new(0, 150, 1, 0)
+        title.Position = UDim2.new(0, 35, 0, 0)
+        title.BackgroundTransparency = 1
+        title.Text = self.Title
+        title.TextColor3 = self.Theme.Text
+        title.TextSize = 14
+        title.Font = Enum.Font.GothamSemibold
+        title.TextXAlignment = Enum.TextXAlignment.Left
+        title.TextTruncate = Enum.TextTruncate.AtEnd
+        title.Parent = self.MinimizedTopBar
+        
+        -- Botão para restaurar
+        local restoreBtn = Instance.new("TextButton")
+        restoreBtn.Size = UDim2.new(0, 30, 0, 30)
+        restoreBtn.Position = UDim2.new(1, -35, 0.5, -15)
+        restoreBtn.BackgroundColor3 = self.Theme.Primary
+        restoreBtn.BackgroundTransparency = 0.8
+        restoreBtn.Text = "↗"
+        restoreBtn.TextColor3 = self.Theme.Text
+        restoreBtn.TextSize = 16
+        restoreBtn.Font = Enum.Font.GothamBold
+        
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 6)
+        btnCorner.Parent = restoreBtn
+        
+        restoreBtn.MouseButton1Click:Connect(function()
+            Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
+            self:ToggleMinimize()
+        end)
+        
+        restoreBtn.MouseEnter:Connect(function()
+            Utilities.Tween(restoreBtn, {BackgroundTransparency = 0.6}, 0.2)
+        end)
+        
+        restoreBtn.MouseLeave:Connect(function()
+            Utilities.Tween(restoreBtn, {BackgroundTransparency = 0.8}, 0.2)
+        end)
+        
+        restoreBtn.Parent = self.MinimizedTopBar
+        
+        -- Botão para fechar da top bar
+        local closeBtn = Instance.new("TextButton")
+        closeBtn.Size = UDim2.new(0, 30, 0, 30)
+        closeBtn.Position = UDim2.new(1, -5, 0.5, -15)
+        closeBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+        closeBtn.BackgroundTransparency = 0.8
+        closeBtn.Text = "×"
+        closeBtn.TextColor3 = self.Theme.Text
+        closeBtn.TextSize = 18
+        closeBtn.Font = Enum.Font.GothamBold
+        
+        local closeCorner = Instance.new("UICorner")
+        closeCorner.CornerRadius = UDim.new(0, 6)
+        closeCorner.Parent = closeBtn
+        
+        closeBtn.MouseButton1Click:Connect(function()
+            Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
+            self:Destroy()
+        end)
+        
+        closeBtn.MouseEnter:Connect(function()
+            Utilities.Tween(closeBtn, {BackgroundTransparency = 0.6}, 0.2)
+        end)
+        
+        closeBtn.MouseLeave:Connect(function()
+            Utilities.Tween(closeBtn, {BackgroundTransparency = 0.8}, 0.2)
+        end)
+        
+        closeBtn.Parent = self.MinimizedTopBar
+        
+        -- Adicionar ao container de janelas minimizadas
+        self.MinimizedTopBar.Parent = self.Library.MinimizedContainer
+        
+        -- Adicionar arrastar para a top bar
+        self:SetupTopBarDrag()
+    end
+    
+    function Window:SetupTopBarDrag()
+        self.MinimizedTopBar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+               input.UserInputType == Enum.UserInputType.Touch then
+                self.TopBarDragging = true
+                self.TopBarDragStart = input.Position
+                self.TopBarStartPos = self.MinimizedTopBar.Position
+                
+                Utilities.Tween(self.MinimizedTopBar, {
+                    BackgroundTransparency = 0.05
+                }, 0.1)
+                
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        self.TopBarDragging = false
+                        
+                        Utilities.Tween(self.MinimizedTopBar, {
+                            BackgroundTransparency = 0.1
+                        }, 0.1)
+                    end
+                end)
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if self.TopBarDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
+               input.UserInputType == Enum.UserInputType.Touch) then
+                local delta = input.Position - self.TopBarDragStart
+                local newPos = UDim2.new(
+                    self.TopBarStartPos.X.Scale, 
+                    self.TopBarStartPos.X.Offset + delta.X,
+                    self.TopBarStartPos.Y.Scale, 
+                    self.TopBarStartPos.Y.Offset + delta.Y
+                )
+                
+                -- Limitar ao espaço da tela
+                local viewportSize = workspace.CurrentCamera.ViewportSize
+                local barSize = self.MinimizedTopBar.AbsoluteSize
+                
+                newPos = UDim2.new(
+                    newPos.X.Scale,
+                    math.clamp(newPos.X.Offset, barSize.X, viewportSize.X),
+                    newPos.Y.Scale,
+                    math.clamp(newPos.Y.Offset, 0, viewportSize.Y - barSize.Y)
+                )
+                
+                self.MinimizedTopBar.Position = newPos
+            end
+        end)
+    end
+    
     function Window:SetupResizeListener()
-        -- Se a tela mudar de tamanho, re-centralizar a janela
         workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
             if not self.Minimized then
                 self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -423,12 +687,12 @@ local AxiomXLib = (function()
         buttonListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         buttonListLayout.Parent = buttonContainer
         
-        -- Botão minimizar com ícone melhor
+        -- Botão minimizar
         self.MinimizeButton = Instance.new("TextButton")
         self.MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
         self.MinimizeButton.BackgroundColor3 = self.Theme.Primary
         self.MinimizeButton.BackgroundTransparency = 0.8
-        self.MinimizeButton.Text = "▁"
+        self.MinimizeButton.Text = "-"
         self.MinimizeButton.TextColor3 = self.Theme.Text
         self.MinimizeButton.TextSize = 20
         self.MinimizeButton.Font = Enum.Font.GothamBold
@@ -444,11 +708,11 @@ local AxiomXLib = (function()
         end)
         
         self.MinimizeButton.MouseEnter:Connect(function()
-            Utilities.Tween(self.MinimizeButton, {BackgroundTransparency = 0.6}, 0.2, Enum.EasingStyle.Linear)
+            Utilities.Tween(self.MinimizeButton, {BackgroundTransparency = 0.6}, 0.2)
         end)
         
         self.MinimizeButton.MouseLeave:Connect(function()
-            Utilities.Tween(self.MinimizeButton, {BackgroundTransparency = 0.8}, 0.2, Enum.EasingStyle.Linear)
+            Utilities.Tween(self.MinimizeButton, {BackgroundTransparency = 0.8}, 0.2)
         end)
         
         -- Botão fechar
@@ -472,11 +736,11 @@ local AxiomXLib = (function()
         end)
         
         self.CloseButton.MouseEnter:Connect(function()
-            Utilities.Tween(self.CloseButton, {BackgroundTransparency = 0.6}, 0.2, Enum.EasingStyle.Linear)
+            Utilities.Tween(self.CloseButton, {BackgroundTransparency = 0.6}, 0.2)
         end)
         
         self.CloseButton.MouseLeave:Connect(function()
-            Utilities.Tween(self.CloseButton, {BackgroundTransparency = 0.8}, 0.2, Enum.EasingStyle.Linear)
+            Utilities.Tween(self.CloseButton, {BackgroundTransparency = 0.8}, 0.2)
         end)
         
         buttonContainer.Parent = self.TitleBar
@@ -496,7 +760,7 @@ local AxiomXLib = (function()
                     BackgroundTransparency = 0.2,
                     Size = UDim2.new(self.MainFrame.Size.X.Scale, self.MainFrame.Size.X.Offset * 1.02,
                                    self.MainFrame.Size.Y.Scale, self.MainFrame.Size.Y.Offset * 1.02)
-                }, 0.1, Enum.EasingStyle.Linear)
+                }, 0.1)
                 
                 input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
@@ -505,7 +769,7 @@ local AxiomXLib = (function()
                         Utilities.Tween(self.MainFrame, {
                             BackgroundTransparency = 0.1,
                             Size = self.Size
-                        }, 0.1, Enum.EasingStyle.Linear)
+                        }, 0.1)
                     end
                 end)
             end
@@ -529,54 +793,50 @@ local AxiomXLib = (function()
         self.Minimized = not self.Minimized
         
         if self.Minimized then
+            -- Minimizar a janela
             self.OriginalSize = self.MainFrame.Size
             self.OriginalPosition = self.MainFrame.Position
             
-            -- Animação linear para minimizar
+            -- Esconder a janela principal
             Utilities.Tween(self.MainFrame, {
-                Size = UDim2.new(self.OriginalSize.X.Scale, 0, 0, 40)
-            }, 0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                Size = UDim2.new(0, 0, 0, 0),
+                BackgroundTransparency = 1
+            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
             
-            -- Move para o topo suavemente
-            Utilities.Tween(self.MainFrame, {
-                Position = UDim2.new(0.5, 0, 0, 20)
-            }, 0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            -- Criar top bar para janela minimizada
+            self:CreateMinimizedTopBar()
             
-            -- Oculta o conteúdo
-            Utilities.Tween(self.TabContainer, {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -30, 0, 0)
-            }, 0.2, Enum.EasingStyle.Linear)
+            -- Adicionar à lista de janelas minimizadas
+            table.insert(self.Library.MinimizedWindows, self)
             
-            Utilities.Tween(self.ContentContainer, {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -30, 0, 0)
-            }, 0.2, Enum.EasingStyle.Linear)
-            
-            self.MinimizeButton.Text = "▔"
+            self.MinimizeButton.Text = "+"
         else
-            -- Animação linear para restaurar
+            -- Restaurar a janela
+            if self.MinimizedTopBar then
+                self.MinimizedTopBar:Destroy()
+                self.MinimizedTopBar = nil
+            end
+            
+            -- Remover da lista de janelas minimizadas
+            for i, window in ipairs(self.Library.MinimizedWindows) do
+                if window == self then
+                    table.remove(self.Library.MinimizedWindows, i)
+                    break
+                end
+            end
+            
+            -- Mostrar a janela principal
+            self.MainFrame.BackgroundTransparency = 0.1
             Utilities.Tween(self.MainFrame, {
                 Size = self.OriginalSize
-            }, 0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
             
-            -- Volta para a posição original
+            -- Centralizar novamente
             Utilities.Tween(self.MainFrame, {
-                Position = self.OriginalPosition
-            }, 0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                Position = UDim2.new(0.5, 0, 0.5, 0)
+            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
             
-            -- Restaura o conteúdo
-            Utilities.Tween(self.TabContainer, {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -30, 0, 35)
-            }, 0.2, Enum.EasingStyle.Linear)
-            
-            Utilities.Tween(self.ContentContainer, {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -30, 1, -100)
-            }, 0.2, Enum.EasingStyle.Linear)
-            
-            self.MinimizeButton.Text = "▁"
+            self.MinimizeButton.Text = "-"
         end
     end
     
@@ -584,7 +844,7 @@ local AxiomXLib = (function()
     function Window:Center()
         Utilities.Tween(self.MainFrame, {
             Position = UDim2.new(0.5, 0, 0.5, 0)
-        }, 0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+        }, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     end
     
     function Window:AddTab(tabName, icon)
@@ -675,20 +935,20 @@ local AxiomXLib = (function()
         
         tab.Button.MouseEnter:Connect(function()
             if not tab.Active then
-                Utilities.Tween(tab.Button, {BackgroundTransparency = 0.6}, 0.2, Enum.EasingStyle.Linear)
-                Utilities.Tween(tab.TextLabel, {TextTransparency = 0}, 0.2, Enum.EasingStyle.Linear)
+                Utilities.Tween(tab.Button, {BackgroundTransparency = 0.6}, 0.2)
+                Utilities.Tween(tab.TextLabel, {TextTransparency = 0}, 0.2)
                 if tab.IconLabel then
-                    Utilities.Tween(tab.IconLabel, {ImageTransparency = 0}, 0.2, Enum.EasingStyle.Linear)
+                    Utilities.Tween(tab.IconLabel, {ImageTransparency = 0}, 0.2)
                 end
             end
         end)
         
         tab.Button.MouseLeave:Connect(function()
             if not tab.Active then
-                Utilities.Tween(tab.Button, {BackgroundTransparency = 0.8}, 0.2, Enum.EasingStyle.Linear)
-                Utilities.Tween(tab.TextLabel, {TextTransparency = 0.3}, 0.2, Enum.EasingStyle.Linear)
+                Utilities.Tween(tab.Button, {BackgroundTransparency = 0.8}, 0.2)
+                Utilities.Tween(tab.TextLabel, {TextTransparency = 0.3}, 0.2)
                 if tab.IconLabel then
-                    Utilities.Tween(tab.IconLabel, {ImageTransparency = 0.3}, 0.2, Enum.EasingStyle.Linear)
+                    Utilities.Tween(tab.IconLabel, {ImageTransparency = 0.3}, 0.2)
                 end
             end
         end)
@@ -711,10 +971,10 @@ local AxiomXLib = (function()
     function Window:SwitchTab(tab)
         if self.ActiveTab then
             self.ActiveTab.Active = false
-            Utilities.Tween(self.ActiveTab.Button, {BackgroundTransparency = 0.8}, 0.2, Enum.EasingStyle.Linear)
-            Utilities.Tween(self.ActiveTab.TextLabel, {TextTransparency = 0.3}, 0.2, Enum.EasingStyle.Linear)
+            Utilities.Tween(self.ActiveTab.Button, {BackgroundTransparency = 0.8}, 0.2)
+            Utilities.Tween(self.ActiveTab.TextLabel, {TextTransparency = 0.3}, 0.2)
             if self.ActiveTab.IconLabel then
-                Utilities.Tween(self.ActiveTab.IconLabel, {ImageTransparency = 0.3}, 0.2, Enum.EasingStyle.Linear)
+                Utilities.Tween(self.ActiveTab.IconLabel, {ImageTransparency = 0.3}, 0.2)
             end
             self.ActiveTab.Indicator.Visible = false
             self.ActiveTab.Content.Visible = false
@@ -723,10 +983,10 @@ local AxiomXLib = (function()
         self.ActiveTab = tab
         tab.Active = true
         
-        Utilities.Tween(tab.Button, {BackgroundTransparency = 0.4}, 0.2, Enum.EasingStyle.Linear)
-        Utilities.Tween(tab.TextLabel, {TextTransparency = 0}, 0.2, Enum.EasingStyle.Linear)
+        Utilities.Tween(tab.Button, {BackgroundTransparency = 0.4}, 0.2)
+        Utilities.Tween(tab.TextLabel, {TextTransparency = 0}, 0.2)
         if tab.IconLabel then
-            Utilities.Tween(tab.IconLabel, {ImageTransparency = 0}, 0.2, Enum.EasingStyle.Linear)
+            Utilities.Tween(tab.IconLabel, {ImageTransparency = 0}, 0.2)
         end
         tab.Indicator.Visible = true
         tab.Content.Visible = true
@@ -829,245 +1089,6 @@ local AxiomXLib = (function()
         return section
     end
     
-    -- Métodos para criar elementos da UI (Button, Toggle, Slider, etc.)
-    -- [Os métodos CreateButton, CreateToggle, CreateSlider, etc. permanecem como antes]
-    -- Por questão de espaço, vou mostrar apenas os métodos atualizados com animações lineares
-    
-    function Window:CreateButton(section, options)
-        local button = {
-            Type = "Button",
-            Text = options.Text or "Button",
-            Icon = options.Icon,
-            Tooltip = options.Tooltip,
-            Callback = options.Callback or function() end,
-            Debounce = Utilities.CreateDebounce(0.5)
-        }
-        
-        -- Container do botão
-        button.Container = Instance.new("Frame")
-        button.Container.Size = UDim2.new(1, 0, 0, 40)
-        button.Container.BackgroundTransparency = 1
-        button.Container.LayoutOrder = #section.Elements + 1
-        
-        -- Botão
-        button.Button = Instance.new("TextButton")
-        button.Button.Size = UDim2.new(1, 0, 1, 0)
-        button.Button.BackgroundColor3 = self.Theme.Secondary
-        button.Button.BackgroundTransparency = 0.8
-        button.Button.Text = ""
-        button.Button.AutoButtonColor = false
-        
-        local buttonCorner = Instance.new("UICorner")
-        buttonCorner.CornerRadius = UDim.new(0, 6)
-        buttonCorner.Parent = button.Button
-        
-        local buttonStroke = Instance.new("UIStroke")
-        buttonStroke.Color = self.Theme.Primary
-        buttonStroke.Thickness = 1
-        buttonStroke.Transparency = 0.5
-        buttonStroke.Parent = button.Button
-        
-        -- Container de conteúdo
-        local content = Instance.new("Frame")
-        content.Size = UDim2.new(1, -20, 1, 0)
-        content.Position = UDim2.new(0, 10, 0, 0)
-        content.BackgroundTransparency = 1
-        
-        -- Ícone (se fornecido)
-        if button.Icon then
-            button.IconLabel = Instance.new("ImageLabel")
-            button.IconLabel.Size = UDim2.new(0, 24, 0, 24)
-            button.IconLabel.Position = UDim2.new(0, 0, 0.5, -12)
-            button.IconLabel.BackgroundTransparency = 1
-            button.IconLabel.Image = button.Icon
-            button.IconLabel.ImageColor3 = self.Theme.Text
-            button.IconLabel.Parent = content
-        end
-        
-        -- Texto do botão
-        button.TextLabel = Instance.new("TextLabel")
-        button.TextLabel.Size = UDim2.new(1, button.Icon and -40 or -20, 1, 0)
-        button.TextLabel.Position = UDim2.new(0, button.Icon and 40 or 10, 0, 0)
-        button.TextLabel.BackgroundTransparency = 1
-        button.TextLabel.Text = button.Text
-        button.TextLabel.TextColor3 = self.Theme.Text
-        button.TextLabel.TextSize = 14
-        button.TextLabel.Font = Enum.Font.GothamSemibold
-        button.TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-        button.TextLabel.Parent = content
-        
-        -- Eventos do botão
-        button.Button.MouseButton1Click:Connect(function()
-            if button.Debounce() then
-                Utilities.CreateRippleEffect(button.Button, self.Theme.Accent)
-                
-                Utilities.Tween(button.Button, {
-                    Size = UDim2.new(0.95, 0, 0.9, 0)
-                }, 0.1, Enum.EasingStyle.Linear):Play()
-                
-                task.wait(0.1)
-                
-                Utilities.Tween(button.Button, {
-                    Size = UDim2.new(1, 0, 1, 0)
-                }, 0.1, Enum.EasingStyle.Linear):Play()
-                
-                task.spawn(button.Callback)
-            end
-        end)
-        
-        button.Button.MouseEnter:Connect(function()
-            Utilities.Tween(button.Button, {BackgroundTransparency = 0.6}, 0.2, Enum.EasingStyle.Linear)
-            Utilities.Tween(buttonStroke, {Transparency = 0.2}, 0.2, Enum.EasingStyle.Linear)
-        end)
-        
-        button.Button.MouseLeave:Connect(function()
-            Utilities.Tween(button.Button, {BackgroundTransparency = 0.8}, 0.2, Enum.EasingStyle.Linear)
-            Utilities.Tween(buttonStroke, {Transparency = 0.5}, 0.2, Enum.EasingStyle.Linear)
-        end)
-        
-        content.Parent = button.Button
-        button.Button.Parent = button.Container
-        button.Container.Parent = section.Container:FindFirstChildWhichIsA("Frame")
-        
-        table.insert(section.Elements, button)
-        
-        -- Métodos do botão
-        button.Update = function(newText, newIcon)
-            if newText then
-                button.Text = newText
-                button.TextLabel.Text = newText
-            end
-            if newIcon and button.IconLabel then
-                button.Icon = newIcon
-                button.IconLabel.Image = newIcon
-            end
-        end
-        
-        button.Destroy = function()
-            button.Container:Destroy()
-        end
-        
-        return button
-    end
-    
-    function Window:CreateToggle(section, options)
-        local toggle = {
-            Type = "Toggle",
-            Text = options.Text or "Toggle",
-            Default = options.Default or false,
-            Callback = options.Callback or function() end,
-            State = options.Default or false
-        }
-        
-        -- Container do toggle
-        toggle.Container = Instance.new("Frame")
-        toggle.Container.Size = UDim2.new(1, 0, 0, 30)
-        toggle.Container.BackgroundTransparency = 1
-        toggle.Container.LayoutOrder = #section.Elements + 1
-        
-        -- Texto
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Size = UDim2.new(0.7, 0, 1, 0)
-        textLabel.BackgroundTransparency = 1
-        textLabel.Text = toggle.Text
-        textLabel.TextColor3 = self.Theme.Text
-        textLabel.TextSize = 14
-        textLabel.Font = Enum.Font.GothamSemibold
-        textLabel.TextXAlignment = Enum.TextXAlignment.Left
-        textLabel.Parent = toggle.Container
-        
-        -- Toggle
-        toggle.ToggleFrame = Instance.new("Frame")
-        toggle.ToggleFrame.Size = UDim2.new(0, 50, 0, 25)
-        toggle.ToggleFrame.Position = UDim2.new(1, -50, 0.5, -12.5)
-        toggle.ToggleFrame.BackgroundColor3 = self.Theme.Secondary
-        toggle.ToggleFrame.BackgroundTransparency = 0.8
-        
-        local toggleCorner = Instance.new("UICorner")
-        toggleCorner.CornerRadius = UDim.new(1, 0)
-        toggleCorner.Parent = toggle.ToggleFrame
-        
-        -- Botão do toggle
-        toggle.ToggleButton = Instance.new("TextButton")
-        toggle.ToggleButton.Size = UDim2.new(0, 21, 0, 21)
-        toggle.ToggleButton.Position = UDim2.new(0, 2, 0.5, -10.5)
-        toggle.ToggleButton.BackgroundColor3 = self.Theme.Text
-        toggle.ToggleButton.BackgroundTransparency = 0.3
-        toggle.ToggleButton.Text = ""
-        
-        local buttonCorner = Instance.new("UICorner")
-        buttonCorner.CornerRadius = UDim.new(1, 0)
-        buttonCorner.Parent = toggle.ToggleButton
-        
-        -- Inicializar estado
-        if toggle.State then
-            toggle.ToggleButton.Position = UDim2.new(1, -23, 0.5, -10.5)
-            toggle.ToggleFrame.BackgroundColor3 = self.Theme.Primary
-        end
-        
-        -- Eventos
-        toggle.ToggleButton.MouseButton1Click:Connect(function()
-            toggle:SetState(not toggle.State)
-        end)
-        
-        toggle.ToggleFrame.MouseButton1Click:Connect(function()
-            toggle:SetState(not toggle.State)
-        end)
-        
-        toggle.ToggleButton.Parent = toggle.ToggleFrame
-        toggle.ToggleFrame.Parent = toggle.Container
-        toggle.Container.Parent = section.Container:FindFirstChildWhichIsA("Frame")
-        
-        table.insert(section.Elements, toggle)
-        
-        -- Métodos do toggle
-        toggle.SetState = function(state)
-            toggle.State = state
-            
-            if state then
-                Utilities.Tween(toggle.ToggleButton, {
-                    Position = UDim2.new(1, -23, 0.5, -10.5)
-                }, 0.2, Enum.EasingStyle.Linear):Play()
-                
-                Utilities.Tween(toggle.ToggleFrame, {
-                    BackgroundColor3 = self.Theme.Primary,
-                    BackgroundTransparency = 0.6
-                }, 0.2, Enum.EasingStyle.Linear):Play()
-            else
-                Utilities.Tween(toggle.ToggleButton, {
-                    Position = UDim2.new(0, 2, 0.5, -10.5)
-                }, 0.2, Enum.EasingStyle.Linear):Play()
-                
-                Utilities.Tween(toggle.ToggleFrame, {
-                    BackgroundColor3 = self.Theme.Secondary,
-                    BackgroundTransparency = 0.8
-                }, 0.2, Enum.EasingStyle.Linear):Play()
-            end
-            
-            toggle.Callback(state)
-        end
-        
-        toggle.GetState = function()
-            return toggle.State
-        end
-        
-        toggle.Update = function(newText)
-            if newText then
-                toggle.Text = newText
-                textLabel.Text = newText
-            end
-        end
-        
-        toggle.Destroy = function()
-            toggle.Container:Destroy()
-        end
-        
-        return toggle
-    end
-    
-    -- [Os outros métodos CreateSlider, CreateDropdown, etc. seguem o mesmo padrão]
-    -- Por questão de espaço, vou encurtar mostrando apenas o essencial
-    
     function Window:ApplyTheme(theme)
         self.Theme = theme
         
@@ -1109,6 +1130,10 @@ local AxiomXLib = (function()
     end
     
     function Window:Destroy()
+        if self.MinimizedTopBar then
+            self.MinimizedTopBar:Destroy()
+        end
+        
         if self.ScreenGui then
             self.ScreenGui:Destroy()
         end
@@ -1120,43 +1145,14 @@ local AxiomXLib = (function()
                 break
             end
         end
-    end
-    
-    -- Sistema Discord
-    local Discord = {}
-    Discord.__index = Discord
-    
-    function Discord.new(webhookUrl)
-        local self = setmetatable({}, Discord)
         
-        self.WebhookUrl = webhookUrl
-        self.Queue = {}
-        self.IsSending = false
-        self.RateLimit = 1
-        
-        return self
-    end
-    
-    -- Sistema de Keys
-    local KeySystem = {}
-    KeySystem.__index = KeySystem
-    
-    function KeySystem.new(config)
-        local self = setmetatable({}, KeySystem)
-        
-        self.Config = {
-            Key = config.Key or "",
-            ValidationUrl = config.ValidationUrl,
-            SaveKey = config.SaveKey or false,
-            OnValid = config.OnValid or function() end,
-            OnInvalid = config.OnInvalid or function() end,
-            HWID = tostring(math.random(100000, 999999))
-        }
-        
-        self.Validated = false
-        self.KeyWindow = nil
-        
-        return self
+        -- Remover da lista de janelas minimizadas
+        for i, window in ipairs(self.Library.MinimizedWindows) do
+            if window == self then
+                table.remove(self.Library.MinimizedWindows, i)
+                break
+            end
+        end
     end
     
     -- Interface principal
@@ -1173,14 +1169,22 @@ local AxiomXLib = (function()
             Roundness = config.Roundness or 12,
             Transparency = config.Transparency or 0.9,
             EnableSounds = config.EnableSounds or false,
-            PerformanceMode = config.PerformanceMode or false
+            PerformanceMode = config.PerformanceMode or false,
+            EnableKeybinds = config.EnableKeybinds ~= false -- Ativado por padrão
         }
         
         -- Tema atual
         self.CurrentTheme = self.Themes[self.Config.Theme] or self.Themes.Dark
         self.Windows = {}
         self.ActiveWindows = {}
+        self.MinimizedWindows = {}
+        self.MinimizedContainer = nil
         self.Utilities = Utilities
+        
+        -- Configurar keybinds se habilitado
+        if self.Config.EnableKeybinds then
+            self:SetupKeybinds()
+        end
         
         return self
     end
@@ -1249,19 +1253,21 @@ local AxiomXLib = (function()
         return self.Icons[iconName] or self.Icons.Info
     end
     
-    function Library:CreateDiscord(webhookUrl)
-        return Discord.new(webhookUrl)
-    end
-    
-    function Library:CreateKeySystem(config)
-        return KeySystem.new(config)
-    end
-    
     function Library:CloseAll()
         for _, window in ipairs(self.ActiveWindows) do
             window:Destroy()
         end
         self.ActiveWindows = {}
+        
+        if self.MinimizedContainer then
+            self.MinimizedContainer:Destroy()
+            self.MinimizedContainer = nil
+        end
+        
+        -- Desconectar keybinds
+        if self.Keybinds and self.Keybinds.MinimizeAll and self.Keybinds.MinimizeAll.Connection then
+            self.Keybinds.MinimizeAll.Connection:Disconnect()
+        end
     end
     
     -- Função para centralizar todas as janelas
@@ -1273,8 +1279,18 @@ local AxiomXLib = (function()
         end
     end
     
+    -- Função para restaurar todas as janelas minimizadas
+    function Library:RestoreAllMinimized()
+        for i = #self.MinimizedWindows, 1, -1 do
+            local window = self.MinimizedWindows[i]
+            if window.Minimized then
+                window:ToggleMinimize()
+            end
+        end
+    end
+    
     -- Função para minimizar todas as janelas
-    function Library:MinimizeAll()
+    function Library:MinimizeAllWindows()
         for _, window in ipairs(self.ActiveWindows) do
             if not window.Minimized then
                 window:ToggleMinimize()
@@ -1282,22 +1298,36 @@ local AxiomXLib = (function()
         end
     end
     
-    -- Função para restaurar todas as janelas
-    function Library:RestoreAll()
-        for _, window in ipairs(self.ActiveWindows) do
-            if window.Minimized then
-                window:ToggleMinimize()
-            end
-        end
+    -- Adicionar seção de keybinds na UI
+    function Library:CreateKeybindsWindow()
+        local window = self:CreateWindow({
+            Title = "🔑 Keybinds Configuration",
+            Size = UDim2.new(0, 450, 0, 300)
+        })
+        
+        local tab = window:AddTab("Keybinds", self:GetIcon("Keyboard"))
+        local section = tab:AddSection("Configure Keybinds")
+        
+        section:AddLabel("Current Keybinds:")
+        section:AddLabel("Control + Left: Minimize/Restore All Windows")
+        
+        local infoSection = tab:AddSection("Information")
+        infoSection:AddLabel("• Press Left Control and then Left Arrow key")
+        infoSection:AddLabel("• This will minimize all open windows")
+        infoSection:AddLabel("• Press again to restore all minimized windows")
+        infoSection:AddLabel("• Individual windows can be minimized with their own buttons")
+        
+        return window
     end
     
     function Library:GetExampleCode()
         return [[
--- Exemplo de uso da AxiomXLib com minimizar linear
+-- Exemplo de uso da AxiomXLib com keybinds
 local Library = AxiomXLib.new({
     Theme = "Matrix",
     Size = UDim2.new(0, 550, 0, 450),
-    Roundness = 16
+    Roundness = 16,
+    EnableKeybinds = true -- Ativar keybinds
 })
 
 -- Criar janela (será automaticamente centralizada)
@@ -1311,16 +1341,16 @@ local MainTab = Window:AddTab("Main", Library:GetIcon("Home"))
 -- Adicionar seção
 local ActionsSection = MainTab:AddSection("Actions")
 
--- Botão com animação linear
+-- Botão para testar minimizar
 ActionsSection:AddButton({
-    Text = "Click Me",
-    Icon = Library:GetIcon("Star"),
+    Text = "Minimize Window",
+    Icon = Library:GetIcon("Minimize"),
     Callback = function()
-        print("Button clicked!")
+        Window:ToggleMinimize()
     end
 })
 
--- Toggle com animação linear
+-- Toggle
 ActionsSection:AddToggle({
     Text = "Enable Feature",
     Default = true,
@@ -1329,15 +1359,114 @@ ActionsSection:AddToggle({
     end
 })
 
--- Minimizar todas as janelas
-Library:MinimizeAll()
+-- Slider
+ActionsSection:AddSlider({
+    Text = "Volume",
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Callback = function(value)
+        print("Volume:", value)
+    end
+})
 
--- Restaurar todas as janelas
-Library:RestoreAll()
+-- Keybind personalizado
+ActionsSection:AddKeybind({
+    Text = "Custom Keybind",
+    Default = Enum.KeyCode.RightControl,
+    Callback = function()
+        print("Custom keybind pressed!")
+    end
+})
+
+-- Para usar o keybind global (Control+Left):
+-- 1. Pressione e segure Left Control
+-- 2. Pressione Left Arrow (seta para esquerda)
+-- 3. Todas as janelas serão minimizadas/restauradas
+
+-- Para criar uma janela de configuração de keybinds:
+-- local KeybindsWindow = Library:CreateKeybindsWindow()
 ]]
     end
     
     return Library
 end)()
+
+-- Carregar a biblioteca
+-- Nota: Se estiver usando loadstring, este é o código completo para carregar
+
+-- Exemplo de uso COM KEYBIND Control+Left:
+local function exemploComKeybind()
+    -- Inicializar - janelas serão centralizadas automaticamente
+    local Library = AxiomXLib.new({
+        Theme = "Matrix",
+        Size = UDim2.new(0, 500, 0, 400), -- Tamanho da janela
+        EnableKeybinds = true -- Keybinds habilitados por padrão
+    })
+    
+    -- Criar janela (será automaticamente centralizada na tela)
+    local Window = Library:CreateWindow({
+        Title = "AxiomX Interface"
+        -- Não precisa especificar Position, será centralizado automaticamente!
+    })
+    
+    -- Adicionar aba
+    local Tab = Window:AddTab("Main", Library:GetIcon("Home"))
+    
+    -- Adicionar seção
+    local Section = Tab:AddSection("Controls")
+    
+    -- Adicionar elementos
+    Section:AddButton({
+        Text = "Test Button",
+        Icon = Library:GetIcon("Star"),
+        Callback = function()
+            print("Hello from AxiomXLib!")
+        end
+    })
+    
+    -- Adicionar informações sobre o keybind
+    local KeybindSection = Tab:AddSection("Keybinds Info")
+    
+    KeybindSection:AddLabel("Global Keybind: Control + Left")
+    KeybindSection:AddLabel("Minimize/Restore All Windows")
+    KeybindSection:AddButton({
+        Text = "Test Keybind Now",
+        Icon = Library:GetIcon("Keyboard"),
+        Callback = function()
+            print("Pressione Control+Left para minimizar/restaurar todas as janelas!")
+            print("Funcionalidades:")
+            print("• Control+Left: Minimiza/Restaura todas as janelas")
+            print("• Top Bar: Janelas minimizadas aparecem como barras no canto")
+            print("• Clique em '↗' na Top Bar para restaurar individualmente")
+        end
+    })
+    
+    -- Centralizar manualmente se necessário
+    Window:Center()
+    
+    -- Centralizar todas as janelas abertas
+    Library:CenterAllWindows()
+    
+    -- Criar uma segunda janela para demonstrar o keybind
+    task.wait(1)
+    local SecondWindow = Library:CreateWindow({
+        Title = "Segunda Janela",
+        Size = UDim2.new(0, 400, 0, 300)
+    })
+    
+    local SecondTab = SecondWindow:AddTab("Info", Library:GetIcon("Info"))
+    local InfoSection = SecondTab:AddSection("Informações")
+    
+    InfoSection:AddLabel("Teste o keybind Control+Left!")
+    InfoSection:AddLabel("Ambas as janelas serão minimizadas.")
+    InfoSection:AddLabel("Pressione novamente para restaurar.")
+    
+    -- Retornar a biblioteca para uso externo
+    return Library
+end
+
+-- Executar o exemplo (opcional)
+-- exemploComKeybind()
 
 return AxiomXLib
