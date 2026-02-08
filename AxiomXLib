@@ -1,13 +1,17 @@
 --[[
-    AxiomXLib v1.4.0 - Com Touch Drag e Keybind Control+Left
-    Biblioteca completa de UI para Roblox com centralização automática
-    Keybind: Control + Left para minimizar/desminimizar janelas
-    Touch: Arrastar top bar com toque
+    AxiomXLib v1.5.0 - Biblioteca UI para Roblox
+    Features:
+    - Top bar aumentada (60 pixels)
+    - Suporte a touch drag
+    - Centralização automática
+    - Keybind Control+Left para minimizar/restaurar
+    - Temas personalizáveis
+    - Touch support completo
     
-    Para usar: copiar todo este código e executar com loadstring()
-    
-    Exemplo de uso:
+    Uso:
     local AxiomXLib = loadstring(game:HttpGet("URL"))()
+    local Library = AxiomXLib.new({Theme = "Matrix"})
+    local Window = Library:CreateWindow({Title = "Minha Interface"})
 --]]
 
 local AxiomXLib = (function()
@@ -23,7 +27,7 @@ local AxiomXLib = (function()
     
     -- Biblioteca principal
     local Library = {
-        Version = "1.4.0",
+        Version = "1.5.0",
         Windows = {},
         ActiveWindows = {},
         MinimizedWindows = {},
@@ -393,9 +397,9 @@ local AxiomXLib = (function()
         shadow.ZIndex = -1
         shadow.Parent = self.MainFrame
         
-        -- Barra de título (AUMENTADA para 50 pixels)
+        -- Barra de título (AUMENTADA para 60 pixels)
         self.TitleBar = Instance.new("Frame")
-        self.TitleBar.Size = UDim2.new(1, 0, 0, 50)  -- Aumentada de 40 para 50
+        self.TitleBar.Size = UDim2.new(1, 0, 0, 60)  -- Aumentada para 60 pixels
         self.TitleBar.BackgroundColor3 = self.Theme.Secondary
         self.TitleBar.BackgroundTransparency = 0.2
         
@@ -412,26 +416,27 @@ local AxiomXLib = (function()
         titleGradient.Transparency = NumberSequence.new(0.8)
         titleGradient.Parent = self.TitleBar
         
-        -- Título
+        -- Título (aumentado e centralizado verticalmente)
         self.TitleLabel = Instance.new("TextLabel")
         self.TitleLabel.Size = UDim2.new(0.7, 0, 1, 0)
         self.TitleLabel.Position = UDim2.new(0, 15, 0, 0)
         self.TitleLabel.BackgroundTransparency = 1
         self.TitleLabel.Text = self.Title
         self.TitleLabel.TextColor3 = self.Theme.Text
-        self.TitleLabel.TextSize = 20  -- Aumentado para combinar com a barra maior
+        self.TitleLabel.TextSize = 24  -- Aumentado para 24
         self.TitleLabel.Font = Enum.Font.GothamBold
         self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        self.TitleLabel.TextYAlignment = Enum.TextYAlignment.Center  -- Centralizado verticalmente
         self.TitleLabel.TextTransparency = 0
         self.TitleLabel.Parent = self.TitleBar
         
-        -- Botões de controle
+        -- Botões de controle (aumentados)
         self:CreateControlButtons()
         
         -- Container de abas (ajustado para começar após a barra de título maior)
         self.TabContainer = Instance.new("Frame")
-        self.TabContainer.Size = UDim2.new(1, -30, 0, 35)
-        self.TabContainer.Position = UDim2.new(0, 15, 0, 60)  -- Ajustado de 50 para 60
+        self.TabContainer.Size = UDim2.new(1, -30, 0, 40)  -- Aumentado para 40
+        self.TabContainer.Position = UDim2.new(0, 15, 0, 70)  -- Ajustado de 60 para 70
         self.TabContainer.BackgroundTransparency = 1
         
         local tabListLayout = Instance.new("UIListLayout")
@@ -442,8 +447,8 @@ local AxiomXLib = (function()
         
         -- Container de conteúdo (ajustado para começar após a barra de título maior)
         self.ContentContainer = Instance.new("Frame")
-        self.ContentContainer.Size = UDim2.new(1, -30, 1, -110)  -- Ajustado de -100 para -110
-        self.ContentContainer.Position = UDim2.new(0, 15, 0, 100)  -- Ajustado de 90 para 100
+        self.ContentContainer.Size = UDim2.new(1, -30, 1, -120)  -- Ajustado de -110 para -120
+        self.ContentContainer.Position = UDim2.new(0, 15, 0, 120)  -- Ajustado de 100 para 120
         self.ContentContainer.BackgroundTransparency = 1
         self.ContentContainer.ClipsDescendants = true
         
@@ -512,11 +517,11 @@ local AxiomXLib = (function()
             self.MinimizedTopBar:Destroy()
         end
         
-        -- Criar top bar para janela minimizada (também aumentada para 50 pixels)
+        -- Criar top bar para janela minimizada (também aumentada para 60 pixels)
         self.MinimizedTopBar = Instance.new("Frame")
         self.MinimizedTopBar.Name = "MinimizedTopBar"
-        self.MinimizedTopBar.Size = UDim2.new(0, 250, 0, 50)  -- Aumentada de 40 para 50
-        self.MinimizedTopBar.Position = UDim2.new(1, -260, 0, 10)
+        self.MinimizedTopBar.Size = UDim2.new(0, 280, 0, 60)  -- Aumentada para 60
+        self.MinimizedTopBar.Position = UDim2.new(1, -290, 0, 10)
         self.MinimizedTopBar.BackgroundColor3 = self.Theme.Secondary
         self.MinimizedTopBar.BackgroundTransparency = 0.1
         self.MinimizedTopBar.AnchorPoint = Vector2.new(1, 0)
@@ -560,8 +565,8 @@ local AxiomXLib = (function()
         
         -- Ícone de janela minimizada
         local icon = Instance.new("ImageLabel")
-        icon.Size = UDim2.new(0, 24, 0, 24)  -- Aumentado de 20 para 24
-        icon.Position = UDim2.new(0, 10, 0.5, -12)  -- Ajustado para centralizar verticalmente
+        icon.Size = UDim2.new(0, 30, 0, 30)  -- Aumentado para 30
+        icon.Position = UDim2.new(0, 15, 0.5, -15)  -- Ajustado para centralizar verticalmente
         icon.BackgroundTransparency = 1
         icon.Image = Library.Icons.Minimize
         icon.ImageColor3 = self.Theme.Text
@@ -569,26 +574,27 @@ local AxiomXLib = (function()
         
         -- Título na top bar
         local title = Instance.new("TextLabel")
-        title.Size = UDim2.new(0, 150, 1, 0)
-        title.Position = UDim2.new(0, 40, 0, 0)  -- Ajustado de 35 para 40
+        title.Size = UDim2.new(0, 160, 1, 0)
+        title.Position = UDim2.new(0, 55, 0, 0)  -- Ajustado de 40 para 55
         title.BackgroundTransparency = 1
         title.Text = self.Title
         title.TextColor3 = self.Theme.Text
-        title.TextSize = 16  -- Aumentado de 14 para 16
+        title.TextSize = 18  -- Aumentado para 18
         title.Font = Enum.Font.GothamSemibold
         title.TextXAlignment = Enum.TextXAlignment.Left
+        title.TextYAlignment = Enum.TextYAlignment.Center  -- Centralizado verticalmente
         title.TextTruncate = Enum.TextTruncate.AtEnd
         title.Parent = self.MinimizedTopBar
         
         -- Botão para restaurar
         local restoreBtn = Instance.new("TextButton")
-        restoreBtn.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
-        restoreBtn.Position = UDim2.new(1, -40, 0.5, -17.5)  -- Ajustado para centralizar verticalmente
+        restoreBtn.Size = UDim2.new(0, 40, 0, 40)  -- Aumentado para 40
+        restoreBtn.Position = UDim2.new(1, -50, 0.5, -20)  -- Ajustado para centralizar verticalmente
         restoreBtn.BackgroundColor3 = self.Theme.Primary
         restoreBtn.BackgroundTransparency = 0.8
         restoreBtn.Text = "↗"
         restoreBtn.TextColor3 = self.Theme.Text
-        restoreBtn.TextSize = 18  -- Aumentado de 16 para 18
+        restoreBtn.TextSize = 22  -- Aumentado para 22
         restoreBtn.Font = Enum.Font.GothamBold
         
         -- Habilitar toque no botão
@@ -605,9 +611,22 @@ local AxiomXLib = (function()
         end)
         
         -- Suporte a toque para o botão
-        restoreBtn.TouchTap:Connect(function()
-            Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
-            self:ToggleMinimize()
+        local touchTapConnection
+        restoreBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                touchTapConnection = input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
+                        self:ToggleMinimize()
+                    end
+                end)
+            end
+        end)
+        
+        restoreBtn.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch and touchTapConnection then
+                touchTapConnection:Disconnect()
+            end
         end)
         
         restoreBtn.MouseEnter:Connect(function()
@@ -622,13 +641,13 @@ local AxiomXLib = (function()
         
         -- Botão para fechar da top bar
         local closeBtn = Instance.new("TextButton")
-        closeBtn.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
-        closeBtn.Position = UDim2.new(1, -5, 0.5, -17.5)  -- Ajustado para centralizar verticalmente
+        closeBtn.Size = UDim2.new(0, 40, 0, 40)  -- Aumentado para 40
+        closeBtn.Position = UDim2.new(1, -10, 0.5, -20)  -- Ajustado para centralizar verticalmente
         closeBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
         closeBtn.BackgroundTransparency = 0.8
         closeBtn.Text = "×"
         closeBtn.TextColor3 = self.Theme.Text
-        closeBtn.TextSize = 20  -- Aumentado de 18 para 20
+        closeBtn.TextSize = 24  -- Aumentado para 24
         closeBtn.Font = Enum.Font.GothamBold
         
         -- Habilitar toque no botão
@@ -645,9 +664,22 @@ local AxiomXLib = (function()
         end)
         
         -- Suporte a toque para o botão
-        closeBtn.TouchTap:Connect(function()
-            Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
-            self:Destroy()
+        local closeTouchConnection
+        closeBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                closeTouchConnection = input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
+                        self:Destroy()
+                    end
+                end)
+            end
+        end)
+        
+        closeBtn.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch and closeTouchConnection then
+                closeTouchConnection:Disconnect()
+            end
         end)
         
         closeBtn.MouseEnter:Connect(function()
@@ -669,6 +701,9 @@ local AxiomXLib = (function()
     
     function Window:SetupTopBarDrag()
         -- Suporte a mouse e toque
+        local dragConnection
+        local inputChangedConnection
+        
         self.MinimizedTopBar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or 
                input.UserInputType == Enum.UserInputType.Touch then
@@ -679,7 +714,7 @@ local AxiomXLib = (function()
                 
                 Utilities.Tween(self.MinimizedTopBar, {
                     BackgroundTransparency = 0.05,
-                    Size = UDim2.new(0, 260, 0, 50)  -- Ajustado para manter 50
+                    Size = UDim2.new(0, 290, 0, 60)  -- Ajustado para 60
                 }, 0.1)
                 
                 -- Efeito visual de seleção
@@ -688,48 +723,57 @@ local AxiomXLib = (function()
                     Transparency = 0.1
                 }, 0.1)
                 
-                input.Changed:Connect(function()
+                -- Conexão para soltar
+                dragConnection = input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
                         self.TopBarDragging = false
                         
                         Utilities.Tween(self.MinimizedTopBar, {
                             BackgroundTransparency = 0.1,
-                            Size = UDim2.new(0, 250, 0, 50)  -- Ajustado para manter 50
+                            Size = UDim2.new(0, 280, 0, 60)  -- Ajustado para 60
                         }, 0.1)
                         
                         Utilities.Tween(self.MinimizedTopBar.UIStroke, {
                             Thickness = 1,
                             Transparency = 0.3
                         }, 0.1)
+                        
+                        if dragConnection then
+                            dragConnection:Disconnect()
+                        end
+                        if inputChangedConnection then
+                            inputChangedConnection:Disconnect()
+                        end
                     end
                 end)
-            end
-        end)
-        
-        UserInputService.InputChanged:Connect(function(input)
-            if self.TopBarDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
-               input.UserInputType == Enum.UserInputType.Touch) then
                 
-                local delta = input.Position - self.TopBarDragStart
-                local newPos = UDim2.new(
-                    self.TopBarStartPos.X.Scale, 
-                    self.TopBarStartPos.X.Offset + delta.X,
-                    self.TopBarStartPos.Y.Scale, 
-                    self.TopBarStartPos.Y.Offset + delta.Y
-                )
-                
-                -- Limitar ao espaço da tela
-                local viewportSize = workspace.CurrentCamera.ViewportSize
-                local barSize = self.MinimizedTopBar.AbsoluteSize
-                
-                newPos = UDim2.new(
-                    newPos.X.Scale,
-                    math.clamp(newPos.X.Offset, barSize.X, viewportSize.X),
-                    newPos.Y.Scale,
-                    math.clamp(newPos.Y.Offset, 0, viewportSize.Y - barSize.Y)
-                )
-                
-                self.MinimizedTopBar.Position = newPos
+                -- Conexão para arrastar
+                inputChangedConnection = UserInputService.InputChanged:Connect(function(moveInput)
+                    if self.TopBarDragging and (moveInput.UserInputType == Enum.UserInputType.MouseMovement or 
+                       moveInput.UserInputType == Enum.UserInputType.Touch) then
+                        
+                        local delta = moveInput.Position - self.TopBarDragStart
+                        local newPos = UDim2.new(
+                            self.TopBarStartPos.X.Scale, 
+                            self.TopBarStartPos.X.Offset + delta.X,
+                            self.TopBarStartPos.Y.Scale, 
+                            self.TopBarStartPos.Y.Offset + delta.Y
+                        )
+                        
+                        -- Limitar ao espaço da tela
+                        local viewportSize = workspace.CurrentCamera.ViewportSize
+                        local barSize = self.MinimizedTopBar.AbsoluteSize
+                        
+                        newPos = UDim2.new(
+                            newPos.X.Scale,
+                            math.clamp(newPos.X.Offset, barSize.X, viewportSize.X),
+                            newPos.Y.Scale,
+                            math.clamp(newPos.Y.Offset, 0, viewportSize.Y - barSize.Y)
+                        )
+                        
+                        self.MinimizedTopBar.Position = newPos
+                    end
+                end)
             end
         end)
     end
@@ -757,12 +801,12 @@ local AxiomXLib = (function()
         
         -- Botão minimizar
         self.MinimizeButton = Instance.new("TextButton")
-        self.MinimizeButton.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
+        self.MinimizeButton.Size = UDim2.new(0, 40, 0, 40)  -- Aumentado para 40
         self.MinimizeButton.BackgroundColor3 = self.Theme.Primary
         self.MinimizeButton.BackgroundTransparency = 0.8
         self.MinimizeButton.Text = "-"
         self.MinimizeButton.TextColor3 = self.Theme.Text
-        self.MinimizeButton.TextSize = 22  -- Aumentado de 20 para 22
+        self.MinimizeButton.TextSize = 28  -- Aumentado para 28
         self.MinimizeButton.Font = Enum.Font.GothamBold
         self.MinimizeButton.LayoutOrder = 1
         
@@ -775,6 +819,25 @@ local AxiomXLib = (function()
             self:ToggleMinimize()
         end)
         
+        -- Suporte a toque
+        local minimizeTouchConnection
+        self.MinimizeButton.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                minimizeTouchConnection = input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        Utilities.CreateRippleEffect(self.MinimizeButton, self.Theme.Accent)
+                        self:ToggleMinimize()
+                    end
+                end)
+            end
+        end)
+        
+        self.MinimizeButton.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch and minimizeTouchConnection then
+                minimizeTouchConnection:Disconnect()
+            end
+        end)
+        
         self.MinimizeButton.MouseEnter:Connect(function()
             Utilities.Tween(self.MinimizeButton, {BackgroundTransparency = 0.6}, 0.2)
         end)
@@ -785,12 +848,12 @@ local AxiomXLib = (function()
         
         -- Botão fechar
         self.CloseButton = Instance.new("TextButton")
-        self.CloseButton.Size = UDim2.new(0, 35, 0, 35)  -- Aumentado de 30 para 35
+        self.CloseButton.Size = UDim2.new(0, 40, 0, 40)  -- Aumentado para 40
         self.CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
         self.CloseButton.BackgroundTransparency = 0.8
         self.CloseButton.Text = "×"
         self.CloseButton.TextColor3 = self.Theme.Text
-        self.CloseButton.TextSize = 22  -- Aumentado de 20 para 22
+        self.CloseButton.TextSize = 28  -- Aumentado para 28
         self.CloseButton.Font = Enum.Font.GothamBold
         self.CloseButton.LayoutOrder = 2
         
@@ -801,6 +864,25 @@ local AxiomXLib = (function()
         self.CloseButton.MouseButton1Click:Connect(function()
             Utilities.CreateRippleEffect(self.CloseButton, Color3.fromRGB(255, 100, 100))
             self:Destroy()
+        end)
+        
+        -- Suporte a toque
+        local closeTouchConnection
+        self.CloseButton.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                closeTouchConnection = input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        Utilities.CreateRippleEffect(self.CloseButton, Color3.fromRGB(255, 100, 100))
+                        self:Destroy()
+                    end
+                end)
+            end
+        end)
+        
+        self.CloseButton.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch and closeTouchConnection then
+                closeTouchConnection:Disconnect()
+            end
         end)
         
         self.CloseButton.MouseEnter:Connect(function()
@@ -818,6 +900,9 @@ local AxiomXLib = (function()
     
     function Window:SetupDrag()
         -- Suporte a mouse e toque
+        local dragConnection
+        local inputChangedConnection
+        
         self.TitleBar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or 
                input.UserInputType == Enum.UserInputType.Touch then
@@ -831,7 +916,8 @@ local AxiomXLib = (function()
                                    self.MainFrame.Size.Y.Scale, self.MainFrame.Size.Y.Offset * 1.02)
                 }, 0.1)
                 
-                input.Changed:Connect(function()
+                -- Conexão para soltar
+                dragConnection = input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
                         self.Dragging = false
                         
@@ -839,21 +925,29 @@ local AxiomXLib = (function()
                             BackgroundTransparency = 0.1,
                             Size = self.Size
                         }, 0.1)
+                        
+                        if dragConnection then
+                            dragConnection:Disconnect()
+                        end
+                        if inputChangedConnection then
+                            inputChangedConnection:Disconnect()
+                        end
                     end
                 end)
-            end
-        end)
-        
-        UserInputService.InputChanged:Connect(function(input)
-            if self.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
-               input.UserInputType == Enum.UserInputType.Touch) then
-                local delta = input.Position - self.DragStart
-                self.MainFrame.Position = UDim2.new(
-                    self.StartPos.X.Scale, 
-                    self.StartPos.X.Offset + delta.X,
-                    self.StartPos.Y.Scale, 
-                    self.StartPos.Y.Offset + delta.Y
-                )
+                
+                -- Conexão para arrastar
+                inputChangedConnection = UserInputService.InputChanged:Connect(function(moveInput)
+                    if self.Dragging and (moveInput.UserInputType == Enum.UserInputType.MouseMovement or 
+                       moveInput.UserInputType == Enum.UserInputType.Touch) then
+                        local delta = moveInput.Position - self.DragStart
+                        self.MainFrame.Position = UDim2.new(
+                            self.StartPos.X.Scale, 
+                            self.StartPos.X.Offset + delta.X,
+                            self.StartPos.Y.Scale, 
+                            self.StartPos.Y.Offset + delta.Y
+                        )
+                    end
+                end)
             end
         end)
     end
@@ -928,7 +1022,7 @@ local AxiomXLib = (function()
         
         -- Botão da aba
         tab.Button = Instance.new("TextButton")
-        tab.Button.Size = UDim2.new(0, 100, 1, 0)
+        tab.Button.Size = UDim2.new(0, 120, 1, 0)  -- Aumentado para 120
         tab.Button.BackgroundColor3 = self.Theme.Secondary
         tab.Button.BackgroundTransparency = 0.8
         tab.Button.Text = ""
@@ -963,8 +1057,8 @@ local AxiomXLib = (function()
         -- Ícone (se fornecido)
         if icon then
             tab.IconLabel = Instance.new("ImageLabel")
-            tab.IconLabel.Size = UDim2.new(0, 20, 0, 20)
-            tab.IconLabel.Position = UDim2.new(0, 5, 0.5, -10)
+            tab.IconLabel.Size = UDim2.new(0, 24, 0, 24)  -- Aumentado para 24
+            tab.IconLabel.Position = UDim2.new(0, 10, 0.5, -12)
             tab.IconLabel.BackgroundTransparency = 1
             tab.IconLabel.Image = icon
             tab.IconLabel.ImageColor3 = self.Theme.Text
@@ -974,21 +1068,22 @@ local AxiomXLib = (function()
         
         -- Texto da aba
         tab.TextLabel = Instance.new("TextLabel")
-        tab.TextLabel.Size = UDim2.new(1, icon and -35 or -15, 1, 0)
-        tab.TextLabel.Position = UDim2.new(0, icon and 30 or 10, 0, 0)
+        tab.TextLabel.Size = UDim2.new(1, icon and -40 or -15, 1, 0)
+        tab.TextLabel.Position = UDim2.new(0, icon and 40 or 10, 0, 0)
         tab.TextLabel.BackgroundTransparency = 1
         tab.TextLabel.Text = tabName
         tab.TextLabel.TextColor3 = self.Theme.Text
-        tab.TextLabel.TextSize = 14
+        tab.TextLabel.TextSize = 16  -- Aumentado para 16
         tab.TextLabel.Font = Enum.Font.GothamSemibold
         tab.TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+        tab.TextLabel.TextYAlignment = Enum.TextYAlignment.Center  -- Centralizado verticalmente
         tab.TextLabel.TextTransparency = 0.3
         tab.TextLabel.Parent = buttonContent
         
         -- Indicador de aba ativa
         tab.Indicator = Instance.new("Frame")
-        tab.Indicator.Size = UDim2.new(0, 3, 0.6, 0)
-        tab.Indicator.Position = UDim2.new(0, -5, 0.2, 0)
+        tab.Indicator.Size = UDim2.new(0, 4, 0.6, 0)  -- Aumentado para 4
+        tab.Indicator.Position = UDim2.new(0, -6, 0.2, 0)
         tab.Indicator.BackgroundColor3 = self.Theme.Primary
         tab.Indicator.BackgroundTransparency = 0.7
         tab.Indicator.Visible = false
@@ -1000,6 +1095,24 @@ local AxiomXLib = (function()
         -- Eventos do botão
         tab.Button.MouseButton1Click:Connect(function()
             self:SwitchTab(tab)
+        end)
+        
+        -- Suporte a toque
+        local tabTouchConnection
+        tab.Button.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                tabTouchConnection = input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        self:SwitchTab(tab)
+                    end
+                end)
+            end
+        end)
+        
+        tab.Button.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch and tabTouchConnection then
+                tabTouchConnection:Disconnect()
+            end
         end)
         
         tab.Button.MouseEnter:Connect(function()
@@ -1026,6 +1139,11 @@ local AxiomXLib = (function()
         tab.Indicator.Parent = tab.Button
         tab.Button.Parent = self.TabContainer
         tab.Content.Parent = self.ContentContainer
+        
+        -- Adicionar método AddSection à tab
+        function tab:AddSection(sectionName)
+            return Window.AddSection(self, sectionName)
+        end
         
         table.insert(self.Tabs, tab)
         
@@ -1085,7 +1203,7 @@ local AxiomXLib = (function()
         headerText.BackgroundTransparency = 1
         headerText.Text = string.upper(sectionName)
         headerText.TextColor3 = self.Theme.Text
-        headerText.TextSize = 12
+        headerText.TextSize = 14  -- Aumentado para 14
         headerText.Font = Enum.Font.GothamBold
         headerText.TextXAlignment = Enum.TextXAlignment.Left
         headerText.TextTransparency = 0.5
@@ -1093,8 +1211,8 @@ local AxiomXLib = (function()
         
         -- Linha divisória
         local divider = Instance.new("Frame")
-        divider.Size = UDim2.new(1, 0, 0, 1)
-        divider.Position = UDim2.new(0, 0, 1, -1)
+        divider.Size = UDim2.new(1, 0, 0, 2)  -- Aumentado para 2
+        divider.Position = UDim2.new(0, 0, 1, -2)
         divider.BackgroundColor3 = self.Theme.Primary
         divider.BackgroundTransparency = 0.8
         divider.Parent = header
@@ -1156,6 +1274,113 @@ local AxiomXLib = (function()
         end
         
         return section
+    end
+    
+    -- Método para criar botão (simplificado para exemplo)
+    function Window:CreateButton(section, options)
+        options = options or {}
+        
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, 0, 0, 40)
+        button.BackgroundColor3 = self.Theme.Primary
+        button.BackgroundTransparency = 0.7
+        button.Text = options.Text or "Button"
+        button.TextColor3 = self.Theme.Text
+        button.TextSize = 16
+        button.Font = Enum.Font.GothamSemibold
+        
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 6)
+        corner.Parent = button
+        
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = self.Theme.Accent
+        stroke.Thickness = 1
+        stroke.Transparency = 0.5
+        stroke.Parent = button
+        
+        -- Efeito hover
+        button.MouseEnter:Connect(function()
+            Utilities.Tween(button, {BackgroundTransparency = 0.5}, 0.2)
+        end)
+        
+        button.MouseLeave:Connect(function()
+            Utilities.Tween(button, {BackgroundTransparency = 0.7}, 0.2)
+        end)
+        
+        -- Suporte a toque
+        local touchConnection
+        button.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                touchConnection = input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        if options.Callback then
+                            options.Callback()
+                        end
+                        Utilities.CreateRippleEffect(button, self.Theme.Accent)
+                    end
+                end)
+            end
+        end)
+        
+        button.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch and touchConnection then
+                touchConnection:Disconnect()
+            end
+        end)
+        
+        -- Clique com mouse
+        button.MouseButton1Click:Connect(function()
+            if options.Callback then
+                options.Callback()
+            end
+            Utilities.CreateRippleEffect(button, self.Theme.Accent)
+        end)
+        
+        button.Parent = section.Container:FindFirstChild("ElementsContainer") or section.Container
+        
+        table.insert(section.Elements, button)
+        
+        return button
+    end
+    
+    -- Métodos placeholder para outros elementos (pode expandir depois)
+    function Window:CreateToggle(section, options)
+        local toggle = Instance.new("TextButton")
+        toggle.Size = UDim2.new(1, 0, 0, 40)
+        toggle.BackgroundColor3 = self.Theme.Secondary
+        toggle.BackgroundTransparency = 0.8
+        toggle.Text = options.Text or "Toggle"
+        toggle.TextColor3 = self.Theme.Text
+        toggle.TextSize = 16
+        toggle.Font = Enum.Font.GothamSemibold
+        
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 6)
+        corner.Parent = toggle
+        
+        toggle.Parent = section.Container:FindFirstChild("ElementsContainer") or section.Container
+        
+        table.insert(section.Elements, toggle)
+        
+        return toggle
+    end
+    
+    function Window:CreateLabel(section, options)
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 0, 30)
+        label.BackgroundTransparency = 1
+        label.Text = options.Text or "Label"
+        label.TextColor3 = self.Theme.Text
+        label.TextSize = 14
+        label.Font = Enum.Font.Gotham
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        
+        label.Parent = section.Container:FindFirstChild("ElementsContainer") or section.Container
+        
+        table.insert(section.Elements, label)
+        
+        return label
     end
     
     function Window:ApplyTheme(theme)
@@ -1392,84 +1617,5 @@ local AxiomXLib = (function()
     
     return Library
 end)()
-
--- Carregar a biblioteca
--- Nota: Se estiver usando loadstring, este é o código completo para carregar
-
--- Exemplo de uso COM KEYBIND Control+Left e TOUCH:
-local function exemploComKeybindETouch()
-    -- Inicializar - janelas serão centralizadas automaticamente
-    local Library = AxiomXLib.new({
-        Theme = "Matrix",
-        Size = UDim2.new(0, 500, 0, 400), -- Tamanho da janela
-        EnableKeybinds = true, -- Keybinds habilitados por padrão
-        EnableTouch = true -- Touch habilitado por padrão
-    })
-    
-    -- Criar janela (será automaticamente centralizada na tela)
-    local Window = Library:CreateWindow({
-        Title = "AxiomX Interface"
-        -- Não precisa especificar Position, será centralizado automaticamente!
-    })
-    
-    -- Adicionar aba
-    local Tab = Window:AddTab("Main", Library:GetIcon("Home"))
-    
-    -- Adicionar seção
-    local Section = Tab:AddSection("Controls")
-    
-    -- Adicionar elementos
-    Section:AddButton({
-        Text = "Test Button",
-        Icon = Library:GetIcon("Star"),
-        Callback = function()
-            print("Hello from AxiomXLib!")
-        end
-    })
-    
-    -- Adicionar informações sobre o keybind
-    local KeybindSection = Tab:AddSection("Keybinds Info")
-    
-    KeybindSection:AddLabel("Global Keybind: Control (Left) + Left")
-    KeybindSection:AddLabel("Minimize/Restore All Windows")
-    KeybindSection:AddButton({
-        Text = "Test Keybind Now",
-        Icon = Library:GetIcon("Keyboard"),
-        Callback = function()
-            print("Pressione Control+Left para minimizar/restaurar todas as janelas!")
-            print("Funcionalidades:")
-            print("• Control+Left: Minimiza/Restaura todas as janelas")
-            print("• Touch: Arraste top bars com toque")
-            print("• Touch: Clique em botões com toque")
-            print("• Top Bar: Janelas minimizadas aparecem como barras no canto")
-        end
-    })
-    
-    -- Centralizar manualmente se necessário
-    Window:Center()
-    
-    -- Centralizar todas as janelas abertas
-    Library:CenterAllWindows()
-    
-    -- Criar uma segunda janela para demonstrar o keybind
-    task.wait(1)
-    local SecondWindow = Library:CreateWindow({
-        Title = "Segunda Janela",
-        Size = UDim2.new(0, 400, 0, 300)
-    })
-    
-    local SecondTab = SecondWindow:AddTab("Info", Library:GetIcon("Info"))
-    local InfoSection = SecondTab:AddSection("Informações")
-    
-    InfoSection:AddLabel("Teste o keybind Control+Left!")
-    InfoSection:AddLabel("Ambas as janelas serão minimizadas.")
-    InfoSection:AddLabel("Pressione novamente para restaurar.")
-    
-    -- Retornar a biblioteca para uso externo
-    return Library
-end
-
--- Executar o exemplo (opcional)
--- exemploComKeybindETouch()
 
 return AxiomXLib
