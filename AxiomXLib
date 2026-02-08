@@ -1,778 +1,196 @@
--- MATRIX UI HUB ULTRA PRO
--- By: Você 😎
+--==================================================
+-- MATRIX HUB ☢ + KEY SYSTEM 🔐 + MINIMIZE 🟢
+--==================================================
 
--- Services
+--================ SERVICES ========================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local UserGameSettings = UserSettings():GetService("UserGameSettings")
+local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Variáveis globais
-local ScreenGui, Main, ScrollFrame
-local espEnabled = false
-local espMode = "Name"
-local espObjects = {}
-local espFolder
+--================ KEY SYSTEM ======================
+local KEY_LINK = "https://raw.githubusercontent.com/SEUUSUARIO/SEUREPO/main/key.txt"
+getgenv().KEY_PASSED = false
+
+local KeyGui = Instance.new("ScreenGui", game.CoreGui)
+KeyGui.Name = "MatrixKeySystem"
+
+local KFrame = Instance.new("Frame", KeyGui)
+KFrame.Size = UDim2.fromScale(0.3,0.25)
+KFrame.Position = UDim2.fromScale(0.35,0.35)
+KFrame.BackgroundColor3 = Color3.fromRGB(5,10,5)
+KFrame.BorderSizePixel = 0
+KFrame.Active = true
+KFrame.Draggable = true
+Instance.new("UICorner",KFrame).CornerRadius = UDim.new(0,10)
+
+local KS = Instance.new("UIStroke",KFrame)
+KS.Color = Color3.fromRGB(0,255,0)
+KS.Thickness = 1.5
+
+local KTitle = Instance.new("TextLabel",KFrame)
+KTitle.Size = UDim2.new(1,0,0.25,0)
+KTitle.BackgroundTransparency = 1
+KTitle.Text = "🔐 MATRIX KEY SYSTEM"
+KTitle.TextColor3 = Color3.fromRGB(0,255,0)
+KTitle.Font = Enum.Font.Code
+KTitle.TextScaled = true
+
+local KBox = Instance.new("TextBox",KFrame)
+KBox.Size = UDim2.new(0.85,0,0.22,0)
+KBox.Position = UDim2.new(0.075,0,0.35,0)
+KBox.PlaceholderText = "Cole sua key aqui"
+KBox.Text = ""
+KBox.BackgroundColor3 = Color3.fromRGB(10,30,10)
+KBox.TextColor3 = Color3.fromRGB(0,255,0)
+KBox.Font = Enum.Font.Code
+KBox.TextScaled = true
+Instance.new("UICorner",KBox)
+
+local KStatus = Instance.new("TextLabel",KFrame)
+KStatus.Size = UDim2.new(1,0,0.15,0)
+KStatus.Position = UDim2.new(0,0,0.6,0)
+KStatus.BackgroundTransparency = 1
+KStatus.TextColor3 = Color3.fromRGB(0,255,0)
+KStatus.Font = Enum.Font.Code
+KStatus.TextScaled = true
+
+local KBtn = Instance.new("TextButton",KFrame)
+KBtn.Size = UDim2.new(0.5,0,0.18,0)
+KBtn.Position = UDim2.new(0.25,0,0.77,0)
+KBtn.Text = "VERIFICAR"
+KBtn.BackgroundColor3 = Color3.fromRGB(10,30,10)
+KBtn.TextColor3 = Color3.fromRGB(0,255,0)
+KBtn.Font = Enum.Font.Code
+KBtn.TextScaled = true
+Instance.new("UICorner",KBtn)
+
+KBtn.MouseButton1Click:Connect(function()
+	KStatus.Text = "⏳ Verificando..."
+	local ok, serverKey = pcall(function()
+		return game:HttpGet(KEY_LINK)
+	end)
+
+	if not ok then
+		KStatus.Text = "❌ Erro de conexão"
+		return
+	end
+
+	serverKey = serverKey:gsub("%s+","")
+	local userKey = KBox.Text:gsub("%s+","")
+
+	if userKey == serverKey then
+		KStatus.Text = "✅ Key válida!"
+		task.wait(0.7)
+		getgenv().KEY_PASSED = true
+		KeyGui:Destroy()
+	else
+		KStatus.Text = "❌ Key inválida"
+	end
+end)
+
+repeat task.wait() until getgenv().KEY_PASSED
+
+--================ MATRIX HUB ======================
+local Gui = Instance.new("ScreenGui", game.CoreGui)
+Gui.Name = "MatrixHub"
+
+local Main = Instance.new("Frame", Gui)
+Main.Size = UDim2.fromScale(0.42,0.55)
+Main.Position = UDim2.fromScale(0.29,0.22)
+Main.BackgroundColor3 = Color3.fromRGB(5,10,5)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner",Main).CornerRadius = UDim.new(0,10)
+
+local Stroke = Instance.new("UIStroke",Main)
+Stroke.Color = Color3.fromRGB(0,255,0)
+Stroke.Thickness = 1.5
+
+--================ TOP BAR =========================
+local Top = Instance.new("Frame",Main)
+Top.Size = UDim2.new(1,0,0.1,0)
+Top.BackgroundTransparency = 1
+
+local Title = Instance.new("TextLabel",Top)
+Title.Size = UDim2.new(0.8,0,1,0)
+Title.BackgroundTransparency = 1
+Title.Text = "☢ MATRIX HUB ☢"
+Title.TextColor3 = Color3.fromRGB(0,255,0)
+Title.Font = Enum.Font.Code
+Title.TextScaled = true
+
+local MinBtn = Instance.new("TextButton",Top)
+MinBtn.Size = UDim2.new(0.15,0,0.8,0)
+MinBtn.Position = UDim2.new(0.82,0,0.1,0)
+MinBtn.Text = "—"
+MinBtn.Font = Enum.Font.Code
+MinBtn.TextScaled = true
+MinBtn.BackgroundColor3 = Color3.fromRGB(10,30,10)
+MinBtn.TextColor3 = Color3.fromRGB(0,255,0)
+Instance.new("UICorner",MinBtn)
+
+--================ MINIMIZE SYSTEM =================
+local minimized = false
+local savedSize = Main.Size
+
+MinBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	if minimized then
+		savedSize = Main.Size
+		Main:TweenSize(UDim2.new(savedSize.X.Scale,0,0.1,0),"Out","Quad",0.25,true)
+		MinBtn.Text = "+"
+	else
+		Main:TweenSize(savedSize,"Out","Quad",0.25,true)
+		MinBtn.Text = "—"
+	end
+end)
+
+--================ CONTENT =========================
+local Content = Instance.new("Frame",Main)
+Content.Size = UDim2.new(1,0,0.9,0)
+Content.Position = UDim2.new(0,0,0.1,0)
+Content.BackgroundTransparency = 1
+
+local function btn(text,y,callback)
+	local b = Instance.new("TextButton",Content)
+	b.Size = UDim2.new(0.9,0,0.08,0)
+	b.Position = UDim2.new(0.05,0,y,0)
+	b.Text = text
+	b.Font = Enum.Font.Code
+	b.TextScaled = true
+	b.BackgroundColor3 = Color3.fromRGB(10,30,10)
+	b.TextColor3 = Color3.fromRGB(0,255,0)
+	Instance.new("UICorner",b)
+	b.MouseButton1Click:Connect(callback)
+	return b
+end
+
+--================ FEATURES ========================
 local speed = 16
-local jump = 50
+btn("Speed +",0.05,function()
+	speed += 10
+	LocalPlayer.Character.Humanoid.WalkSpeed = speed
+end)
+
 local infJump = false
-local noclip = false
-local savedCFrames = {}
-local connections = {}
-local isMinimized = false
-local originalSize = UDim2.fromScale(0.35, 0.6)
-local minimizedSize = UDim2.fromScale(0.35, 0.08)
-local isFPSBoosted = false
-local originalGraphicsLevel
-local playerGray = false
-local originalPlayerColor
-local fpsCounterEnabled = false
-local fpsLabel
-local originalAspectRatio
-local stretchAmount = 0.65
-local stretchEnabled = false
+btn("Infinite Jump",0.15,function()
+	infJump = not infJump
+end)
 
--- Configuração global para stretch
-_G.MetodeEstique = "0.65"  -- Valor padrão
+UIS.JumpRequest:Connect(function()
+	if infJump then
+		LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+end)
 
--- ================= FUNÇÕES UTILITÁRIAS =================
-local function createTween(object, properties, duration, easingStyle, easingDirection)
-    local tweenInfo = TweenInfo.new(
-        duration or 0.3,
-        easingStyle or Enum.EasingStyle.Quad,
-        easingDirection or Enum.EasingDirection.Out
-    )
-    local tween = TweenService:Create(object, tweenInfo, properties)
-    tween:Play()
-    return tween
-end
+btn("Infinite Yield",0.25,function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
 
-local function showNotification(text, duration)
-    local notif = Instance.new("TextLabel")
-    notif.Size = UDim2.new(0, 300, 0, 40)
-    notif.Position = UDim2.new(0.5, -150, 0.1, 0)
-    notif.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
-    notif.BackgroundTransparency = 0.3
-    notif.TextColor3 = Color3.fromRGB(0, 255, 0)
-    notif.Text = text
-    notif.Font = Enum.Font.Code
-    notif.TextSize = 16
-    notif.TextStrokeTransparency = 0.7
-    notif.Parent = ScreenGui
-    notif.ZIndex = 100
-    
-    local corner = Instance.new("UICorner", notif)
-    corner.CornerRadius = UDim.new(0, 6)
-    
-    local stroke = Instance.new("UIStroke", notif)
-    stroke.Color = Color3.fromRGB(0, 255, 0)
-    stroke.Thickness = 1
-    
-    spawn(function()
-        wait(duration or 3)
-        createTween(notif, {Position = UDim2.new(0.5, -150, 0, -50)}, 0.5)
-        wait(0.5)
-        notif:Destroy()
-    end)
-end
-
--- ================= FPS COUNTER =================
-local function toggleFPSCounter()
-    fpsCounterEnabled = not fpsCounterEnabled
-    
-    if fpsCounterEnabled then
-        -- Criar FPS Counter
-        fpsLabel = Instance.new("TextLabel")
-        fpsLabel.Name = "MatrixFPSCounter"
-        fpsLabel.Size = UDim2.new(0, 150, 0, 35)
-        fpsLabel.Position = UDim2.new(0, 10, 0, 10)
-        fpsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        fpsLabel.BackgroundTransparency = 0.4
-        fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-        fpsLabel.Font = Enum.Font.Code
-        fpsLabel.TextSize = 14
-        fpsLabel.TextStrokeTransparency = 0.7
-        fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
-        fpsLabel.Text = "FPS: 0 | PING: 0ms"
-        fpsLabel.Parent = ScreenGui
-        fpsLabel.Visible = true
-        
-        local corner = Instance.new("UICorner", fpsLabel)
-        corner.CornerRadius = UDim.new(0, 6)
-        
-        local stroke = Instance.new("UIStroke", fpsLabel)
-        stroke.Color = Color3.fromRGB(0, 255, 0)
-        stroke.Thickness = 1
-        
-        -- Atualizar FPS e PING
-        local frames = 0
-        local lastTime = tick()
-        local fps = 0
-        
-        local fpsConnection = RunService.RenderStepped:Connect(function()
-            frames = frames + 1
-            local currentTime = tick()
-            if currentTime - lastTime >= 0.5 then
-                fps = math.floor(frames / (currentTime - lastTime))
-                frames = 0
-                lastTime = currentTime
-                
-                -- Calcular PING (aproximado)
-                local ping = math.random(20, 80)  -- Placeholder, pode ser substituído por Stats API
-                
-                -- Atualizar texto com cores baseadas no FPS
-                fpsLabel.Text = string.format("FPS: %d | PING: %dms", fps, ping)
-                
-                -- Mudar cor baseado no FPS
-                if fps >= 60 then
-                    fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Verde
-                    stroke.Color = Color3.fromRGB(0, 255, 0)
-                elseif fps >= 30 then
-                    fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 0)  -- Amarelo
-                    stroke.Color = Color3.fromRGB(255, 255, 0)
-                else
-                    fpsLabel.TextColor3 = Color3.fromRGB(255, 50, 50)  -- Vermelho
-                    stroke.Color = Color3.fromRGB(255, 50, 50)
-                end
-            end
-        end)
-        
-        table.insert(connections, fpsConnection)
-        showNotification("📊 FPS Counter ATIVADO", 2)
-    else
-        -- Remover FPS Counter
-        if fpsLabel and fpsLabel.Parent then
-            fpsLabel:Destroy()
-            fpsLabel = nil
-        end
-        showNotification("📊 FPS Counter DESATIVADO", 2)
-    end
-end
-
--- ================= STRETCHER (ESTICADOR DE TELA) =================
-local function applyStretch(amount)
-    if typeof(amount) == "string" then
-        amount = tonumber(amount)
-    end
-    
-    if not amount or amount < -0.1 or amount > 10.5 then
-        showNotification("❌ Valor inválido! Use: -0.1 até 10.5", 3)
-        return
-    end
-    
-    stretchAmount = amount
-    _G.MetodeEstique = tostring(amount)
-    
-    -- Aplicar o stretch
-    local viewportSize = workspace.CurrentCamera.ViewportSize
-    
-    -- Calcular novo FieldOfView baseado no stretch
-    local defaultFOV = 70
-    local stretchedFOV = defaultFOV * (1 + (amount * 0.1))
-    
-    -- Aplicar ao Camera
-    Camera.FieldOfView = stretchedFOV
-    
-    -- Se amount for 0.65 (padrão), usar configuração especial
-    if amount == 0.65 then
-        Camera.FieldOfView = 80  -- Valor ideal para 0.65
-    elseif amount >= 1.0 then
-        -- Para valores altos, aplicar efeito fisheye
-        Camera.FieldOfView = math.min(120, 70 + (amount * 5))
-    elseif amount <= 0 then
-        -- Para valores negativos, zoom in
-        Camera.FieldOfView = math.max(30, 70 + (amount * 20))
-    end
-    
-    -- Aplicar também ao PlayerGui se existir
-    local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-    if playerGui then
-        -- Ajustar ScreenGuis se necessário
-        for _, gui in pairs(playerGui:GetChildren()) do
-            if gui:IsA("ScreenGui") then
-                -- Não modificar nossa própria UI
-                if gui.Name ~= "MatrixHubUltraPro" then
-                    -- Ajustar scaling se o gui tiver
-                    if gui:FindFirstChild("Scaling") then
-                        gui.Scaling = math.clamp(1 / (1 + (amount * 0.1)), 0.5, 2)
-                    end
-                end
-            end
-        end
-    end
-    
-    showNotification(string.format("🖥️ Stretch aplicado: %.2f (FOV: %.0f)", amount, Camera.FieldOfView), 3)
-    
-    -- Salvar preferência
-    pcall(function()
-        local DataStoreService = game:GetService("DataStoreService")
-        local stretchStore = DataStoreService:GetDataStore("MatrixStretchSettings")
-        stretchStore:SetAsync(LocalPlayer.UserId .. "_stretch", amount)
-    end)
-    
-    return amount
-end
-
-local function toggleStretch()
-    stretchEnabled = not stretchEnabled
-    
-    if stretchEnabled then
-        -- Aplicar stretch atual
-        applyStretch(stretchAmount)
-        showNotification("🖥️ Stretch ATIVADO", 2)
-    else
-        -- Restaurar configurações padrão
-        Camera.FieldOfView = 70
-        _G.MetodeEstique = "0"
-        
-        -- Restaurar PlayerGui
-        local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-        if playerGui then
-            for _, gui in pairs(playerGui:GetChildren()) do
-                if gui:IsA("ScreenGui") and gui:FindFirstChild("Scaling") then
-                    gui.Scaling = 1
-                end
-            end
-        end
-        
-        showNotification("🖥️ Stretch DESATIVADO", 2)
-    end
-end
-
--- Interface para ajustar stretch
-local function createStretchUI()
-    local stretchUI = Instance.new("ScreenGui", ScreenGui)
-    stretchUI.Name = "StretchAdjustUI"
-    stretchUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    local mainFrame = Instance.new("Frame", stretchUI)
-    mainFrame.Size = UDim2.fromScale(0.25, 0.25)
-    mainFrame.Position = UDim2.fromScale(0.375, 0.375)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(5, 15, 5)
-    mainFrame.BackgroundTransparency = 0.1
-    
-    local corner = Instance.new("UICorner", mainFrame)
-    corner.CornerRadius = UDim.new(0, 8)
-    
-    local stroke = Instance.new("UIStroke", mainFrame)
-    stroke.Color = Color3.fromRGB(0, 255, 0)
-    stroke.Thickness = 2
-    
-    -- Título
-    local title = Instance.new("TextLabel", mainFrame)
-    title.Size = UDim2.new(1, 0, 0.2, 0)
-    title.BackgroundTransparency = 1
-    title.Text = "🎮 STRETCH ADJUSTER"
-    title.TextColor3 = Color3.fromRGB(0, 255, 0)
-    title.Font = Enum.Font.Code
-    title.TextSize = 18
-    
-    -- Slider
-    local sliderFrame = Instance.new("Frame", mainFrame)
-    sliderFrame.Size = UDim2.new(0.9, 0, 0.15, 0)
-    sliderFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-    sliderFrame.BackgroundColor3 = Color3.fromRGB(20, 40, 20)
-    
-    local sliderCorner = Instance.new("UICorner", sliderFrame)
-    sliderCorner.CornerRadius = UDim.new(0, 4)
-    
-    local sliderFill = Instance.new("Frame", sliderFrame)
-    sliderFill.Size = UDim2.new((stretchAmount + 0.1) / 10.6, 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    sliderFill.BorderSizePixel = 0
-    
-    local fillCorner = Instance.new("UICorner", sliderFill)
-    fillCorner.CornerRadius = UDim.new(0, 4)
-    
-    local sliderValue = Instance.new("TextLabel", mainFrame)
-    sliderValue.Size = UDim2.new(1, 0, 0.15, 0)
-    sliderValue.Position = UDim2.new(0, 0, 0.5, 0)
-    sliderValue.BackgroundTransparency = 1
-    sliderValue.Text = string.format("Valor: %.2f", stretchAmount)
-    sliderValue.TextColor3 = Color3.fromRGB(0, 255, 0)
-    sliderValue.Font = Enum.Font.Code
-    sliderValue.TextSize = 16
-    
-    -- Botões de preset
-    local presets = {
-        {"-0.1", "Ultra Zoom"},
-        {"0.65", "Padrão"},
-        {"1.0", "Leve"},
-        {"3.0", "Médio"},
-        {"5.0", "Forte"},
-        {"10.5", "Extremo"}
-    }
-    
-    local yPos = 0.7
-    for i, preset in ipairs(presets) do
-        local btn = Instance.new("TextButton", mainFrame)
-        btn.Size = UDim2.new(0.4, 0, 0.1, 0)
-        btn.Position = UDim2.new(0.05 + ((i-1) % 2) * 0.5, 0, yPos + math.floor((i-1)/2) * 0.12, 0)
-        btn.BackgroundColor3 = Color3.fromRGB(30, 60, 30)
-        btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-        btn.Text = preset[2] .. "\n" .. preset[1]
-        btn.Font = Enum.Font.Code
-        btn.TextSize = 12
-        
-        local btnCorner = Instance.new("UICorner", btn)
-        btnCorner.CornerRadius = UDim.new(0, 4)
-        
-        btn.MouseButton1Click:Connect(function()
-            applyStretch(tonumber(preset[1]))
-            sliderValue.Text = string.format("Valor: %.2f", stretchAmount)
-            sliderFill:TweenSize(
-                UDim2.new((stretchAmount + 0.1) / 10.6, 0, 1, 0),
-                Enum.EasingDirection.Out,
-                Enum.EasingStyle.Quad,
-                0.2
-            )
-        end)
-    end
-    
-    -- Botão de fechar
-    local closeBtn = Instance.new("TextButton", mainFrame)
-    closeBtn.Size = UDim2.new(0.9, 0, 0.1, 0)
-    closeBtn.Position = UDim2.new(0.05, 0, 0.9, 0)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(60, 30, 30)
-    closeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
-    closeBtn.Text = "FECHAR"
-    closeBtn.Font = Enum.Font.Code
-    closeBtn.TextSize = 14
-    
-    local closeCorner = Instance.new("UICorner", closeBtn)
-    closeCorner.CornerRadius = UDim.new(0, 4)
-    
-    closeBtn.MouseButton1Click:Connect(function()
-        stretchUI:Destroy()
-    end)
-    
-    -- Interatividade do slider
-    local dragging = false
-    sliderFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-        end
-    end)
-    
-    UIS.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local xPos = (input.Position.X - sliderFrame.AbsolutePosition.X) / sliderFrame.AbsoluteSize.X
-            xPos = math.clamp(xPos, 0, 1)
-            local newValue = (xPos * 10.6) - 0.1
-            newValue = math.floor(newValue * 100) / 100  -- Arredondar para 2 casas
-            
-            applyStretch(newValue)
-            sliderValue.Text = string.format("Valor: %.2f", newValue)
-            sliderFill.Size = UDim2.new(xPos, 0, 1, 0)
-        end
-    end)
-    
-    UIS.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-    
-    return stretchUI
-end
-
--- ================= PLAYER CINZA =================
-local function togglePlayerGray()
-    playerGray = not playerGray
-    
-    if LocalPlayer.Character then
-        local character = LocalPlayer.Character
-        
-        if playerGray then
-            originalPlayerColor = {}
-            
-            for _, part in pairs(character:GetChildren()) do
-                if part:IsA("BasePart") then
-                    originalPlayerColor[part] = part.Color
-                    part.Color = Color3.fromRGB(128, 128, 128)
-                    part.Material = Enum.Material.Plastic
-                end
-            end
-            
-            showNotification("🎨 Player CINZA ativado", 2)
-        else
-            if originalPlayerColor then
-                for part, color in pairs(originalPlayerColor) do
-                    if part and part.Parent then
-                        part.Color = color
-                    end
-                end
-            end
-            showNotification("🎨 Player CORES normais", 2)
-        end
-    end
-end
-
--- ================= SAVE POSITION COM SETCLIPBOARD =================
-local function savePosition(name)
-    if not name or name == "" then
-        name = "Position_" .. #savedCFrames + 1
-    end
-    
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local cf = LocalPlayer.Character.HumanoidRootPart.CFrame
-        savedCFrames[name] = cf
-        
-        local scriptText = string.format([[
--- Teleport script for %s
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local function teleportToPosition()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(%s, %s, %s)
-        print("✅ Teleported to saved position: %s")
-    end
-end
-
-teleportToPosition()
-]], name, cf.Position.X, cf.Position.Y, cf.Position.Z, name)
-        
-        if setclipboard then
-            setclipboard(scriptText)
-            showNotification("📋 Script copiado: " .. name, 3)
-        else
-            print("\n📋 Script para posição '" .. name .. "':\n")
-            print(scriptText)
-            showNotification("📋 Script no console: " .. name, 3)
-        end
-        
-        return scriptText
-    end
-    return nil
-end
-
--- ================= UI =================
-local function createUI()
-    if ScreenGui and ScreenGui.Parent then
-        ScreenGui:Destroy()
-    end
-    
-    ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "MatrixHubUltraPro"
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.Parent = game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    
-    -- Toggle de visibilidade com F9
-    UIS.InputBegan:Connect(function(input, processed)
-        if not processed and input.KeyCode == Enum.KeyCode.F9 then
-            Main.Visible = not Main.Visible
-        elseif not processed and input.KeyCode == Enum.KeyCode.F6 then
-            toggleFPSCounter()
-        elseif not processed and input.KeyCode == Enum.KeyCode.F5 then
-            if ScreenGui:FindFirstChild("StretchAdjustUI") then
-                ScreenGui:FindFirstChild("StretchAdjustUI"):Destroy()
-            else
-                createStretchUI()
-            end
-        end
-    end)
-    
-    Main = Instance.new("Frame")
-    Main.Size = originalSize
-    Main.Position = UDim2.fromScale(0.33, 0.2)
-    Main.BackgroundColor3 = Color3.fromRGB(5, 10, 5)
-    Main.BackgroundTransparency = 0.1
-    Main.BorderSizePixel = 0
-    Main.Active = true
-    Main.Draggable = true
-    Main.Parent = ScreenGui
-    
-    -- Efeito de glow
-    local UICorner = Instance.new("UICorner", Main)
-    UICorner.CornerRadius = UDim.new(0, 8)
-    
-    local Stroke = Instance.new("UIStroke", Main)
-    Stroke.Color = Color3.fromRGB(0, 255, 0)
-    Stroke.Thickness = 1.5
-    Stroke.Transparency = 0.7
-    
-    -- Efeito de pulso na borda
-    spawn(function()
-        while Main and Main.Parent do
-            createTween(Stroke, {Thickness = 2.5}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            task.wait(1)
-            createTween(Stroke, {Thickness = 1.5}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            task.wait(1)
-        end
-    end)
-    
-    -- Título com botões de controle
-    local TitleBar = Instance.new("Frame", Main)
-    TitleBar.Size = UDim2.new(1, 0, 0.07, 0)
-    TitleBar.BackgroundTransparency = 1
-    TitleBar.Name = "TitleBar"
-    
-    local Title = Instance.new("TextLabel", TitleBar)
-    Title.Size = UDim2.new(0.6, 0, 1, 0)
-    Title.BackgroundTransparency = 1
-    Title.Text = "⚡ MATRIX HUB PRO ⚡"
-    Title.TextColor3 = Color3.fromRGB(0, 255, 0)
-    Title.Font = Enum.Font.Code
-    Title.TextScaled = true
-    Title.TextStrokeTransparency = 0.7
-    
-    -- Botões de controle
-    local controlButtons = {
-        {text = "-", x = 0.7, color = Color3.fromRGB(30, 60, 30), func = function()
-            isMinimized = not isMinimized
-            Main.Size = isMinimized and minimizedSize or originalSize
-        end},
-        {text = "+", x = 0.79, color = Color3.fromRGB(30, 60, 30), func = function()
-            Main.Size = UDim2.fromScale(0.45, 0.8)
-            Main.Position = UDim2.fromScale(0.275, 0.1)
-        end},
-        {text = "X", x = 0.88, color = Color3.fromRGB(60, 30, 30), func = function()
-            ScreenGui:Destroy()
-        end}
-    }
-    
-    for _, btnInfo in pairs(controlButtons) do
-        local btn = Instance.new("TextButton", TitleBar)
-        btn.Size = UDim2.new(0.08, 0, 0.7, 0)
-        btn.Position = UDim2.new(btnInfo.x, 0, 0.15, 0)
-        btn.BackgroundColor3 = btnInfo.color
-        btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-        btn.Text = btnInfo.text
-        btn.Font = Enum.Font.Code
-        btn.TextScaled = true
-        
-        local btnCorner = Instance.new("UICorner", btn)
-        btnCorner.CornerRadius = UDim.new(0, 4)
-        
-        btn.MouseButton1Click:Connect(btnInfo.func)
-    end
-    
-    -- Subtitle
-    local subtitle = Instance.new("TextLabel", Main)
-    subtitle.Size = UDim2.new(1, 0, 0.04, 0)
-    subtitle.Position = UDim2.new(0, 0, 0.07, 0)
-    subtitle.BackgroundTransparency = 1
-    subtitle.Text = "F9: UI | F6: FPS | F5: Stretch"
-    subtitle.TextColor3 = Color3.fromRGB(0, 200, 0)
-    subtitle.Font = Enum.Font.Code
-    subtitle.TextScaled = true
-    subtitle.TextTransparency = 0.5
-    
-    -- Container de botões com scroll
-    ScrollFrame = Instance.new("ScrollingFrame", Main)
-    ScrollFrame.Size = UDim2.new(1, 0, 0.89, 0)
-    ScrollFrame.Position = UDim2.new(0, 0, 0.11, 0)
-    ScrollFrame.BackgroundTransparency = 1
-    ScrollFrame.BorderSizePixel = 0
-    ScrollFrame.ScrollBarThickness = 4
-    ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 0)
-    ScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-    ScrollFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-    
-    local UIListLayout = Instance.new("UIListLayout", ScrollFrame)
-    UIListLayout.Padding = UDim.new(0, 5)
-    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    
-    return ScrollFrame
-end
-
--- ================= BUTTON MAKER =================
-local function createButton(text, parent)
-    local btn = Instance.new("TextButton", parent)
-    btn.Size = UDim2.new(0.9, 0, 0, 40)
-    btn.Position = UDim2.new(0.05, 0, 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(10, 30, 10)
-    btn.BackgroundTransparency = 0.2
-    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-    btn.Text = text
-    btn.Font = Enum.Font.Code
-    btn.TextScaled = true
-    btn.AutoButtonColor = true
-    
-    local UICorner = Instance.new("UICorner", btn)
-    UICorner.CornerRadius = UDim.new(0, 6)
-    
-    local UIStroke = Instance.new("UIStroke", btn)
-    UIStroke.Color = Color3.fromRGB(0, 150, 0)
-    UIStroke.Thickness = 1
-    
-    btn.MouseEnter:Connect(function()
-        createTween(btn, {BackgroundColor3 = Color3.fromRGB(20, 50, 20)}, 0.2)
-        createTween(UIStroke, {Thickness = 2}, 0.2)
-    end)
-    
-    btn.MouseLeave:Connect(function()
-        createTween(btn, {BackgroundColor3 = Color3.fromRGB(10, 30, 10)}, 0.2)
-        createTween(UIStroke, {Thickness = 1}, 0.2)
-    end)
-    
-    return btn
-end
-
--- ================= SCRIPT INITIALIZATION =================
-local function initialize()
-    local ScrollFrame = createUI()
-    
-    -- Criar seções
-    local function createSection(title)
-        local section = Instance.new("TextLabel", ScrollFrame)
-        section.Size = UDim2.new(0.9, 0, 0, 25)
-        section.Position = UDim2.new(0.05, 0, 0, 0)
-        section.BackgroundTransparency = 1
-        section.Text = "─── " .. title .. " ───"
-        section.TextColor3 = Color3.fromRGB(0, 255, 150)
-        section.Font = Enum.Font.Code
-        section.TextSize = 14
-        section.TextXAlignment = Enum.TextXAlignment.Center
-        return section
-    end
-    
-    -- Seção: VISUAL
-    createSection("VISUAL")
-    
-    local fpsCounterBtn = createButton("📊 FPS Counter: OFF", ScrollFrame)
-    fpsCounterBtn.MouseButton1Click:Connect(function()
-        toggleFPSCounter()
-        fpsCounterBtn.Text = fpsCounterEnabled and "📊 FPS Counter: ON" or "📊 FPS Counter: OFF"
-    end)
-    
-    local stretchBtn = createButton("🖥️ Stretch: OFF", ScrollFrame)
-    stretchBtn.MouseButton1Click:Connect(function()
-        toggleStretch()
-        stretchBtn.Text = stretchEnabled and string.format("🖥️ Stretch: %.2f", stretchAmount) or "🖥️ Stretch: OFF"
-    end)
-    
-    local stretchAdjustBtn = createButton("🎮 Ajustar Stretch", ScrollFrame)
-    stretchAdjustBtn.MouseButton1Click:Connect(function()
-        if ScreenGui:FindFirstChild("StretchAdjustUI") then
-            ScreenGui:FindFirstChild("StretchAdjustUI"):Destroy()
-        else
-            createStretchUI()
-        end
-    end)
-    
-    local grayBtn = createButton("🎨 Player Cinza: OFF", ScrollFrame)
-    grayBtn.MouseButton1Click:Connect(function()
-        togglePlayerGray()
-        grayBtn.Text = playerGray and "🎨 Player Cinza: ON" or "🎨 Player Cinza: OFF"
-    end)
-    
-    -- Seção: MOVIMENTO
-    createSection("MOVIMENTO")
-    
-    local speedBtn = createButton("🏃 Speed: " .. speed, ScrollFrame)
-    speedBtn.MouseButton1Click:Connect(function()
-        speed = speed + 10
-        if speed > 100 then speed = 16 end
-        if LocalPlayer.Character then
-            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then humanoid.WalkSpeed = speed end
-        end
-        speedBtn.Text = "🏃 Speed: " .. speed
-    end)
-    
-    local noclipBtn = createButton("👻 Noclip: OFF", ScrollFrame)
-    noclipBtn.MouseButton1Click:Connect(function()
-        noclip = not noclip
-        noclipBtn.Text = noclip and "👻 Noclip: ON" or "👻 Noclip: OFF"
-    end)
-    
-    -- Seção: POSIÇÕES
-    createSection("POSIÇÕES")
-    
-    local savePosBtn = createButton("💾 Save Position (Clipboard)", ScrollFrame)
-    savePosBtn.MouseButton1Click:Connect(function()
-        savePosition("Position_" .. os.time())
-    end)
-    
-    local customSaveBtn = createButton("📝 Save as 'Base'", ScrollFrame)
-    customSaveBtn.MouseButton1Click:Connect(function()
-        savePosition("Base")
-    end)
-    
-    -- Seção: UTILIDADES
-    createSection("UTILIDADES")
-    
-    local resetBtn = createButton("🔄 Reset Settings", ScrollFrame)
-    resetBtn.MouseButton1Click:Connect(function()
-        speed = 16
-        jump = 50
-        noclip = false
-        playerGray = false
-        stretchEnabled = false
-        Camera.FieldOfView = 70
-        speedBtn.Text = "🏃 Speed: " .. speed
-        noclipBtn.Text = "👻 Noclip: OFF"
-        grayBtn.Text = "🎨 Player Cinza: OFF"
-        stretchBtn.Text = "🖥️ Stretch: OFF"
-        showNotification("🔄 Todas as configurações resetadas!", 3)
-    end)
-    
-    -- Configurar noclip
-    local noclipConnection
-    noclipConnection = RunService.Stepped:Connect(function()
-        if noclip and LocalPlayer.Character then
-            for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end
-    end)
-    table.insert(connections, noclipConnection)
-    
-    -- Atualizar tamanho do ScrollFrame
-    local function updateScrollSize()
-        local totalHeight = 0
-        for _, child in pairs(ScrollFrame:GetChildren()) do
-            if child:IsA("GuiObject") and child.Visible then
-                totalHeight = totalHeight + child.AbsoluteSize.Y + UIListLayout.Padding.Offset
-            end
-        end
-        ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-    end
-    
-    UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateScrollSize)
-    updateScrollSize()
-    
-    -- Carregar stretch salvo
-    pcall(function()
-        local DataStoreService = game:GetService("DataStoreService")
-        local stretchStore = DataStoreService:GetDataStore("MatrixStretchSettings")
-        local savedStretch = stretchStore:GetAsync(LocalPlayer.UserId .. "_stretch")
-        if savedStretch then
-            stretchAmount = savedStretch
-            _G.MetodeEstique = tostring(savedStretch)
-        end
-    end)
-    
-    print("⚡ Matrix Hub Ultra PRO carregado!")
-    print("🎮 F6: Toggle FPS Counter")
-    print("🖥️ F5: Abrir Stretch Adjuster")
-    print("📋 _G.MetodeEstique = " .. _G.MetodeEstique)
-end
-
--- Inicializar
-if LocalPlayer then
-    initialize()
-else
-    Players.PlayerAdded:Wait()
-    initialize()
-end
-
--- Cleanup function
-local function cleanup()
-    for _, connection in pairs(connections) do
-        pcall(function() connection:Disconnect() end)
-    end
-    if ScreenGui then
-        ScreenGui:Destroy()
-    end
-    Camera.FieldOfView = 70
-end
-
-game:BindToClose(cleanup)
+btn("Dex Explorer",0.35,function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua"))()
+end)
