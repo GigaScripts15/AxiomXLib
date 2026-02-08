@@ -1,17 +1,13 @@
 --[[
-    AxiomXLib v1.5.0 - Biblioteca UI para Roblox
-    Features:
-    - Top bar aumentada (60 pixels)
-    - Suporte a touch drag
-    - Centralização automática
-    - Keybind Control+Left para minimizar/restaurar
-    - Temas personalizáveis
-    - Touch support completo
+    AxiomXLib v1.6.0 - Minimizar mantendo apenas Top Bar
+    Biblioteca completa de UI para Roblox com centralização automática
+    Keybind: Control + Left para minimizar/desminimizar janelas
+    Touch: Arrastar top bar com toque
     
-    Uso:
+    Para usar: copiar todo este código e executar com loadstring()
+    
+    Exemplo de uso:
     local AxiomXLib = loadstring(game:HttpGet("URL"))()
-    local Library = AxiomXLib.new({Theme = "Matrix"})
-    local Window = Library:CreateWindow({Title = "Minha Interface"})
 --]]
 
 local AxiomXLib = (function()
@@ -27,7 +23,7 @@ local AxiomXLib = (function()
     
     -- Biblioteca principal
     local Library = {
-        Version = "1.5.0",
+        Version = "1.6.0",
         Windows = {},
         ActiveWindows = {},
         MinimizedWindows = {},
@@ -340,6 +336,7 @@ local AxiomXLib = (function()
         self.TopBarDragging = false
         self.TopBarDragStart = nil
         self.TopBarStartPos = nil
+        self.IsMinimizedState = false
         
         self:CreateUI()
         self:SetupDrag()
@@ -463,9 +460,6 @@ local AxiomXLib = (function()
         self.ContentContainer.Parent = self.MainFrame
         self.MainFrame.Parent = self.ScreenGui
         
-        -- Criar container para janelas minimizadas
-        self:CreateMinimizedContainer()
-        
         -- Adicionar ao CoreGui para maior compatibilidade
         local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
         if playerGui then
@@ -491,291 +485,6 @@ local AxiomXLib = (function()
         
         -- Atualizar tamanho quando a tela mudar
         self:SetupResizeListener()
-    end
-    
-    function Window:CreateMinimizedContainer()
-        -- Container para janelas minimizadas
-        if not self.Library.MinimizedContainer then
-            self.Library.MinimizedContainer = Instance.new("ScreenGui")
-            self.Library.MinimizedContainer.Name = "AxiomX_MinimizedContainer"
-            self.Library.MinimizedContainer.ResetOnSpawn = false
-            self.Library.MinimizedContainer.ZIndexBehavior = Enum.ZIndexBehavior.Global
-            self.Library.MinimizedContainer.IgnoreGuiInset = true
-            self.Library.MinimizedContainer.DisplayOrder = 998
-            
-            local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
-            if playerGui then
-                self.Library.MinimizedContainer.Parent = playerGui
-            else
-                self.Library.MinimizedContainer.Parent = CoreGui
-            end
-        end
-    end
-    
-    function Window:CreateMinimizedTopBar()
-        if self.MinimizedTopBar then
-            self.MinimizedTopBar:Destroy()
-        end
-        
-        -- Criar top bar para janela minimizada (também aumentada para 60 pixels)
-        self.MinimizedTopBar = Instance.new("Frame")
-        self.MinimizedTopBar.Name = "MinimizedTopBar"
-        self.MinimizedTopBar.Size = UDim2.new(0, 280, 0, 60)  -- Aumentada para 60
-        self.MinimizedTopBar.Position = UDim2.new(1, -290, 0, 10)
-        self.MinimizedTopBar.BackgroundColor3 = self.Theme.Secondary
-        self.MinimizedTopBar.BackgroundTransparency = 0.1
-        self.MinimizedTopBar.AnchorPoint = Vector2.new(1, 0)
-        
-        -- Habilitar toque na top bar
-        self.MinimizedTopBar.Active = true
-        self.MinimizedTopBar.Selectable = true
-        
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = self.MinimizedTopBar
-        
-        local stroke = Instance.new("UIStroke")
-        stroke.Color = self.Theme.Primary
-        stroke.Thickness = 1
-        stroke.Transparency = 0.3
-        stroke.Parent = self.MinimizedTopBar
-        
-        -- Gradiente
-        local gradient = Utilities.CreateGradient(
-            self.Theme.Primary,
-            self.Theme.Accent,
-            90
-        )
-        gradient.Transparency = NumberSequence.new(0.9)
-        gradient.Parent = self.MinimizedTopBar
-        
-        -- Sombra
-        local shadow = Instance.new("ImageLabel")
-        shadow.Name = "Shadow"
-        shadow.Size = UDim2.new(1, 20, 1, 20)
-        shadow.Position = UDim2.new(0, -10, 0, -10)
-        shadow.BackgroundTransparency = 1
-        shadow.Image = "rbxassetid://5554236805"
-        shadow.ImageColor3 = self.Theme.Shadow or Color3.new(0, 0, 0)
-        shadow.ImageTransparency = 0.7
-        shadow.ScaleType = Enum.ScaleType.Slice
-        shadow.SliceCenter = Rect.new(10, 10, 118, 118)
-        shadow.ZIndex = -1
-        shadow.Parent = self.MinimizedTopBar
-        
-        -- Ícone de janela minimizada
-        local icon = Instance.new("ImageLabel")
-        icon.Size = UDim2.new(0, 30, 0, 30)  -- Aumentado para 30
-        icon.Position = UDim2.new(0, 15, 0.5, -15)  -- Ajustado para centralizar verticalmente
-        icon.BackgroundTransparency = 1
-        icon.Image = Library.Icons.Minimize
-        icon.ImageColor3 = self.Theme.Text
-        icon.Parent = self.MinimizedTopBar
-        
-        -- Título na top bar
-        local title = Instance.new("TextLabel")
-        title.Size = UDim2.new(0, 160, 1, 0)
-        title.Position = UDim2.new(0, 55, 0, 0)  -- Ajustado de 40 para 55
-        title.BackgroundTransparency = 1
-        title.Text = self.Title
-        title.TextColor3 = self.Theme.Text
-        title.TextSize = 18  -- Aumentado para 18
-        title.Font = Enum.Font.GothamSemibold
-        title.TextXAlignment = Enum.TextXAlignment.Left
-        title.TextYAlignment = Enum.TextYAlignment.Center  -- Centralizado verticalmente
-        title.TextTruncate = Enum.TextTruncate.AtEnd
-        title.Parent = self.MinimizedTopBar
-        
-        -- Botão para restaurar
-        local restoreBtn = Instance.new("TextButton")
-        restoreBtn.Size = UDim2.new(0, 40, 0, 40)  -- Aumentado para 40
-        restoreBtn.Position = UDim2.new(1, -50, 0.5, -20)  -- Ajustado para centralizar verticalmente
-        restoreBtn.BackgroundColor3 = self.Theme.Primary
-        restoreBtn.BackgroundTransparency = 0.8
-        restoreBtn.Text = "↗"
-        restoreBtn.TextColor3 = self.Theme.Text
-        restoreBtn.TextSize = 22  -- Aumentado para 22
-        restoreBtn.Font = Enum.Font.GothamBold
-        
-        -- Habilitar toque no botão
-        restoreBtn.Active = true
-        restoreBtn.Selectable = true
-        
-        local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 6)
-        btnCorner.Parent = restoreBtn
-        
-        restoreBtn.MouseButton1Click:Connect(function()
-            Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
-            self:ToggleMinimize()
-        end)
-        
-        -- Suporte a toque para o botão
-        local touchTapConnection
-        restoreBtn.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.Touch then
-                touchTapConnection = input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        Utilities.CreateRippleEffect(restoreBtn, self.Theme.Accent)
-                        self:ToggleMinimize()
-                    end
-                end)
-            end
-        end)
-        
-        restoreBtn.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.Touch and touchTapConnection then
-                touchTapConnection:Disconnect()
-            end
-        end)
-        
-        restoreBtn.MouseEnter:Connect(function()
-            Utilities.Tween(restoreBtn, {BackgroundTransparency = 0.6}, 0.2)
-        end)
-        
-        restoreBtn.MouseLeave:Connect(function()
-            Utilities.Tween(restoreBtn, {BackgroundTransparency = 0.8}, 0.2)
-        end)
-        
-        restoreBtn.Parent = self.MinimizedTopBar
-        
-        -- Botão para fechar da top bar
-        local closeBtn = Instance.new("TextButton")
-        closeBtn.Size = UDim2.new(0, 40, 0, 40)  -- Aumentado para 40
-        closeBtn.Position = UDim2.new(1, -10, 0.5, -20)  -- Ajustado para centralizar verticalmente
-        closeBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-        closeBtn.BackgroundTransparency = 0.8
-        closeBtn.Text = "×"
-        closeBtn.TextColor3 = self.Theme.Text
-        closeBtn.TextSize = 24  -- Aumentado para 24
-        closeBtn.Font = Enum.Font.GothamBold
-        
-        -- Habilitar toque no botão
-        closeBtn.Active = true
-        closeBtn.Selectable = true
-        
-        local closeCorner = Instance.new("UICorner")
-        closeCorner.CornerRadius = UDim.new(0, 6)
-        closeCorner.Parent = closeBtn
-        
-        closeBtn.MouseButton1Click:Connect(function()
-            Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
-            self:Destroy()
-        end)
-        
-        -- Suporte a toque para o botão
-        local closeTouchConnection
-        closeBtn.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.Touch then
-                closeTouchConnection = input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        Utilities.CreateRippleEffect(closeBtn, Color3.fromRGB(255, 100, 100))
-                        self:Destroy()
-                    end
-                end)
-            end
-        end)
-        
-        closeBtn.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.Touch and closeTouchConnection then
-                closeTouchConnection:Disconnect()
-            end
-        end)
-        
-        closeBtn.MouseEnter:Connect(function()
-            Utilities.Tween(closeBtn, {BackgroundTransparency = 0.6}, 0.2)
-        end)
-        
-        closeBtn.MouseLeave:Connect(function()
-            Utilities.Tween(closeBtn, {BackgroundTransparency = 0.8}, 0.2)
-        end)
-        
-        closeBtn.Parent = self.MinimizedTopBar
-        
-        -- Adicionar ao container de janelas minimizadas
-        self.MinimizedTopBar.Parent = self.Library.MinimizedContainer
-        
-        -- Adicionar arrastar para a top bar com suporte a toque
-        self:SetupTopBarDrag()
-    end
-    
-    function Window:SetupTopBarDrag()
-        -- Suporte a mouse e toque
-        local dragConnection
-        local inputChangedConnection
-        
-        self.MinimizedTopBar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or 
-               input.UserInputType == Enum.UserInputType.Touch then
-                
-                self.TopBarDragging = true
-                self.TopBarDragStart = input.Position
-                self.TopBarStartPos = self.MinimizedTopBar.Position
-                
-                Utilities.Tween(self.MinimizedTopBar, {
-                    BackgroundTransparency = 0.05,
-                    Size = UDim2.new(0, 290, 0, 60)  -- Ajustado para 60
-                }, 0.1)
-                
-                -- Efeito visual de seleção
-                Utilities.Tween(self.MinimizedTopBar.UIStroke, {
-                    Thickness = 2,
-                    Transparency = 0.1
-                }, 0.1)
-                
-                -- Conexão para soltar
-                dragConnection = input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        self.TopBarDragging = false
-                        
-                        Utilities.Tween(self.MinimizedTopBar, {
-                            BackgroundTransparency = 0.1,
-                            Size = UDim2.new(0, 280, 0, 60)  -- Ajustado para 60
-                        }, 0.1)
-                        
-                        Utilities.Tween(self.MinimizedTopBar.UIStroke, {
-                            Thickness = 1,
-                            Transparency = 0.3
-                        }, 0.1)
-                        
-                        if dragConnection then
-                            dragConnection:Disconnect()
-                        end
-                        if inputChangedConnection then
-                            inputChangedConnection:Disconnect()
-                        end
-                    end
-                end)
-                
-                -- Conexão para arrastar
-                inputChangedConnection = UserInputService.InputChanged:Connect(function(moveInput)
-                    if self.TopBarDragging and (moveInput.UserInputType == Enum.UserInputType.MouseMovement or 
-                       moveInput.UserInputType == Enum.UserInputType.Touch) then
-                        
-                        local delta = moveInput.Position - self.TopBarDragStart
-                        local newPos = UDim2.new(
-                            self.TopBarStartPos.X.Scale, 
-                            self.TopBarStartPos.X.Offset + delta.X,
-                            self.TopBarStartPos.Y.Scale, 
-                            self.TopBarStartPos.Y.Offset + delta.Y
-                        )
-                        
-                        -- Limitar ao espaço da tela
-                        local viewportSize = workspace.CurrentCamera.ViewportSize
-                        local barSize = self.MinimizedTopBar.AbsoluteSize
-                        
-                        newPos = UDim2.new(
-                            newPos.X.Scale,
-                            math.clamp(newPos.X.Offset, barSize.X, viewportSize.X),
-                            newPos.Y.Scale,
-                            math.clamp(newPos.Y.Offset, 0, viewportSize.Y - barSize.Y)
-                        )
-                        
-                        self.MinimizedTopBar.Position = newPos
-                    end
-                end)
-            end
-        end)
     end
     
     function Window:SetupResizeListener()
@@ -956,29 +665,59 @@ local AxiomXLib = (function()
         self.Minimized = not self.Minimized
         
         if self.Minimized then
-            -- Minimizar a janela
+            -- Salvar tamanho e posição original
             self.OriginalSize = self.MainFrame.Size
             self.OriginalPosition = self.MainFrame.Position
             
-            -- Esconder a janela principal
+            -- Esconder conteúdo (abas e container)
+            self.TabContainer.Visible = false
+            self.ContentContainer.Visible = false
+            
+            -- Reduzir janela para apenas a top bar
+            -- Manter a mesma largura ou reduzir um pouco (300 pixels)
+            local minimizedWidth = math.min(300, self.OriginalSize.X.Offset)
+            
             Utilities.Tween(self.MainFrame, {
-                Size = UDim2.new(0, 0, 0, 0),
-                BackgroundTransparency = 1
+                Size = UDim2.new(0, minimizedWidth, 0, 60),  -- Apenas altura da top bar
+                Position = UDim2.new(0, self.MainFrame.Position.X.Offset, 0, self.MainFrame.Position.Y.Offset)
             }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
             
-            -- Criar top bar para janela minimizada
-            self:CreateMinimizedTopBar()
+            -- Ajustar a sombra para combinar com o novo tamanho
+            Utilities.Tween(self.MainFrame.Shadow, {
+                Size = UDim2.new(1, 20, 1, 20),
+                Position = UDim2.new(0, -10, 0, -10)
+            }, 0.3)
+            
+            -- Mudar texto do botão para "+"
+            self.MinimizeButton.Text = "+"
             
             -- Adicionar à lista de janelas minimizadas
             table.insert(self.Library.MinimizedWindows, self)
             
-            self.MinimizeButton.Text = "+"
+            -- Efeito visual para indicar que está minimizado
+            Utilities.Tween(self.TitleBar, {
+                BackgroundTransparency = 0.1
+            }, 0.2)
+            
         else
-            -- Restaurar a janela
-            if self.MinimizedTopBar then
-                self.MinimizedTopBar:Destroy()
-                self.MinimizedTopBar = nil
-            end
+            -- Mostrar conteúdo
+            self.TabContainer.Visible = true
+            self.ContentContainer.Visible = true
+            
+            -- Restaurar tamanho original
+            Utilities.Tween(self.MainFrame, {
+                Size = self.OriginalSize,
+                Position = self.OriginalPosition
+            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
+            
+            -- Restaurar sombra original
+            Utilities.Tween(self.MainFrame.Shadow, {
+                Size = UDim2.new(1, 30, 1, 30),
+                Position = UDim2.new(0, -15, 0, -15)
+            }, 0.3)
+            
+            -- Mudar texto do botão de volta para "-"
+            self.MinimizeButton.Text = "-"
             
             -- Remover da lista de janelas minimizadas
             for i, window in ipairs(self.Library.MinimizedWindows) do
@@ -988,18 +727,16 @@ local AxiomXLib = (function()
                 end
             end
             
-            -- Mostrar a janela principal
-            self.MainFrame.BackgroundTransparency = 0.1
-            Utilities.Tween(self.MainFrame, {
-                Size = self.OriginalSize
-            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
+            -- Restaurar transparência da barra de título
+            Utilities.Tween(self.TitleBar, {
+                BackgroundTransparency = 0.2
+            }, 0.2)
             
-            -- Centralizar novamente
-            Utilities.Tween(self.MainFrame, {
-                Position = UDim2.new(0.5, 0, 0.5, 0)
-            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
-            
-            self.MinimizeButton.Text = "-"
+            -- Centralizar se a posição original estava centralizada
+            if math.abs(self.OriginalPosition.X.Scale - 0.5) < 0.01 and math.abs(self.OriginalPosition.Y.Scale - 0.5) < 0.01 then
+                task.wait(0.3)  -- Esperar a animação terminar
+                self:Center()
+            end
         end
     end
     
@@ -1424,10 +1161,6 @@ local AxiomXLib = (function()
     end
     
     function Window:Destroy()
-        if self.MinimizedTopBar then
-            self.MinimizedTopBar:Destroy()
-        end
-        
         if self.ScreenGui then
             self.ScreenGui:Destroy()
         end
@@ -1553,11 +1286,6 @@ local AxiomXLib = (function()
             window:Destroy()
         end
         self.ActiveWindows = {}
-        
-        if self.MinimizedContainer then
-            self.MinimizedContainer:Destroy()
-            self.MinimizedContainer = nil
-        end
         
         -- Desconectar keybinds
         if self.Keybinds and self.Keybinds.MinimizeAll and self.Keybinds.MinimizeAll.Connection then
