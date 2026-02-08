@@ -1,196 +1,130 @@
---==================================================
--- MATRIX HUB ☢ + KEY SYSTEM 🔐 + MINIMIZE 🟢
---==================================================
+--// MATRIX HUB | NO KEY SYSTEM
+--// Universal Script
 
---================ SERVICES ========================
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
---================ KEY SYSTEM ======================
-local KEY_LINK = "https://raw.githubusercontent.com/SEUUSUARIO/SEUREPO/main/key.txt"
-getgenv().KEY_PASSED = false
+-- UI Base
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "MatrixHub"
 
-local KeyGui = Instance.new("ScreenGui", game.CoreGui)
-KeyGui.Name = "MatrixKeySystem"
-
-local KFrame = Instance.new("Frame", KeyGui)
-KFrame.Size = UDim2.fromScale(0.3,0.25)
-KFrame.Position = UDim2.fromScale(0.35,0.35)
-KFrame.BackgroundColor3 = Color3.fromRGB(5,10,5)
-KFrame.BorderSizePixel = 0
-KFrame.Active = true
-KFrame.Draggable = true
-Instance.new("UICorner",KFrame).CornerRadius = UDim.new(0,10)
-
-local KS = Instance.new("UIStroke",KFrame)
-KS.Color = Color3.fromRGB(0,255,0)
-KS.Thickness = 1.5
-
-local KTitle = Instance.new("TextLabel",KFrame)
-KTitle.Size = UDim2.new(1,0,0.25,0)
-KTitle.BackgroundTransparency = 1
-KTitle.Text = "🔐 MATRIX KEY SYSTEM"
-KTitle.TextColor3 = Color3.fromRGB(0,255,0)
-KTitle.Font = Enum.Font.Code
-KTitle.TextScaled = true
-
-local KBox = Instance.new("TextBox",KFrame)
-KBox.Size = UDim2.new(0.85,0,0.22,0)
-KBox.Position = UDim2.new(0.075,0,0.35,0)
-KBox.PlaceholderText = "Cole sua key aqui"
-KBox.Text = ""
-KBox.BackgroundColor3 = Color3.fromRGB(10,30,10)
-KBox.TextColor3 = Color3.fromRGB(0,255,0)
-KBox.Font = Enum.Font.Code
-KBox.TextScaled = true
-Instance.new("UICorner",KBox)
-
-local KStatus = Instance.new("TextLabel",KFrame)
-KStatus.Size = UDim2.new(1,0,0.15,0)
-KStatus.Position = UDim2.new(0,0,0.6,0)
-KStatus.BackgroundTransparency = 1
-KStatus.TextColor3 = Color3.fromRGB(0,255,0)
-KStatus.Font = Enum.Font.Code
-KStatus.TextScaled = true
-
-local KBtn = Instance.new("TextButton",KFrame)
-KBtn.Size = UDim2.new(0.5,0,0.18,0)
-KBtn.Position = UDim2.new(0.25,0,0.77,0)
-KBtn.Text = "VERIFICAR"
-KBtn.BackgroundColor3 = Color3.fromRGB(10,30,10)
-KBtn.TextColor3 = Color3.fromRGB(0,255,0)
-KBtn.Font = Enum.Font.Code
-KBtn.TextScaled = true
-Instance.new("UICorner",KBtn)
-
-KBtn.MouseButton1Click:Connect(function()
-	KStatus.Text = "⏳ Verificando..."
-	local ok, serverKey = pcall(function()
-		return game:HttpGet(KEY_LINK)
-	end)
-
-	if not ok then
-		KStatus.Text = "❌ Erro de conexão"
-		return
-	end
-
-	serverKey = serverKey:gsub("%s+","")
-	local userKey = KBox.Text:gsub("%s+","")
-
-	if userKey == serverKey then
-		KStatus.Text = "✅ Key válida!"
-		task.wait(0.7)
-		getgenv().KEY_PASSED = true
-		KeyGui:Destroy()
-	else
-		KStatus.Text = "❌ Key inválida"
-	end
-end)
-
-repeat task.wait() until getgenv().KEY_PASSED
-
---================ MATRIX HUB ======================
-local Gui = Instance.new("ScreenGui", game.CoreGui)
-Gui.Name = "MatrixHub"
-
-local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.fromScale(0.42,0.55)
-Main.Position = UDim2.fromScale(0.29,0.22)
-Main.BackgroundColor3 = Color3.fromRGB(5,10,5)
+-- Main Frame
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 520, 0, 360)
+Main.Position = UDim2.new(0.5, -260, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(5, 15, 5)
 Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
-Instance.new("UICorner",Main).CornerRadius = UDim.new(0,10)
 
-local Stroke = Instance.new("UIStroke",Main)
-Stroke.Color = Color3.fromRGB(0,255,0)
-Stroke.Thickness = 1.5
-
---================ TOP BAR =========================
-local Top = Instance.new("Frame",Main)
-Top.Size = UDim2.new(1,0,0.1,0)
-Top.BackgroundTransparency = 1
-
-local Title = Instance.new("TextLabel",Top)
-Title.Size = UDim2.new(0.8,0,1,0)
+-- Title
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
 Title.BackgroundTransparency = 1
-Title.Text = "☢ MATRIX HUB ☢"
-Title.TextColor3 = Color3.fromRGB(0,255,0)
+Title.Text = "☘ MATRIX HUB"
+Title.TextColor3 = Color3.fromRGB(0,255,100)
 Title.Font = Enum.Font.Code
-Title.TextScaled = true
+Title.TextSize = 22
 
-local MinBtn = Instance.new("TextButton",Top)
-MinBtn.Size = UDim2.new(0.15,0,0.8,0)
-MinBtn.Position = UDim2.new(0.82,0,0.1,0)
-MinBtn.Text = "—"
+-- Minimize Button
+local MinBtn = Instance.new("TextButton", Main)
+MinBtn.Size = UDim2.new(0, 40, 0, 40)
+MinBtn.Position = UDim2.new(1, -40, 0, 0)
+MinBtn.Text = "-"
 MinBtn.Font = Enum.Font.Code
-MinBtn.TextScaled = true
-MinBtn.BackgroundColor3 = Color3.fromRGB(10,30,10)
-MinBtn.TextColor3 = Color3.fromRGB(0,255,0)
-Instance.new("UICorner",MinBtn)
+MinBtn.TextSize = 28
+MinBtn.BackgroundTransparency = 1
+MinBtn.TextColor3 = Color3.fromRGB(0,255,100)
 
---================ MINIMIZE SYSTEM =================
-local minimized = false
-local savedSize = Main.Size
+-- Floating Button
+local FloatBtn = Instance.new("TextButton", ScreenGui)
+FloatBtn.Size = UDim2.new(0, 60, 0, 60)
+FloatBtn.Position = UDim2.new(0, 20, 0.5, -30)
+FloatBtn.Text = "☘"
+FloatBtn.Visible = false
+FloatBtn.Font = Enum.Font.Code
+FloatBtn.TextSize = 26
+FloatBtn.BackgroundColor3 = Color3.fromRGB(0,40,0)
+FloatBtn.TextColor3 = Color3.fromRGB(0,255,100)
+FloatBtn.Active = true
+FloatBtn.Draggable = true
 
+-- Minimize Logic
 MinBtn.MouseButton1Click:Connect(function()
-	minimized = not minimized
-	if minimized then
-		savedSize = Main.Size
-		Main:TweenSize(UDim2.new(savedSize.X.Scale,0,0.1,0),"Out","Quad",0.25,true)
-		MinBtn.Text = "+"
-	else
-		Main:TweenSize(savedSize,"Out","Quad",0.25,true)
-		MinBtn.Text = "—"
+	Main.Visible = false
+	FloatBtn.Visible = true
+end)
+
+FloatBtn.MouseButton1Click:Connect(function()
+	Main.Visible = true
+	FloatBtn.Visible = false
+end)
+
+-- Matrix Rain Background
+local Rain = Instance.new("Frame", Main)
+Rain.Size = UDim2.new(1,0,1,0)
+Rain.BackgroundTransparency = 1
+Rain.ZIndex = 0
+
+task.spawn(function()
+	while true do
+		local drop = Instance.new("TextLabel", Rain)
+		drop.Text = string.char(math.random(33,126))
+		drop.Font = Enum.Font.Code
+		drop.TextColor3 = Color3.fromRGB(0,255,100)
+		drop.TextTransparency = 0
+		drop.BackgroundTransparency = 1
+		drop.Position = UDim2.new(math.random(),0,0,0)
+		drop.Size = UDim2.new(0,14,0,14)
+
+		game:GetService("TweenService"):Create(
+			drop,
+			TweenInfo.new(math.random(2,4)),
+			{Position = UDim2.new(drop.Position.X.Scale,0,1,0), TextTransparency = 1}
+		):Play()
+
+		task.delay(4,function() drop:Destroy() end)
+		task.wait(0.08)
 	end
 end)
 
---================ CONTENT =========================
-local Content = Instance.new("Frame",Main)
-Content.Size = UDim2.new(1,0,0.9,0)
-Content.Position = UDim2.new(0,0,0.1,0)
-Content.BackgroundTransparency = 1
+-- Infinite Jump
+UIS.JumpRequest:Connect(function()
+	if _G.InfJump then
+		LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+end)
 
-local function btn(text,y,callback)
-	local b = Instance.new("TextButton",Content)
-	b.Size = UDim2.new(0.9,0,0.08,0)
-	b.Position = UDim2.new(0.05,0,y,0)
-	b.Text = text
-	b.Font = Enum.Font.Code
-	b.TextScaled = true
-	b.BackgroundColor3 = Color3.fromRGB(10,30,10)
-	b.TextColor3 = Color3.fromRGB(0,255,0)
-	Instance.new("UICorner",b)
-	b.MouseButton1Click:Connect(callback)
-	return b
+-- Noclip
+RunService.Stepped:Connect(function()
+	if _G.Noclip and LocalPlayer.Character then
+		for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+-- Save Position
+local SavedCFrame
+_G.SavePos = function()
+	SavedCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
 end
 
---================ FEATURES ========================
-local speed = 16
-btn("Speed +",0.05,function()
-	speed += 10
-	LocalPlayer.Character.Humanoid.WalkSpeed = speed
-end)
-
-local infJump = false
-btn("Infinite Jump",0.15,function()
-	infJump = not infJump
-end)
-
-UIS.JumpRequest:Connect(function()
-	if infJump then
-		LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+_G.LoadPos = function()
+	if SavedCFrame then
+		LocalPlayer.Character.HumanoidRootPart.CFrame = SavedCFrame
 	end
-end)
+end
 
-btn("Infinite Yield",0.25,function()
+-- Load Admin Scripts
+_G.IY = function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-end)
+end
 
-btn("Dex Explorer",0.35,function()
+_G.DEX = function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua"))()
-end)
+end
