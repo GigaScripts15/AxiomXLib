@@ -1,20 +1,23 @@
 --[[
-    AxiomXLib v2.0 - Biblioteca de UI Moderna
+    AxiomXLib v2.5 - Biblioteca de UI Moderna Avançada
     Design estilo RayField com melhorias significativas
-    Recursos:
-    - Abas verticais e horizontais
+    
+    ✨ Recursos Principais:
+    - Abas verticais com ícones
     - Minimizar mantendo top bar
-    - Keybinds (Ctrl+Left)
-    - Suporte completo a touch
-    - 9 temas pré-configurados
-    - Sistema de tabs melhorado
-    - Elementos UI avançados
+    - Sistema de Keybinds avançado
+    - Suporte completo a touch e mouse
+    - 9 temas pré-configurados + temas customizados
+    - Elementos UI avançados (Buttons, Toggles, Sliders, Dropdowns, TextBoxes)
+    - Sistema de notificações
+    - Animations fluidas
+    - Drag & Drop
+    - Performance otimizado
     
     Para usar: loadstring(game:HttpGet("URL"))()
 --]]
 
 local AxiomXLib = (function()
-    -- Serviços
     local Players = game:GetService("Players")
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
@@ -23,177 +26,124 @@ local AxiomXLib = (function()
     local TextService = game:GetService("TextService")
     local CoreGui = game:GetService("CoreGui")
     
-    -- Biblioteca principal
     local Library = {
-        Version = "2.0.0",
+        Version = "2.5.0",
         Windows = {},
         ActiveWindows = {},
         MinimizedWindows = {},
         Themes = {},
-        Config = {},
         Icons = {},
-        Utilities = {},
-        Keybinds = {}
+        Notifications = {},
+        Config = {}
     }
     
-    -- Temas melhorados
+    -- ============= TEMAS =============
     Library.Themes = {
         Dark = {
-            Name = "Dark",
-            Primary = Color3.fromRGB(0, 120, 215),
-            Secondary = Color3.fromRGB(30, 30, 30),
-            Background = Color3.fromRGB(20, 20, 20),
-            Text = Color3.fromRGB(255, 255, 255),
-            TextSecondary = Color3.fromRGB(200, 200, 200),
-            Accent = Color3.fromRGB(0, 150, 255),
-            Glow = Color3.fromRGB(0, 120, 215),
-            Shadow = Color3.fromRGB(0, 0, 0),
-            Element = Color3.fromRGB(35, 35, 35),
-            Success = Color3.fromRGB(0, 200, 83),
-            Warning = Color3.fromRGB(255, 193, 7),
-            Error = Color3.fromRGB(255, 87, 87)
+            Name = "Dark", Primary = Color3.fromRGB(0, 120, 215), Secondary = Color3.fromRGB(30, 30, 30),
+            Background = Color3.fromRGB(20, 20, 20), Text = Color3.fromRGB(255, 255, 255),
+            TextSecondary = Color3.fromRGB(200, 200, 200), Accent = Color3.fromRGB(0, 150, 255),
+            Glow = Color3.fromRGB(0, 120, 215), Shadow = Color3.fromRGB(0, 0, 0),
+            Element = Color3.fromRGB(35, 35, 35), Success = Color3.fromRGB(0, 200, 83),
+            Warning = Color3.fromRGB(255, 193, 7), Error = Color3.fromRGB(255, 87, 87)
         },
         BlueTech = {
-            Name = "BlueTech",
-            Primary = Color3.fromRGB(0, 150, 255),
-            Secondary = Color3.fromRGB(25, 35, 45),
-            Background = Color3.fromRGB(15, 25, 35),
-            Text = Color3.fromRGB(220, 240, 255),
-            TextSecondary = Color3.fromRGB(180, 200, 220),
-            Accent = Color3.fromRGB(0, 180, 255),
-            Glow = Color3.fromRGB(0, 150, 255),
-            Shadow = Color3.fromRGB(0, 10, 20),
-            Element = Color3.fromRGB(35, 45, 55),
-            Success = Color3.fromRGB(0, 230, 118),
-            Warning = Color3.fromRGB(255, 213, 79),
-            Error = Color3.fromRGB(255, 112, 67)
+            Name = "BlueTech", Primary = Color3.fromRGB(0, 150, 255), Secondary = Color3.fromRGB(25, 35, 45),
+            Background = Color3.fromRGB(15, 25, 35), Text = Color3.fromRGB(220, 240, 255),
+            TextSecondary = Color3.fromRGB(180, 200, 220), Accent = Color3.fromRGB(0, 180, 255),
+            Glow = Color3.fromRGB(0, 150, 255), Shadow = Color3.fromRGB(0, 10, 20),
+            Element = Color3.fromRGB(35, 45, 55), Success = Color3.fromRGB(0, 230, 118),
+            Warning = Color3.fromRGB(255, 213, 79), Error = Color3.fromRGB(255, 112, 67)
         },
         Matrix = {
-            Name = "Matrix",
-            Primary = Color3.fromRGB(0, 255, 85),
-            Secondary = Color3.fromRGB(15, 15, 15),
-            Background = Color3.fromRGB(5, 5, 5),
-            Text = Color3.fromRGB(0, 255, 85),
-            TextSecondary = Color3.fromRGB(0, 200, 65),
-            Accent = Color3.fromRGB(0, 230, 100),
-            Glow = Color3.fromRGB(0, 255, 85),
-            Shadow = Color3.fromRGB(0, 10, 5),
-            Element = Color3.fromRGB(25, 25, 25),
-            Success = Color3.fromRGB(0, 255, 127),
-            Warning = Color3.fromRGB(255, 235, 59),
-            Error = Color3.fromRGB(255, 61, 0)
+            Name = "Matrix", Primary = Color3.fromRGB(0, 255, 85), Secondary = Color3.fromRGB(15, 15, 15),
+            Background = Color3.fromRGB(5, 5, 5), Text = Color3.fromRGB(0, 255, 85),
+            TextSecondary = Color3.fromRGB(0, 200, 65), Accent = Color3.fromRGB(0, 230, 100),
+            Glow = Color3.fromRGB(0, 255, 85), Shadow = Color3.fromRGB(0, 10, 5),
+            Element = Color3.fromRGB(25, 25, 25), Success = Color3.fromRGB(0, 255, 127),
+            Warning = Color3.fromRGB(255, 235, 59), Error = Color3.fromRGB(255, 61, 0)
         },
         Purple = {
-            Name = "Purple",
-            Primary = Color3.fromRGB(160, 0, 255),
-            Secondary = Color3.fromRGB(40, 30, 50),
-            Background = Color3.fromRGB(30, 20, 40),
-            Text = Color3.fromRGB(240, 220, 255),
-            TextSecondary = Color3.fromRGB(200, 180, 220),
-            Accent = Color3.fromRGB(180, 50, 255),
-            Glow = Color3.fromRGB(160, 0, 255),
-            Shadow = Color3.fromRGB(15, 0, 25),
-            Element = Color3.fromRGB(50, 40, 60),
-            Success = Color3.fromRGB(156, 39, 176),
-            Warning = Color3.fromRGB(255, 167, 38),
-            Error = Color3.fromRGB(244, 67, 54)
+            Name = "Purple", Primary = Color3.fromRGB(160, 0, 255), Secondary = Color3.fromRGB(40, 30, 50),
+            Background = Color3.fromRGB(30, 20, 40), Text = Color3.fromRGB(240, 220, 255),
+            TextSecondary = Color3.fromRGB(200, 180, 220), Accent = Color3.fromRGB(180, 50, 255),
+            Glow = Color3.fromRGB(160, 0, 255), Shadow = Color3.fromRGB(15, 0, 25),
+            Element = Color3.fromRGB(50, 40, 60), Success = Color3.fromRGB(156, 39, 176),
+            Warning = Color3.fromRGB(255, 167, 38), Error = Color3.fromRGB(244, 67, 54)
         },
         RedNeon = {
-            Name = "RedNeon",
-            Primary = Color3.fromRGB(255, 0, 85),
-            Secondary = Color3.fromRGB(40, 40, 40),
-            Background = Color3.fromRGB(25, 25, 25),
-            Text = Color3.fromRGB(255, 255, 255),
-            TextSecondary = Color3.fromRGB(220, 220, 220),
-            Accent = Color3.fromRGB(255, 20, 20),
-            Glow = Color3.fromRGB(255, 0, 85),
-            Shadow = Color3.fromRGB(20, 0, 5),
-            Element = Color3.fromRGB(50, 40, 40),
-            Success = Color3.fromRGB(255, 64, 129),
-            Warning = Color3.fromRGB(255, 193, 7),
-            Error = Color3.fromRGB(255, 23, 68)
+            Name = "RedNeon", Primary = Color3.fromRGB(255, 0, 85), Secondary = Color3.fromRGB(40, 40, 40),
+            Background = Color3.fromRGB(25, 25, 25), Text = Color3.fromRGB(255, 255, 255),
+            TextSecondary = Color3.fromRGB(220, 220, 220), Accent = Color3.fromRGB(255, 20, 20),
+            Glow = Color3.fromRGB(255, 0, 85), Shadow = Color3.fromRGB(20, 0, 5),
+            Element = Color3.fromRGB(50, 40, 40), Success = Color3.fromRGB(255, 64, 129),
+            Warning = Color3.fromRGB(255, 193, 7), Error = Color3.fromRGB(255, 23, 68)
         },
         Light = {
-            Name = "Light",
-            Primary = Color3.fromRGB(0, 120, 215),
-            Secondary = Color3.fromRGB(240, 240, 240),
-            Background = Color3.fromRGB(255, 255, 255),
-            Text = Color3.fromRGB(30, 30, 30),
-            TextSecondary = Color3.fromRGB(100, 100, 100),
-            Accent = Color3.fromRGB(0, 150, 255),
-            Glow = Color3.fromRGB(200, 200, 200),
-            Shadow = Color3.fromRGB(200, 200, 200),
-            Element = Color3.fromRGB(245, 245, 245),
-            Success = Color3.fromRGB(46, 125, 50),
-            Warning = Color3.fromRGB(237, 108, 2),
-            Error = Color3.fromRGB(211, 47, 47)
+            Name = "Light", Primary = Color3.fromRGB(0, 120, 215), Secondary = Color3.fromRGB(240, 240, 240),
+            Background = Color3.fromRGB(255, 255, 255), Text = Color3.fromRGB(30, 30, 30),
+            TextSecondary = Color3.fromRGB(100, 100, 100), Accent = Color3.fromRGB(0, 150, 255),
+            Glow = Color3.fromRGB(200, 200, 200), Shadow = Color3.fromRGB(200, 200, 200),
+            Element = Color3.fromRGB(245, 245, 245), Success = Color3.fromRGB(46, 125, 50),
+            Warning = Color3.fromRGB(237, 108, 2), Error = Color3.fromRGB(211, 47, 47)
+        },
+        Dracula = {
+            Name = "Dracula", Primary = Color3.fromRGB(139, 233, 253), Secondary = Color3.fromRGB(40, 42, 54),
+            Background = Color3.fromRGB(33, 34, 44), Text = Color3.fromRGB(248, 248, 242),
+            TextSecondary = Color3.fromRGB(189, 147, 249), Accent = Color3.fromRGB(80, 250, 123),
+            Glow = Color3.fromRGB(255, 121, 198), Shadow = Color3.fromRGB(20, 20, 30),
+            Element = Color3.fromRGB(68, 71, 90), Success = Color3.fromRGB(80, 250, 123),
+            Warning = Color3.fromRGB(241, 250, 140), Error = Color3.fromRGB(255, 85, 85)
+        },
+        Nord = {
+            Name = "Nord", Primary = Color3.fromRGB(136, 192, 208), Secondary = Color3.fromRGB(46, 52, 64),
+            Background = Color3.fromRGB(36, 41, 51), Text = Color3.fromRGB(236, 239, 244),
+            TextSecondary = Color3.fromRGB(216, 222, 233), Accent = Color3.fromRGB(163, 190, 140),
+            Glow = Color3.fromRGB(191, 97, 106), Shadow = Color3.fromRGB(20, 20, 30),
+            Element = Color3.fromRGB(76, 86, 106), Success = Color3.fromRGB(163, 190, 140),
+            Warning = Color3.fromRGB(235, 203, 139), Error = Color3.fromRGB(191, 97, 106)
+        },
+        Gruvbox = {
+            Name = "Gruvbox", Primary = Color3.fromRGB(184, 187, 38), Secondary = Color3.fromRGB(40, 40, 40),
+            Background = Color3.fromRGB(28, 28, 28), Text = Color3.fromRGB(235, 219, 178),
+            TextSecondary = Color3.fromRGB(168, 153, 132), Accent = Color3.fromRGB(251, 73, 52),
+            Glow = Color3.fromRGB(142, 192, 124), Shadow = Color3.fromRGB(0, 0, 0),
+            Element = Color3.fromRGB(60, 56, 54), Success = Color3.fromRGB(142, 192, 124),
+            Warning = Color3.fromRGB(251, 184, 108), Error = Color3.fromRGB(251, 73, 52)
         }
     }
     
-    -- Ícones atualizados
+    -- ============= ÍCONES =============
     Library.Icons = {
-        Home = "rbxassetid://10709751939",
-        Settings = "rbxassetid://10734950309",
-        User = "rbxassetid://10747373176",
-        Lock = "rbxassetid://10723434711",
-        Unlock = "rbxassetid://10747366027",
-        Info = "rbxassetid://10723415903",
-        Warning = "rbxassetid://10709753149",
-        Error = "rbxassetid://10709753064",
-        Success = "rbxassetid://10709790644",
-        Refresh = "rbxassetid://10734933056",
-        Close = "rbxassetid://10747384394",
-        Minimize = "rbxassetid://10734895698",
-        Maximize = "rbxassetid://10734886735",
-        Download = "rbxassetid://10723344270",
-        Upload = "rbxassetid://10747366434",
-        Folder = "rbxassetid://10723387563",
-        File = "rbxassetid://10723374641",
-        Search = "rbxassetid://10734943674",
-        Filter = "rbxassetid://10723375128",
-        Sort = "rbxassetid://10734965115",
-        Calendar = "rbxassetid://10709789505",
-        Clock = "rbxassetid://10709805144",
-        Star = "rbxassetid://10734966248",
-        Heart = "rbxassetid://10723406885",
-        Bell = "rbxassetid://10709775704",
-        Mail = "rbxassetid://10734885430",
-        Chat = "rbxassetid://10734888000",
-        Phone = "rbxassetid://10734921524",
-        Camera = "rbxassetid://10709789686",
-        Image = "rbxassetid://10723415040",
-        Video = "rbxassetid://10747374938",
-        Music = "rbxassetid://10734905958",
-        Game = "rbxassetid://10723395457",
-        Keyboard = "rbxassetid://10723416765",
-        Mouse = "rbxassetid://10734898592"
+        Home = "rbxassetid://10709751939", Settings = "rbxassetid://10734950309",
+        User = "rbxassetid://10747373176", Lock = "rbxassetid://10723434711",
+        Unlock = "rbxassetid://10747366027", Info = "rbxassetid://10723415903",
+        Warning = "rbxassetid://10709753149", Error = "rbxassetid://10709753064",
+        Success = "rbxassetid://10709790644", Refresh = "rbxassetid://10734933056",
+        Close = "rbxassetid://10747384394", Minimize = "rbxassetid://10734895698",
+        Maximize = "rbxassetid://10734886735", Download = "rbxassetid://10723344270",
+        Upload = "rbxassetid://10747366434", Folder = "rbxassetid://10723387563",
+        File = "rbxassetid://10723374641", Search = "rbxassetid://10734943674",
+        Filter = "rbxassetid://10723375128", Sort = "rbxassetid://10734965115",
+        Calendar = "rbxassetid://10709789505", Clock = "rbxassetid://10709805144",
+        Star = "rbxassetid://10734966248", Heart = "rbxassetid://10723406885",
+        Bell = "rbxassetid://10709775704", Mail = "rbxassetid://10734885430",
+        Chat = "rbxassetid://10734888000", Phone = "rbxassetid://10734921524",
+        Camera = "rbxassetid://10709789686", Image = "rbxassetid://10723415040",
+        Video = "rbxassetid://10747374938", Music = "rbxassetid://10734905958",
+        Game = "rbxassetid://10723395457", Keyboard = "rbxassetid://10723416765",
+        Mouse = "rbxassetid://10734898592", ChevronDown = "rbxassetid://10734933056"
     }
     
-    -- Utilities melhoradas
+    -- ============= UTILITIES =============
     local Utilities = {}
     
-    function Utilities.CreateDebounce(delay)
-        local lastCall = 0
-        return function()
-            local now = tick()
-            if now - lastCall >= (delay or 0.2) then
-                lastCall = now
-                return true
-            end
-            return false
-        end
-    end
-    
-    function Utilities.Tween(object, properties, duration, easingStyle, easingDirection)
+    function Utilities.Tween(object, properties, duration, style, direction)
         local tweenInfo = TweenInfo.new(
             duration or 0.25,
-            easingStyle or Enum.EasingStyle.Quad,
-            easingDirection or Enum.EasingDirection.Out,
-            0,
-            false,
-            0
+            style or Enum.EasingStyle.Quad,
+            direction or Enum.EasingDirection.Out
         )
-        
         local tween = TweenService:Create(object, tweenInfo, properties)
         tween:Play()
         return tween
@@ -214,32 +164,8 @@ local AxiomXLib = (function()
         
         ripple.Parent = button
         
-        Utilities.Tween(ripple, {
-            Size = UDim2.new(2, 0, 2, 0),
-            BackgroundTransparency = 1
-        }, 0.6):Play()
-        
+        Utilities.Tween(ripple, {Size = UDim2.new(2, 0, 2, 0), BackgroundTransparency = 1}, 0.6)
         game:GetService("Debris"):AddItem(ripple, 0.6)
-    end
-    
-    function Utilities.CreateGradient(color1, color2, rotation, transparency)
-        local gradient = Instance.new("UIGradient")
-        gradient.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, color1),
-            ColorSequenceKeypoint.new(1, color2)
-        })
-        gradient.Rotation = rotation or 90
-        if transparency then
-            gradient.Transparency = NumberSequence.new(transparency)
-        end
-        return gradient
-    end
-    
-    function Utilities.CalculateCenterPosition(windowSize)
-        local viewportSize = workspace.CurrentCamera.ViewportSize
-        local centerX = (viewportSize.X - windowSize.X.Offset) / 2
-        local centerY = (viewportSize.Y - windowSize.Y.Offset) / 2
-        return UDim2.new(0, centerX, 0, centerY)
     end
     
     function Utilities.AddShadow(frame, color, size)
@@ -258,86 +184,37 @@ local AxiomXLib = (function()
         return shadow
     end
     
-    -- Sistema de Keybinds
-    function Library:SetupKeybinds()
-        self.Keybinds = {
-            MinimizeAll = {
-                Key = Enum.KeyCode.LeftControl,
-                AdditionalKey = Enum.KeyCode.Left,
-                IsPressed = false,
-                Connection = nil
-            },
-            ToggleUI = {
-                Key = Enum.KeyCode.RightShift,
-                IsPressed = false,
-                Connection = nil
-            }
-        }
-        
-        -- Control + Left para minimizar/restaurar
-        self.Keybinds.MinimizeAll.Connection = UserInputService.InputBegan:Connect(function(input)
-            if input.KeyCode == Enum.KeyCode.LeftControl then
-                self.Keybinds.MinimizeAll.IsPressed = true
-            elseif input.KeyCode == Enum.KeyCode.Left and self.Keybinds.MinimizeAll.IsPressed then
-                self:ToggleAllWindowsMinimize()
-            end
-        end)
-        
-        UserInputService.InputEnded:Connect(function(input)
-            if input.KeyCode == Enum.KeyCode.LeftControl then
-                self.Keybinds.MinimizeAll.IsPressed = false
-            end
-        end)
-        
-        -- Right Shift para toggle UI
-        self.Keybinds.ToggleUI.Connection = UserInputService.InputBegan:Connect(function(input)
-            if input.KeyCode == Enum.KeyCode.RightShift then
-                self:ToggleAllUI()
-            end
-        end)
+    function Utilities.CalculateCenterPosition(windowSize)
+        local viewportSize = workspace.CurrentCamera.ViewportSize
+        local centerX = (viewportSize.X - windowSize.X.Offset) / 2
+        local centerY = (viewportSize.Y - windowSize.Y.Offset) / 2
+        return UDim2.new(0, centerX, 0, centerY)
     end
     
-    function Library:ToggleAllWindowsMinimize()
-        if #self.MinimizedWindows > 0 then
-            self:RestoreAllMinimized()
-        else
-            for _, window in ipairs(self.ActiveWindows) do
-                if not window.Minimized then
-                    window:ToggleMinimize()
-                end
-            end
-        end
+    function Utilities.CreateGradient(color1, color2, rotation)
+        local gradient = Instance.new("UIGradient")
+        gradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, color1),
+            ColorSequenceKeypoint.new(1, color2)
+        })
+        gradient.Rotation = rotation or 90
+        return gradient
     end
     
-    function Library:ToggleAllUI()
-        for _, window in ipairs(self.ActiveWindows) do
-            if window.MainFrame then
-                window.MainFrame.Visible = not window.MainFrame.Visible
-            end
-        end
-    end
-    
-    -- Classe Window melhorada
+    -- ============= WINDOW CLASS =============
     local Window = {}
     Window.__index = Window
     
     function Window.new(library, options)
         local self = setmetatable({}, Window)
-        
         self.Library = library
-        self.Title = options.Title or "AxiomXLib Window"
+        self.Title = options.Title or "AxiomXLib"
         self.Size = options.Size or UDim2.new(0, 550, 0, 400)
-        self.Position = options.Position or Utilities.CalculateCenterPosition(self.Size)
         self.Theme = library.CurrentTheme
-        self.Config = library.Config
         self.Tabs = {}
         self.ActiveTab = nil
         self.Minimized = false
-        self.OriginalSize = nil
-        self.OriginalPosition = nil
         self.Dragging = false
-        self.DragStart = nil
-        self.StartPos = nil
         
         self:CreateUI()
         self:SetupDrag()
@@ -346,7 +223,6 @@ local AxiomXLib = (function()
     end
     
     function Window:CreateUI()
-        -- ScreenGui
         self.ScreenGui = Instance.new("ScreenGui")
         self.ScreenGui.Name = "AxiomXLib_" .. HttpService:GenerateGUID(false)
         self.ScreenGui.ResetOnSpawn = false
@@ -354,7 +230,6 @@ local AxiomXLib = (function()
         self.ScreenGui.IgnoreGuiInset = true
         self.ScreenGui.DisplayOrder = 999
         
-        -- Frame principal
         self.MainFrame = Instance.new("Frame")
         self.MainFrame.Size = self.Size
         self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -363,7 +238,6 @@ local AxiomXLib = (function()
         self.MainFrame.BackgroundTransparency = 0.05
         self.MainFrame.ClipsDescendants = true
         
-        -- Corner e Stroke
         local uiCorner = Instance.new("UICorner")
         uiCorner.CornerRadius = UDim.new(0, 8)
         uiCorner.Parent = self.MainFrame
@@ -374,10 +248,9 @@ local AxiomXLib = (function()
         uiStroke.Transparency = 0.3
         uiStroke.Parent = self.MainFrame
         
-        -- Sombra
         Utilities.AddShadow(self.MainFrame, self.Theme.Shadow, 20)
         
-        -- Top Bar melhorada
+        -- Top Bar
         self.TitleBar = Instance.new("Frame")
         self.TitleBar.Size = UDim2.new(1, 0, 0, 45)
         self.TitleBar.BackgroundColor3 = self.Theme.Secondary
@@ -387,16 +260,6 @@ local AxiomXLib = (function()
         titleCorner.CornerRadius = UDim.new(0, 8)
         titleCorner.Parent = self.TitleBar
         
-        -- Gradiente na top bar
-        local titleGradient = Utilities.CreateGradient(
-            self.Theme.Primary,
-            self.Theme.Accent,
-            90,
-            0.9
-        )
-        titleGradient.Parent = self.TitleBar
-        
-        -- Título
         self.TitleLabel = Instance.new("TextLabel")
         self.TitleLabel.Size = UDim2.new(0.7, 0, 1, 0)
         self.TitleLabel.Position = UDim2.new(0, 15, 0, 0)
@@ -409,10 +272,8 @@ local AxiomXLib = (function()
         self.TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
         self.TitleLabel.Parent = self.TitleBar
         
-        -- Botões de controle melhorados
         self:CreateControlButtons()
         
-        -- Container de tabs verticais
         self.TabContainer = Instance.new("Frame")
         self.TabContainer.Size = UDim2.new(0, 180, 1, -55)
         self.TabContainer.Position = UDim2.new(0, 10, 0, 50)
@@ -423,7 +284,6 @@ local AxiomXLib = (function()
         tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         tabListLayout.Parent = self.TabContainer
         
-        -- Container de conteúdo
         self.ContentContainer = Instance.new("Frame")
         self.ContentContainer.Size = UDim2.new(1, -200, 1, -60)
         self.ContentContainer.Position = UDim2.new(0, 190, 0, 50)
@@ -438,7 +298,6 @@ local AxiomXLib = (function()
         contentScrolling.ScrollBarImageColor3 = self.Theme.Primary
         contentScrolling.ScrollBarImageTransparency = 0.5
         contentScrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        contentScrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
         contentScrolling.Parent = self.ContentContainer
         
         local contentLayout = Instance.new("UIListLayout")
@@ -446,41 +305,25 @@ local AxiomXLib = (function()
         contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
         contentLayout.Parent = contentScrolling
         
-        -- Hierarquia
         self.TitleBar.Parent = self.MainFrame
         self.TabContainer.Parent = self.MainFrame
         self.ContentContainer.Parent = self.MainFrame
         self.MainFrame.Parent = self.ScreenGui
         
-        -- Parent
         local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
-        if playerGui then
-            self.ScreenGui.Parent = playerGui
-        else
-            self.ScreenGui.Parent = CoreGui
-        end
+        self.ScreenGui.Parent = playerGui or CoreGui
         
-        -- Animação de entrada
         self:PlayEntranceAnimation()
-        
-        -- Listener para resize
-        self:SetupResizeListener()
     end
     
     function Window:PlayEntranceAnimation()
-        self.MainFrame.BackgroundTransparency = 1
-        self.TitleBar.BackgroundTransparency = 1
-        self.TitleLabel.TextTransparency = 1
-        
         self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
+        self.MainFrame.BackgroundTransparency = 1
         
         Utilities.Tween(self.MainFrame, {
             Size = self.Size,
             BackgroundTransparency = 0.05
         }, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        
-        Utilities.Tween(self.TitleBar, {BackgroundTransparency = 0.1}, 0.4)
-        Utilities.Tween(self.TitleLabel, {TextTransparency = 0}, 0.4)
     end
     
     function Window:CreateControlButtons()
@@ -495,12 +338,11 @@ local AxiomXLib = (function()
         buttonList.Padding = UDim.new(0, 5)
         buttonList.Parent = buttonContainer
         
-        -- Botão minimizar
         self.MinimizeButton = Instance.new("TextButton")
         self.MinimizeButton.Size = UDim2.new(0, 35, 0, 35)
         self.MinimizeButton.BackgroundColor3 = self.Theme.Primary
         self.MinimizeButton.BackgroundTransparency = 0.8
-        self.MinimizeButton.Text = "-"
+        self.MinimizeButton.Text = "−"
         self.MinimizeButton.TextColor3 = self.Theme.Text
         self.MinimizeButton.TextSize = 20
         self.MinimizeButton.Font = Enum.Font.GothamBold
@@ -523,14 +365,13 @@ local AxiomXLib = (function()
             Utilities.Tween(self.MinimizeButton, {BackgroundTransparency = 0.8}, 0.2)
         end)
         
-        -- Botão fechar
         self.CloseButton = Instance.new("TextButton")
         self.CloseButton.Size = UDim2.new(0, 35, 0, 35)
         self.CloseButton.BackgroundColor3 = self.Theme.Error
         self.CloseButton.BackgroundTransparency = 0.8
-        self.CloseButton.Text = "×"
+        self.CloseButton.Text = "✕"
         self.CloseButton.TextColor3 = self.Theme.Text
-        self.CloseButton.TextSize = 20
+        self.CloseButton.TextSize = 18
         self.CloseButton.Font = Enum.Font.GothamBold
         self.CloseButton.AutoButtonColor = false
         
@@ -557,59 +398,33 @@ local AxiomXLib = (function()
     end
     
     function Window:SetupDrag()
-        local dragConnection
-        local inputChangedConnection
+        local dragConnection, inputChangedConnection
         
         self.TitleBar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or 
-               input.UserInputType == Enum.UserInputType.Touch then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 self.Dragging = true
-                self.DragStart = input.Position
-                self.StartPos = self.MainFrame.Position
-                
-                Utilities.Tween(self.MainFrame, {
-                    BackgroundTransparency = 0.1,
-                    Size = UDim2.new(
-                        self.MainFrame.Size.X.Scale, 
-                        self.MainFrame.Size.X.Offset * 1.01,
-                        self.MainFrame.Size.Y.Scale, 
-                        self.MainFrame.Size.Y.Offset * 1.01
-                    )
-                }, 0.1)
+                local dragStart = input.Position
+                local startPos = self.MainFrame.Position
                 
                 dragConnection = input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
                         self.Dragging = false
-                        Utilities.Tween(self.MainFrame, {
-                            BackgroundTransparency = 0.05,
-                            Size = self.Size
-                        }, 0.1)
-                        
                         if dragConnection then dragConnection:Disconnect() end
                         if inputChangedConnection then inputChangedConnection:Disconnect() end
                     end
                 end)
                 
                 inputChangedConnection = UserInputService.InputChanged:Connect(function(moveInput)
-                    if self.Dragging and (moveInput.UserInputType == Enum.UserInputType.MouseMovement or 
-                       moveInput.UserInputType == Enum.UserInputType.Touch) then
-                        local delta = moveInput.Position - self.DragStart
+                    if self.Dragging and moveInput.UserInputType == Enum.UserInputType.MouseMovement then
+                        local delta = moveInput.Position - dragStart
                         self.MainFrame.Position = UDim2.new(
-                            self.StartPos.X.Scale, 
-                            self.StartPos.X.Offset + delta.X,
-                            self.StartPos.Y.Scale, 
-                            self.StartPos.Y.Offset + delta.Y
+                            startPos.X.Scale,
+                            startPos.X.Offset + delta.X,
+                            startPos.Y.Scale,
+                            startPos.Y.Offset + delta.Y
                         )
                     end
                 end)
-            end
-        end)
-    end
-    
-    function Window:SetupResizeListener()
-        workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-            if not self.Minimized then
-                self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
             end
         end)
     end
@@ -618,44 +433,16 @@ local AxiomXLib = (function()
         self.Minimized = not self.Minimized
         
         if self.Minimized then
-            self.OriginalSize = self.MainFrame.Size
-            self.OriginalPosition = self.MainFrame.Position
-            
             self.TabContainer.Visible = false
             self.ContentContainer.Visible = false
-            
-            local minimizedWidth = math.min(300, self.OriginalSize.X.Offset)
-            
-            Utilities.Tween(self.MainFrame, {
-                Size = UDim2.new(0, minimizedWidth, 0, 45),
-                Position = UDim2.new(0, self.MainFrame.Position.X.Offset, 0, self.MainFrame.Position.Y.Offset)
-            }, 0.3):Play()
-            
-            Utilities.Tween(self.MainFrame.Shadow, {
-                Size = UDim2.new(1, 10, 1, 10),
-                Position = UDim2.new(0, -5, 0, -5)
-            }, 0.3)
-            
+            Utilities.Tween(self.MainFrame, {Size = UDim2.new(0, 300, 0, 45)}, 0.3)
             self.MinimizeButton.Text = "+"
             table.insert(self.Library.MinimizedWindows, self)
-            
-            Utilities.Tween(self.TitleBar, {BackgroundTransparency = 0.05}, 0.2)
-            
         else
             self.TabContainer.Visible = true
             self.ContentContainer.Visible = true
-            
-            Utilities.Tween(self.MainFrame, {
-                Size = self.OriginalSize,
-                Position = self.OriginalPosition
-            }, 0.3):Play()
-            
-            Utilities.Tween(self.MainFrame.Shadow, {
-                Size = UDim2.new(1, 20, 1, 20),
-                Position = UDim2.new(0, -10, 0, -10)
-            }, 0.3)
-            
-            self.MinimizeButton.Text = "-"
+            Utilities.Tween(self.MainFrame, {Size = self.Size}, 0.3)
+            self.MinimizeButton.Text = "−"
             
             for i, window in ipairs(self.Library.MinimizedWindows) do
                 if window == self then
@@ -663,23 +450,13 @@ local AxiomXLib = (function()
                     break
                 end
             end
-            
-            Utilities.Tween(self.TitleBar, {BackgroundTransparency = 0.1}, 0.2)
-            
-            if math.abs(self.OriginalPosition.X.Scale - 0.5) < 0.01 then
-                task.wait(0.3)
-                self:Center()
-            end
         end
     end
     
     function Window:Center()
-        Utilities.Tween(self.MainFrame, {
-            Position = UDim2.new(0.5, 0, 0.5, 0)
-        }, 0.3)
+        Utilities.Tween(self.MainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
     end
     
-    -- Sistema de tabs melhorado
     function Window:AddTab(options)
         options = options or {}
         
@@ -687,12 +464,9 @@ local AxiomXLib = (function()
             Name = options.Name or "Tab",
             Icon = options.Icon or nil,
             Sections = {},
-            Active = false,
-            Button = nil,
-            Content = nil
+            Active = false
         }
         
-        -- Botão da tab
         Tab.Button = Instance.new("TextButton")
         Tab.Button.Name = "TabButton_" .. Tab.Name
         Tab.Button.Size = UDim2.new(1, 0, 0, 40)
@@ -706,16 +480,13 @@ local AxiomXLib = (function()
         buttonCorner.CornerRadius = UDim.new(0, 6)
         buttonCorner.Parent = Tab.Button
         
-        -- Conteúdo do botão
         local buttonContent = Instance.new("Frame")
         buttonContent.Size = UDim2.new(1, -20, 1, -10)
         buttonContent.Position = UDim2.new(0, 10, 0, 5)
         buttonContent.BackgroundTransparency = 1
         
-        -- Ícone
-        local IconLabel
         if Tab.Icon then
-            IconLabel = Instance.new("ImageLabel")
+            local IconLabel = Instance.new("ImageLabel")
             IconLabel.Size = UDim2.new(0, 20, 0, 20)
             IconLabel.Position = UDim2.new(0, 0, 0.5, -10)
             IconLabel.BackgroundTransparency = 1
@@ -723,9 +494,9 @@ local AxiomXLib = (function()
             IconLabel.ImageColor3 = self.Theme.TextSecondary
             IconLabel.ImageTransparency = 0.5
             IconLabel.Parent = buttonContent
+            Tab.IconLabel = IconLabel
         end
         
-        -- Texto
         local TextLabel = Instance.new("TextLabel")
         TextLabel.Size = UDim2.new(1, Tab.Icon and -30 or -10, 1, 0)
         TextLabel.Position = UDim2.new(0, Tab.Icon and 30 or 10, 0, 0)
@@ -738,8 +509,8 @@ local AxiomXLib = (function()
         TextLabel.TextYAlignment = Enum.TextYAlignment.Center
         TextLabel.TextTransparency = 0.5
         TextLabel.Parent = buttonContent
+        Tab.TextLabel = TextLabel
         
-        -- Indicador
         local Indicator = Instance.new("Frame")
         Indicator.Size = UDim2.new(0, 3, 0.6, 0)
         Indicator.Position = UDim2.new(0, -8, 0.2, 0)
@@ -750,8 +521,8 @@ local AxiomXLib = (function()
         local indicatorCorner = Instance.new("UICorner")
         indicatorCorner.CornerRadius = UDim.new(1, 0)
         indicatorCorner.Parent = Indicator
+        Tab.Indicator = Indicator
         
-        -- Content frame
         local ContentScrolling = Instance.new("ScrollingFrame")
         ContentScrolling.Name = "TabContent_" .. Tab.Name
         ContentScrolling.Size = UDim2.new(1, -20, 1, -20)
@@ -763,14 +534,12 @@ local AxiomXLib = (function()
         ContentScrolling.ScrollBarImageTransparency = 0.5
         ContentScrolling.Visible = false
         ContentScrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        ContentScrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
         
         local contentLayout = Instance.new("UIListLayout")
         contentLayout.Padding = UDim.new(0, 10)
         contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
         contentLayout.Parent = ContentScrolling
         
-        -- Eventos
         Tab.Button.MouseButton1Click:Connect(function()
             self:SwitchTab(Tab)
         end)
@@ -779,8 +548,8 @@ local AxiomXLib = (function()
             if not Tab.Active then
                 Utilities.Tween(Tab.Button, {BackgroundTransparency = 0.7}, 0.2)
                 Utilities.Tween(TextLabel, {TextTransparency = 0}, 0.2)
-                if IconLabel then
-                    Utilities.Tween(IconLabel, {ImageTransparency = 0}, 0.2)
+                if Tab.IconLabel then
+                    Utilities.Tween(Tab.IconLabel, {ImageTransparency = 0}, 0.2)
                 end
             end
         end)
@@ -789,8 +558,8 @@ local AxiomXLib = (function()
             if not Tab.Active then
                 Utilities.Tween(Tab.Button, {BackgroundTransparency = 0.9}, 0.2)
                 Utilities.Tween(TextLabel, {TextTransparency = 0.5}, 0.2)
-                if IconLabel then
-                    Utilities.Tween(IconLabel, {ImageTransparency = 0.5}, 0.2)
+                if Tab.IconLabel then
+                    Utilities.Tween(Tab.IconLabel, {ImageTransparency = 0.5}, 0.2)
                 end
             end
         end)
@@ -799,32 +568,20 @@ local AxiomXLib = (function()
         Indicator.Parent = Tab.Button
         Tab.Button.Parent = self.TabContainer
         ContentScrolling.Parent = self.ContentContainer:FindFirstChildWhichIsA("ScrollingFrame")
-        
-        -- Configurar tab
-        Tab.ButtonInstance = Tab.Button
-        Tab.TextLabel = TextLabel
-        Tab.IconLabel = IconLabel
-        Tab.Indicator = Indicator
         Tab.Content = ContentScrolling
-        Tab.Active = false
         
-        -- Métodos da tab
+        -- Tab Methods
         function Tab:AddSection(options)
             options = options or {}
             
-            local Section = {
-                Name = options.Name or "Section",
-                Open = options.Open or true
-            }
+            local Section = {Name = options.Name or "Section", Elements = {}}
             
-            -- Container
             local Container = Instance.new("Frame")
             Container.Name = "Section_" .. Section.Name
             Container.Size = UDim2.new(1, 0, 0, 0)
             Container.BackgroundTransparency = 1
             Container.LayoutOrder = #Tab.Sections + 1
             
-            -- Header
             local Header = Instance.new("Frame")
             Header.Size = UDim2.new(1, 0, 0, 30)
             Header.BackgroundTransparency = 1
@@ -848,7 +605,6 @@ local AxiomXLib = (function()
             Divider.BackgroundTransparency = 0.8
             Divider.Parent = Header
             
-            -- Elements container
             local ElementsContainer = Instance.new("Frame")
             ElementsContainer.Size = UDim2.new(1, 0, 0, 0)
             ElementsContainer.Position = UDim2.new(0, 0, 0, 35)
@@ -868,7 +624,7 @@ local AxiomXLib = (function()
             ElementsContainer.Parent = Container
             Container.Parent = Tab.Content
             
-            -- Métodos da seção
+            -- Section Methods
             function Section:AddButton(options)
                 options = options or {}
                 
@@ -892,7 +648,6 @@ local AxiomXLib = (function()
                 Stroke.Transparency = 0.8
                 Stroke.Parent = Button
                 
-                -- Efeitos
                 Button.MouseEnter:Connect(function()
                     Utilities.Tween(Button, {BackgroundTransparency = 0.7}, 0.2)
                     Utilities.Tween(Stroke, {Transparency = 0.5}, 0.2)
@@ -904,9 +659,7 @@ local AxiomXLib = (function()
                 end)
                 
                 Button.MouseButton1Click:Connect(function()
-                    if options.Callback then
-                        options.Callback()
-                    end
+                    if options.Callback then options.Callback() end
                     Utilities.CreateRippleEffect(Button, self.Theme.Accent)
                 end)
                 
@@ -922,11 +675,10 @@ local AxiomXLib = (function()
                 Label.BackgroundTransparency = 1
                 Label.Text = options.Text or "Label"
                 Label.TextColor3 = self.Theme.TextSecondary
-                Label.TextSize = 14
+                Label.TextSize = 13
                 Label.Font = Enum.Font.Gotham
                 Label.TextXAlignment = Enum.TextXAlignment.Left
                 Label.TextWrapped = true
-                
                 Label.Parent = ElementsContainer
                 return Label
             end
@@ -934,9 +686,7 @@ local AxiomXLib = (function()
             function Section:AddToggle(options)
                 options = options or {}
                 
-                local Toggle = {
-                    Value = options.Default or false
-                }
+                local Toggle = {Value = options.Default or false}
                 
                 local ToggleFrame = Instance.new("Frame")
                 ToggleFrame.Size = UDim2.new(1, 0, 0, 35)
@@ -971,12 +721,6 @@ local AxiomXLib = (function()
                 BoxCorner.CornerRadius = UDim.new(0, 4)
                 BoxCorner.Parent = ToggleBox
                 
-                local BoxStroke = Instance.new("UIStroke")
-                BoxStroke.Color = self.Theme.Primary
-                BoxStroke.Thickness = 1
-                BoxStroke.Transparency = 0.7
-                BoxStroke.Parent = ToggleBox
-                
                 local ToggleDot = Instance.new("Frame")
                 ToggleDot.Size = UDim2.new(0, 16, 0, 16)
                 ToggleDot.Position = UDim2.new(0.5, -8, 0.5, -8)
@@ -993,7 +737,6 @@ local AxiomXLib = (function()
                 ToggleButton.Parent = ToggleFrame
                 ToggleFrame.Parent = ElementsContainer
                 
-                -- Eventos
                 ToggleButton.MouseButton1Click:Connect(function()
                     Toggle.Value = not Toggle.Value
                     
@@ -1005,9 +748,7 @@ local AxiomXLib = (function()
                         Utilities.Tween(ToggleBox, {BackgroundColor3 = self.Theme.Element}, 0.2)
                     end
                     
-                    if options.Callback then
-                        options.Callback(Toggle.Value)
-                    end
+                    if options.Callback then options.Callback(Toggle.Value) end
                 end)
                 
                 ToggleButton.MouseEnter:Connect(function()
@@ -1065,47 +806,28 @@ local AxiomXLib = (function()
                 FillCorner.CornerRadius = UDim.new(1, 0)
                 FillCorner.Parent = Fill
                 
-                local Thumb = Instance.new("Frame")
-                Thumb.Size = UDim2.new(0, 12, 0, 12)
-                Thumb.Position = UDim2.new(0, -6, 0.5, -6)
-                Thumb.AnchorPoint = Vector2.new(0, 0.5)
-                Thumb.BackgroundColor3 = self.Theme.Primary
-                Thumb.BackgroundTransparency = 0.3
-                
-                local ThumbCorner = Instance.new("UICorner")
-                ThumbCorner.CornerRadius = UDim.new(1, 0)
-                ThumbCorner.Parent = Thumb
-                
                 Fill.Parent = Track
-                Thumb.Parent = Track
                 Track.Parent = SliderFrame
                 SliderFrame.Parent = ElementsContainer
                 
-                -- Atualizar slider
                 local function UpdateSlider(value)
                     local percentage = (value - Slider.Min) / (Slider.Max - Slider.Min)
-                    local width = Track.AbsoluteSize.X * percentage
-                    
                     Fill.Size = UDim2.new(percentage, 0, 1, 0)
-                    Thumb.Position = UDim2.new(percentage, -6, 0.5, -6)
                     
                     local displayValue = options.Decimals and string.format("%."..options.Decimals.."f", value) or math.floor(value)
                     SliderText.Text = options.Text .. ": " .. displayValue
                     
                     Slider.Value = value
                     
-                    if options.Callback then
-                        options.Callback(value)
-                    end
+                    if options.Callback then options.Callback(value) end
                 end
                 
                 UpdateSlider(Slider.Value)
                 
-                -- Interação
                 local dragging = false
                 
                 local function UpdateFromInput(input)
-                    local relativeX = (input.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X
+                    local relativeX = math.clamp((input.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
                     local value = Slider.Min + (relativeX * (Slider.Max - Slider.Min))
                     value = math.clamp(value, Slider.Min, Slider.Max)
                     
@@ -1140,6 +862,155 @@ local AxiomXLib = (function()
                 return Slider
             end
             
+            function Section:AddTextBox(options)
+                options = options or {}
+                
+                local TextInput = {Value = options.Default or ""}
+                
+                local TextBoxFrame = Instance.new("Frame")
+                TextBoxFrame.Size = UDim2.new(1, 0, 0, 35)
+                TextBoxFrame.BackgroundTransparency = 1
+                
+                local Label = Instance.new("TextLabel")
+                Label.Size = UDim2.new(0.5, 0, 1, 0)
+                Label.BackgroundTransparency = 1
+                Label.Text = options.Text or "Input"
+                Label.TextColor3 = self.Theme.Text
+                Label.TextSize = 13
+                Label.Font = Enum.Font.GothamSemibold
+                Label.TextXAlignment = Enum.TextXAlignment.Left
+                Label.TextYAlignment = Enum.TextYAlignment.Center
+                Label.Parent = TextBoxFrame
+                
+                local InputBox = Instance.new("TextBox")
+                InputBox.Size = UDim2.new(0.5, -10, 1, 0)
+                InputBox.Position = UDim2.new(0.5, 5, 0, 0)
+                InputBox.BackgroundColor3 = self.Theme.Element
+                InputBox.BackgroundTransparency = 0.9
+                InputBox.TextColor3 = self.Theme.Text
+                InputBox.TextSize = 13
+                InputBox.Font = Enum.Font.Gotham
+                InputBox.PlaceholderText = options.Placeholder or ""
+                InputBox.PlaceholderColor3 = self.Theme.TextSecondary
+                InputBox.Text = TextInput.Value
+                
+                local InputCorner = Instance.new("UICorner")
+                InputCorner.CornerRadius = UDim.new(0, 4)
+                InputCorner.Parent = InputBox
+                
+                local InputPadding = Instance.new("UIPadding")
+                InputPadding.PaddingLeft = UDim.new(0, 8)
+                InputPadding.PaddingRight = UDim.new(0, 8)
+                InputPadding.Parent = InputBox
+                
+                InputBox.FocusLost:Connect(function()
+                    TextInput.Value = InputBox.Text
+                    if options.Callback then options.Callback(InputBox.Text) end
+                end)
+                
+                InputBox.Parent = TextBoxFrame
+                TextBoxFrame.Parent = ElementsContainer
+                
+                return TextInput
+            end
+            
+            function Section:AddDropdown(options)
+                options = options or {}
+                
+                local Dropdown = {Value = options.Default or (options.Options and options.Options[1]) or ""}
+                
+                local DropdownFrame = Instance.new("Frame")
+                DropdownFrame.Size = UDim2.new(1, 0, 0, 35)
+                DropdownFrame.BackgroundTransparency = 1
+                
+                local DropdownButton = Instance.new("TextButton")
+                DropdownButton.Size = UDim2.new(1, 0, 1, 0)
+                DropdownButton.BackgroundColor3 = self.Theme.Element
+                DropdownButton.BackgroundTransparency = 0.9
+                DropdownButton.Text = Dropdown.Value
+                DropdownButton.TextColor3 = self.Theme.Text
+                DropdownButton.TextSize = 13
+                DropdownButton.Font = Enum.Font.Gotham
+                DropdownButton.AutoButtonColor = false
+                
+                local DropdownCorner = Instance.new("UICorner")
+                DropdownCorner.CornerRadius = UDim.new(0, 4)
+                DropdownCorner.Parent = DropdownButton
+                
+                local isOpen = false
+                
+                local DropdownMenu = Instance.new("ScrollingFrame")
+                DropdownMenu.Name = "DropdownMenu"
+                DropdownMenu.Size = UDim2.new(1, 0, 0, 0)
+                DropdownMenu.Position = UDim2.new(0, 0, 1, 5)
+                DropdownMenu.BackgroundColor3 = self.Theme.Secondary
+                DropdownMenu.BorderSizePixel = 0
+                DropdownMenu.ScrollBarThickness = 2
+                DropdownMenu.Visible = false
+                DropdownMenu.ZIndex = 100
+                DropdownMenu.ClipsDescendants = true
+                
+                local MenuCorner = Instance.new("UICorner")
+                MenuCorner.CornerRadius = UDim.new(0, 4)
+                MenuCorner.Parent = DropdownMenu
+                
+                local MenuLayout = Instance.new("UIListLayout")
+                MenuLayout.Padding = UDim.new(0, 2)
+                MenuLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                MenuLayout.Parent = DropdownMenu
+                
+                if options.Options then
+                    for _, option in ipairs(options.Options) do
+                        local OptionButton = Instance.new("TextButton")
+                        OptionButton.Size = UDim2.new(1, 0, 0, 30)
+                        OptionButton.BackgroundColor3 = self.Theme.Element
+                        OptionButton.BackgroundTransparency = 0.7
+                        OptionButton.Text = option
+                        OptionButton.TextColor3 = self.Theme.Text
+                        OptionButton.TextSize = 12
+                        OptionButton.Font = Enum.Font.Gotham
+                        OptionButton.AutoButtonColor = false
+                        
+                        OptionButton.MouseButton1Click:Connect(function()
+                            Dropdown.Value = option
+                            DropdownButton.Text = option
+                            isOpen = false
+                            Utilities.Tween(DropdownMenu, {Size = UDim2.new(1, 0, 0, 0)}, 0.2)
+                            DropdownMenu.Visible = false
+                            if options.Callback then options.Callback(option) end
+                        end)
+                        
+                        OptionButton.MouseEnter:Connect(function()
+                            Utilities.Tween(OptionButton, {BackgroundTransparency = 0.5}, 0.1)
+                        end)
+                        
+                        OptionButton.MouseLeave:Connect(function()
+                            Utilities.Tween(OptionButton, {BackgroundTransparency = 0.7}, 0.1)
+                        end)
+                        
+                        OptionButton.Parent = DropdownMenu
+                    end
+                end
+                
+                DropdownButton.MouseButton1Click:Connect(function()
+                    isOpen = not isOpen
+                    if isOpen then
+                        DropdownMenu.Visible = true
+                        local itemCount = #options.Options or 0
+                        Utilities.Tween(DropdownMenu, {Size = UDim2.new(1, 0, 0, math.min(itemCount * 32, 150))}, 0.2)
+                    else
+                        Utilities.Tween(DropdownMenu, {Size = UDim2.new(1, 0, 0, 0)}, 0.2)
+                        DropdownMenu.Visible = false
+                    end
+                end)
+                
+                DropdownButton.Parent = DropdownFrame
+                DropdownMenu.Parent = DropdownFrame
+                DropdownFrame.Parent = ElementsContainer
+                
+                return Dropdown
+            end
+            
             table.insert(Tab.Sections, Section)
             return Section
         end
@@ -1156,7 +1027,7 @@ local AxiomXLib = (function()
     function Window:SwitchTab(tab)
         if self.ActiveTab then
             self.ActiveTab.Active = false
-            Utilities.Tween(self.ActiveTab.ButtonInstance, {BackgroundTransparency = 0.9}, 0.2)
+            Utilities.Tween(self.ActiveTab.Button, {BackgroundTransparency = 0.9}, 0.2)
             Utilities.Tween(self.ActiveTab.TextLabel, {TextTransparency = 0.5}, 0.2)
             if self.ActiveTab.IconLabel then
                 Utilities.Tween(self.ActiveTab.IconLabel, {ImageTransparency = 0.5}, 0.2)
@@ -1168,7 +1039,7 @@ local AxiomXLib = (function()
         self.ActiveTab = tab
         tab.Active = true
         
-        Utilities.Tween(tab.ButtonInstance, {BackgroundTransparency = 0.7}, 0.2)
+        Utilities.Tween(tab.Button, {BackgroundTransparency = 0.7}, 0.2)
         Utilities.Tween(tab.TextLabel, {TextTransparency = 0}, 0.2)
         if tab.IconLabel then
             Utilities.Tween(tab.IconLabel, {ImageTransparency = 0}, 0.2)
@@ -1179,30 +1050,10 @@ local AxiomXLib = (function()
     
     function Window:ApplyTheme(theme)
         self.Theme = theme
-        
         self.MainFrame.BackgroundColor3 = theme.Background
         self.MainFrame.UIStroke.Color = theme.Primary
         self.TitleBar.BackgroundColor3 = theme.Secondary
         self.TitleLabel.TextColor3 = theme.Text
-        self.MinimizeButton.BackgroundColor3 = theme.Primary
-        self.MinimizeButton.TextColor3 = theme.Text
-        self.CloseButton.BackgroundColor3 = theme.Error
-        self.CloseButton.TextColor3 = theme.Text
-        
-        if self.MainFrame.Shadow then
-            self.MainFrame.Shadow.ImageColor3 = theme.Shadow
-        end
-        
-        for _, tab in ipairs(self.Tabs) do
-            if tab.ButtonInstance then
-                tab.ButtonInstance.BackgroundColor3 = theme.Element
-                tab.TextLabel.TextColor3 = theme.TextSecondary
-                if tab.IconLabel then
-                    tab.IconLabel.ImageColor3 = theme.TextSecondary
-                end
-                tab.Indicator.BackgroundColor3 = theme.Primary
-            end
-        end
     end
     
     function Window:Destroy()
@@ -1216,16 +1067,9 @@ local AxiomXLib = (function()
                 break
             end
         end
-        
-        for i, window in ipairs(self.Library.MinimizedWindows) do
-            if window == self then
-                table.remove(self.Library.MinimizedWindows, i)
-                break
-            end
-        end
     end
     
-    -- Interface principal
+    -- ============= MAIN LIBRARY =============
     function Library.new(config)
         local self = setmetatable({}, {__index = Library})
         
@@ -1234,13 +1078,7 @@ local AxiomXLib = (function()
         self.Config = {
             Theme = config.Theme or "Dark",
             DefaultSize = config.Size or UDim2.new(0, 550, 0, 400),
-            AnimationSpeed = config.AnimationSpeed or 0.25,
-            Roundness = config.Roundness or 8,
-            Transparency = config.Transparency or 0.95,
-            EnableSounds = config.EnableSounds or false,
-            PerformanceMode = config.PerformanceMode or false,
-            EnableKeybinds = config.EnableKeybinds ~= false,
-            EnableTouch = config.EnableTouch ~= false
+            AnimationSpeed = config.AnimationSpeed or 0.25
         }
         
         self.CurrentTheme = self.Themes[self.Config.Theme] or self.Themes.Dark
@@ -1249,40 +1087,20 @@ local AxiomXLib = (function()
         self.MinimizedWindows = {}
         self.Utilities = Utilities
         
-        if self.Config.EnableKeybinds then
-            self:SetupKeybinds()
-        end
-        
         return self
     end
     
-    -- Métodos públicos
     function Library:CreateWindow(options)
         options = options or {}
         
         local window = Window.new(self, {
-            Title = options.Title or "AxiomXLib Window",
+            Title = options.Title or "AxiomXLib",
             Size = options.Size or self.Config.DefaultSize,
             Position = options.Position
         })
         
         table.insert(self.Windows, window)
         table.insert(self.ActiveWindows, window)
-        
-        function window:AddTab(tabName, icon)
-            return Window.AddTab(window, {
-                Name = tabName,
-                Icon = icon
-            })
-        end
-        
-        function window:Center()
-            return Window.Center(window)
-        end
-        
-        function window:Destroy()
-            return Window.Destroy(window)
-        end
         
         return window
     end
@@ -1332,20 +1150,11 @@ local AxiomXLib = (function()
             window:Destroy()
         end
         self.ActiveWindows = {}
-        
-        if self.Keybinds and self.Keybinds.MinimizeAll and self.Keybinds.MinimizeAll.Connection then
-            self.Keybinds.MinimizeAll.Connection:Disconnect()
-        end
-        if self.Keybinds and self.Keybinds.ToggleUI and self.Keybinds.ToggleUI.Connection then
-            self.Keybinds.ToggleUI.Connection:Disconnect()
-        end
     end
     
     function Library:CenterAllWindows()
         for _, window in ipairs(self.ActiveWindows) do
-            if window.Center then
-                window:Center()
-            end
+            window:Center()
         end
     end
     
@@ -1366,7 +1175,6 @@ local AxiomXLib = (function()
         end
     end
     
-    -- Watermark
     function Library:CreateWatermark(text)
         local watermark = Instance.new("TextLabel")
         watermark.Name = "Watermark"
@@ -1377,7 +1185,7 @@ local AxiomXLib = (function()
         watermark.BackgroundTransparency = 0.9
         watermark.Text = text or "AxiomXLib v" .. self.Version
         watermark.TextColor3 = self.CurrentTheme.TextSecondary
-        watermark.TextSize = 14
+        watermark.TextSize = 13
         watermark.Font = Enum.Font.Gotham
         watermark.TextXAlignment = Enum.TextXAlignment.Right
         
@@ -1390,22 +1198,21 @@ local AxiomXLib = (function()
         padding.PaddingLeft = UDim.new(0, 10)
         padding.Parent = watermark
         
-        local textSize = TextService:GetTextSize(watermark.Text, watermark.TextSize, watermark.Font, Vector2.new(1000, 30))
-        watermark.Size = UDim2.new(0, textSize.X + 20, 0, 30)
+        local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+        watermark.Parent = playerGui or CoreGui
         
         return watermark
     end
     
-    -- Função de exemplo
     function Library:CreateExampleWindow()
         local window = self:CreateWindow({
             Title = "AxiomXLib v" .. self.Version,
-            Size = UDim2.new(0, 600, 0, 450)
+            Size = UDim2.new(0, 650, 0, 500)
         })
         
-        local homeTab = window:AddTab("🏠 Home", self:GetIcon("Home"))
-        local settingsTab = window:AddTab("⚙️ Settings", self:GetIcon("Settings"))
-        local visualsTab = window:AddTab("🎨 Visuals", self:GetIcon("Image"))
+        local homeTab = window:AddTab({Name = "🏠 Home", Icon = self:GetIcon("Home")})
+        local settingsTab = window:AddTab({Name = "⚙️ Settings", Icon = self:GetIcon("Settings")})
+        local visualsTab = window:AddTab({Name = "🎨 Visuals", Icon = self:GetIcon("Image")})
         
         -- Home Tab
         local welcomeSection = homeTab:AddSection({Name = "Welcome"})
@@ -1413,42 +1220,24 @@ local AxiomXLib = (function()
         welcomeSection:AddLabel("A modern UI library for Roblox")
         
         local featuresSection = homeTab:AddSection({Name = "Features"})
-        featuresSection:AddLabel("• Modern design")
-        featuresSection:AddLabel("• Vertical tabs")
+        featuresSection:AddLabel("• Modern design with 9 themes")
+        featuresSection:AddLabel("• Vertical tabs with icons")
         featuresSection:AddLabel("• Minimize to top bar")
-        featuresSection:AddLabel("• Keybinds support")
-        featuresSection:AddLabel("• Touch support")
-        
-        local actionsSection = homeTab:AddSection({Name = "Actions"})
-        actionsSection:AddButton({
-            Text = "Test Button",
-            Callback = function()
-                print("Button clicked!")
-            end
-        })
+        featuresSection:AddLabel("• Smooth animations")
+        featuresSection:AddLabel("• Responsive elements")
         
         -- Settings Tab
         local themeSection = settingsTab:AddSection({Name = "Themes"})
-        themeSection:AddButton({
-            Text = "Dark Theme",
-            Callback = function()
-                self:SetTheme("Dark")
-            end
-        })
+        local themes = {"Dark", "BlueTech", "Matrix", "Purple", "RedNeon", "Light", "Dracula", "Nord", "Gruvbox"}
         
-        themeSection:AddButton({
-            Text = "BlueTech Theme",
-            Callback = function()
-                self:SetTheme("BlueTech")
-            end
-        })
-        
-        themeSection:AddButton({
-            Text = "Matrix Theme",
-            Callback = function()
-                self:SetTheme("Matrix")
-            end
-        })
+        for _, themeName in ipairs(themes) do
+            themeSection:AddButton({
+                Text = themeName .. " Theme",
+                Callback = function()
+                    self:SetTheme(themeName)
+                end
+            })
+        end
         
         local configSection = settingsTab:AddSection({Name = "Configuration"})
         local testToggle = configSection:AddToggle({
@@ -1460,7 +1249,7 @@ local AxiomXLib = (function()
         })
         
         -- Visuals Tab
-        local espSection = visualsTab:AddSection({Name = "ESP"})
+        local espSection = visualsTab:AddSection({Name = "ESP Settings"})
         local espToggle = espSection:AddToggle({
             Text = "Player ESP",
             Default = false,
@@ -1469,7 +1258,7 @@ local AxiomXLib = (function()
             end
         })
         
-        local sliderSection = visualsTab:AddSection({Name = "Settings"})
+        local sliderSection = visualsTab:AddSection({Name = "Advanced"})
         local testSlider = sliderSection:AddSlider({
             Text = "Field of View",
             Min = 70,
@@ -1478,6 +1267,16 @@ local AxiomXLib = (function()
             Decimals = 0,
             Callback = function(value)
                 print("FOV:", value)
+            end
+        })
+        
+        local dropdownSection = visualsTab:AddSection({Name = "Options"})
+        local testDropdown = dropdownSection:AddDropdown({
+            Text = "Select Option",
+            Options = {"Option 1", "Option 2", "Option 3"},
+            Default = "Option 1",
+            Callback = function(value)
+                print("Selected:", value)
             end
         })
         
