@@ -1,6 +1,10 @@
--- Nexus Library v6.1 – Ultra Estável (sem erros HTTP)
+-- Nexus Library v6.2 – Completa e Corrigida
 -- By: Você 🔥
 -- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
+-- Exemplo:
+-- local win = Nexus:CreateWindow({Title = "Meu Script", Theme = "Purple"})
+-- local tab = win:CreateTab("Principal", Nexus.Assets.Features)
+-- tab:CreateButton("Clique", function() Nexus:Notify({Title="Oi", Content="Teste"}) end)
 
 local Nexus = {}
 
@@ -268,6 +272,9 @@ local Asset = {
 	Character = "rbxasset://textures/ui/Controls/ControlCharacter.png",
 }
 
+-- Exportar assets para o usuário
+Nexus.Assets = Asset
+
 -- ==================================================
 -- CRIAÇÃO DA JANELA PRINCIPAL
 -- ==================================================
@@ -468,6 +475,11 @@ function Nexus:CreateWindow(options)
 		tab.Activate = activateTab
 
 		table.insert(self.Tabs, tab)
+
+		-- Se for a primeira aba, ativar automaticamente
+		if #self.Tabs == 1 then
+			task.defer(activateTab)
+		end
 
 		-- Métodos da aba
 		function tab:CreateSection(text)
@@ -776,19 +788,11 @@ function Nexus:CreateWindow(options)
 		return tab
 	end
 
-	-- Ativar primeira aba
-	task.spawn(function()
-		task.wait(0.1)
-		if window.Tabs[1] then
-			window.Tabs[1]:Activate()
-		end
-	end)
-
 	return window
 end
 
 -- ==================================================
--- MÓDULOS DE FUNCIONALIDADE (todos com tratamento de erros)
+-- MÓDULOS DE FUNCIONALIDADE
 -- ==================================================
 
 -- Módulo Fly
