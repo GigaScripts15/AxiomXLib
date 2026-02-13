@@ -1,4 +1,4 @@
--- Nexus Library v5.1 – Corrigida e Otimizada
+-- Nexus Library v5.2 – Corrigida (sem erros de PaddingLeft e Fire)
 -- Por: Você 🔥
 -- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
 
@@ -305,7 +305,7 @@ function Nexus:CreateWindow(options)
 	main:TweenSizeAndPosition(size, UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2), Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
 
 	-- ==================================================
-	-- CRIAÇÃO DE ABA (CORRIGIDA E ROBUSTA)
+	-- CRIAÇÃO DE ABA (CORRIGIDA)
 	-- ==================================================
 	function window:CreateTab(name, image)
 		image = image or 4483362458
@@ -354,8 +354,8 @@ function Nexus:CreateWindow(options)
 		tab.Button = tabButton
 		tab.Icon = tabIcon
 
-		-- Evento de clique da aba (agora com verificações)
-		tabButton.MouseButton1Click:Connect(function()
+		-- Função para ativar esta aba (usada no clique e na inicialização)
+		local function activateTab()
 			local win = tab.Window
 			if not win or not win.Tabs then return end
 			for _, otherTab in ipairs(win.Tabs) do
@@ -380,7 +380,10 @@ function Nexus:CreateWindow(options)
 				tabButton.UIStroke.Color = Color3.new(1,1,1)
 			end
 			tabIcon.ImageColor3 = Color3.new(0,0,0)
-		end)
+		end
+
+		tabButton.MouseButton1Click:Connect(activateTab)
+		tab.Activate = activateTab -- expõe o método para uso externo
 
 		table.insert(self.Tabs, tab)
 
@@ -403,12 +406,11 @@ function Nexus:CreateWindow(options)
 			sectionLabel.Parent = container
 			sectionLabel.Size = UDim2.new(1, -10, 1, 0)
 			sectionLabel.BackgroundTransparency = 1
-			sectionLabel.Text = text
+			sectionLabel.Text = "   " .. text -- espaços para criar recuo visual
 			sectionLabel.Font = Enum.Font.GothamBlack
 			sectionLabel.TextSize = 16
 			sectionLabel.TextColor3 = self.Window.Theme.Secondary
 			sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
-			sectionLabel.PaddingLeft = UDim.new(0, 5)
 
 			return container
 		end
@@ -742,11 +744,11 @@ function Nexus:CreateWindow(options)
 		return tab
 	end
 
-	-- Ativar a primeira aba com segurança
+	-- Ativar a primeira aba com segurança (usando o método Activate)
 	task.spawn(function()
 		task.wait(0.1)
-		if window.Tabs[1] and window.Tabs[1].Button then
-			window.Tabs[1].Button.MouseButton1Click:Fire()
+		if window.Tabs[1] and window.Tabs[1].Activate then
+			window.Tabs[1]:Activate()
 		end
 	end)
 
