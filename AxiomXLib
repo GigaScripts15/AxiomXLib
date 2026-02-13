@@ -1,130 +1,637 @@
---// MATRIX HUB | NO KEY SYSTEM
---// Universal Script
+-- AxiomX Nexus Library – Crie interfaces profissionais com poucas linhas
+-- By: Você 🔥
+-- Versão: 1.0 (Library)
+-- Modo de usar:
+-- local Nexus = loadstring(game:HttpGet("raw_url"))()
+-- local win = Nexus:Window("Título", "Tema")
+-- local tab = win:Tab("Home")
+-- tab:Button("Clique", function() print("oi") end)
 
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local Nexus = {}
+local players = game:GetService("Players")
+local tween = game:GetService("TweenService")
+local uis = game:GetService("UserInputService")
+local lighting = game:GetService("Lighting")
+local workspace = game:GetService("Workspace")
+local run = game:GetService("RunService")
+local virtual = game:GetService("VirtualUser")
+local starterGui = game:GetService("StarterGui")
+local http = game:GetService("HttpService")
+local teleport = game:GetService("TeleportService")
+local sound = game:GetService("SoundService")
 
--- UI Base
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "MatrixHub"
+local player = players.LocalPlayer
+local mouse = player:GetMouse()
+local camera = workspace.CurrentCamera
 
--- Main Frame
-local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0, 520, 0, 360)
-Main.Position = UDim2.new(0.5, -260, 0.5, -180)
-Main.BackgroundColor3 = Color3.fromRGB(5, 15, 5)
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.Draggable = true
+-- Temas padrão
+Nexus.Themes = {
+	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50) },
+	Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30) },
+	Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0) },
+	Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5) },
+	Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40) },
+	Ocean = { Name = "Ocean", BgColor = Color3.fromRGB(0,20,40), Primary = Color3.fromRGB(0,150,255), Secondary = Color3.fromRGB(100,200,255), Button = Color3.fromRGB(0,40,60), ButtonHover = Color3.fromRGB(0,70,100), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(0,30,50) },
+	Forest = { Name = "Forest", BgColor = Color3.fromRGB(10,30,10), Primary = Color3.fromRGB(0,180,0), Secondary = Color3.fromRGB(100,255,100), Button = Color3.fromRGB(20,50,20), ButtonHover = Color3.fromRGB(40,80,40), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,40,20) },
+	Cyber = { Name = "Cyber", BgColor = Color3.fromRGB(0,0,20), Primary = Color3.fromRGB(255,0,255), Secondary = Color3.fromRGB(0,255,255), Button = Color3.fromRGB(30,0,40), ButtonHover = Color3.fromRGB(60,0,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,0,30) },
+	Ice = { Name = "Ice", BgColor = Color3.fromRGB(20,40,60), Primary = Color3.fromRGB(100,200,255), Secondary = Color3.fromRGB(200,255,255), Button = Color3.fromRGB(30,60,80), ButtonHover = Color3.fromRGB(50,90,120), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,50,70) },
+	Lava = { Name = "Lava", BgColor = Color3.fromRGB(40,10,0), Primary = Color3.fromRGB(255,100,0), Secondary = Color3.fromRGB(255,200,100), Button = Color3.fromRGB(80,20,0), ButtonHover = Color3.fromRGB(120,40,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,15,0) },
+}
 
--- Title
-local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.BackgroundTransparency = 1
-Title.Text = "☘ MATRIX HUB"
-Title.TextColor3 = Color3.fromRGB(0,255,100)
-Title.Font = Enum.Font.Code
-Title.TextSize = 22
+-- Ícones padrão (assets seguros)
+Nexus.Assets = {
+	Minimize = "rbxassetid://10734895698",
+	Minimize2 = "rbxassetid://10734895530",
+	Close = "rbxassetid://10747384394",
+	Settings = "rbxassetid://10747413906",
+	Theme = "rbxassetid://10747408934",
+	Player = "rbxassetid://10747407760",
+	Features = "rbxassetid://10747406838",
+	Console = "rbxassetid://10747405262",
+	Explorer = "rbxassetid://10747402998",
+	Credits = "rbxassetid://10747402022",
+	ESP = "rbxassetid://10747400464",
+	Aimbot = "rbxassetid://10747398986",
+	World = "rbxassetid://10747397456",
+	Character = "rbxassetid://10747395766",
+}
 
--- Minimize Button
-local MinBtn = Instance.new("TextButton", Main)
-MinBtn.Size = UDim2.new(0, 40, 0, 40)
-MinBtn.Position = UDim2.new(1, -40, 0, 0)
-MinBtn.Text = "-"
-MinBtn.Font = Enum.Font.Code
-MinBtn.TextSize = 28
-MinBtn.BackgroundTransparency = 1
-MinBtn.TextColor3 = Color3.fromRGB(0,255,100)
+-- Configurações globais (persistentes)
+Nexus.Settings = {
+	Theme = "Purple",
+	FPSMonitor = false,
+	BorderAnimation = true,
+	Notifications = true,
+	Tooltips = true,
+	SoundEffects = false,
+	Keybinds = {
+		ToggleUI = Enum.KeyCode.RightShift,
+		ToggleESP = Enum.KeyCode.E,
+		ToggleFly = Enum.KeyCode.F,
+		TeleportToMouse = Enum.KeyCode.T,
+	},
+	ESP = { Enabled = false, Box = true, Name = true, Color = Color3.fromRGB(255,255,255) },
+	Aimbot = { Enabled = false, Smoothness = 0.5, FOV = 100, TargetPart = "Head", TeamCheck = false },
+	Character = { WalkSpeed = 16, JumpPower = 50, Gravity = 196.2, InfiniteJump = false, NoClip = false, Fly = false, AntiAFK = false },
+	World = { Brightness = 1, GlobalShadows = true, FogEnd = 100000 },
+	Optimization = { FPSBoost = false, RemoveParticles = false, RemoveWater = false },
+}
 
--- Floating Button
-local FloatBtn = Instance.new("TextButton", ScreenGui)
-FloatBtn.Size = UDim2.new(0, 60, 0, 60)
-FloatBtn.Position = UDim2.new(0, 20, 0.5, -30)
-FloatBtn.Text = "☘"
-FloatBtn.Visible = false
-FloatBtn.Font = Enum.Font.Code
-FloatBtn.TextSize = 26
-FloatBtn.BackgroundColor3 = Color3.fromRGB(0,40,0)
-FloatBtn.TextColor3 = Color3.fromRGB(0,255,100)
-FloatBtn.Active = true
-FloatBtn.Draggable = true
-
--- Minimize Logic
-MinBtn.MouseButton1Click:Connect(function()
-	Main.Visible = false
-	FloatBtn.Visible = true
-end)
-
-FloatBtn.MouseButton1Click:Connect(function()
-	Main.Visible = true
-	FloatBtn.Visible = false
-end)
-
--- Matrix Rain Background
-local Rain = Instance.new("Frame", Main)
-Rain.Size = UDim2.new(1,0,1,0)
-Rain.BackgroundTransparency = 1
-Rain.ZIndex = 0
-
-task.spawn(function()
-	while true do
-		local drop = Instance.new("TextLabel", Rain)
-		drop.Text = string.char(math.random(33,126))
-		drop.Font = Enum.Font.Code
-		drop.TextColor3 = Color3.fromRGB(0,255,100)
-		drop.TextTransparency = 0
-		drop.BackgroundTransparency = 1
-		drop.Position = UDim2.new(math.random(),0,0,0)
-		drop.Size = UDim2.new(0,14,0,14)
-
-		game:GetService("TweenService"):Create(
-			drop,
-			TweenInfo.new(math.random(2,4)),
-			{Position = UDim2.new(drop.Position.X.Scale,0,1,0), TextTransparency = 1}
-		):Play()
-
-		task.delay(4,function() drop:Destroy() end)
-		task.wait(0.08)
-	end
-end)
-
--- Infinite Jump
-UIS.JumpRequest:Connect(function()
-	if _G.InfJump then
-		LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-	end
-end)
-
--- Noclip
-RunService.Stepped:Connect(function()
-	if _G.Noclip and LocalPlayer.Character then
-		for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
-			if v:IsA("BasePart") then
-				v.CanCollide = false
+-- Carregar configurações salvas
+local function loadSettings()
+	local success, data = pcall(function()
+		local store = player:FindFirstChild("AxiomX_Settings_v4")
+		if store and store:IsA("StringValue") then
+			return http:JSONDecode(store.Value)
+		end
+	end)
+	if success and data then
+		for k, v in pairs(data) do
+			if type(Nexus.Settings[k]) == "table" and type(v) == "table" then
+				for k2, v2 in pairs(v) do
+					Nexus.Settings[k][k2] = v2
+				end
+			else
+				Nexus.Settings[k] = v
 			end
 		end
 	end
-end)
-
--- Save Position
-local SavedCFrame
-_G.SavePos = function()
-	SavedCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
 end
 
-_G.LoadPos = function()
-	if SavedCFrame then
-		LocalPlayer.Character.HumanoidRootPart.CFrame = SavedCFrame
+-- Salvar configurações
+local function saveSettings()
+	pcall(function()
+		local data = http:JSONEncode(Nexus.Settings)
+		local store = player:FindFirstChild("AxiomX_Settings_v4")
+		if not store then
+			store = Instance.new("StringValue")
+			store.Name = "AxiomX_Settings_v4"
+			store.Parent = player
+		end
+		store.Value = data
+	end)
+end
+
+loadSettings()
+
+-- Gerenciador de conexões (para cada janela?)
+-- Como a biblioteca pode ter múltiplas janelas, cada janela terá seu próprio gerenciador.
+-- Mas também teremos conexões globais (keybinds, etc.) que serão armazenadas em Nexus.GlobalConnections.
+Nexus.GlobalConnections = {}
+
+function Nexus:AddGlobalConnection(conn)
+	if conn then
+		table.insert(self.GlobalConnections, conn)
 	end
 end
 
--- Load Admin Scripts
-_G.IY = function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+function Nexus:DisconnectAllGlobal()
+	for _, conn in ipairs(self.GlobalConnections) do
+		pcall(conn.Disconnect, conn)
+	end
+	self.GlobalConnections = {}
 end
 
-_G.DEX = function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua"))()
+-- Notificação global (independente de janela)
+function Nexus:Notify(msg, duration, color)
+	if not self.Settings.Notifications then return end
+	local toast = Instance.new("TextLabel")
+	toast.Parent = player:WaitForChild("PlayerGui")
+	toast.Size = UDim2.new(0, 340, 0, 50)
+	toast.Position = UDim2.new(1, -360, 0, 20)
+	toast.BackgroundColor3 = color or self.Themes[self.Settings.Theme].ToastColor
+	toast.Text = "  " .. msg
+	toast.Font = Enum.Font.GothamSemibold
+	toast.TextSize = 17
+	toast.TextColor3 = Color3.new(1,1,1)
+	toast.BackgroundTransparency = 0.1
+	toast.BorderSizePixel = 0
+	toast.TextXAlignment = Enum.TextXAlignment.Left
+	toast.ZIndex = 999
+	Instance.new("UICorner", toast).CornerRadius = UDim.new(0,16)
+	local stroke = Instance.new("UIStroke", toast)
+	stroke.Color = self.Themes[self.Settings.Theme].Primary
+	stroke.Thickness = 2
+	toast.Position = UDim2.new(1, -360, 0, -50)
+	tween:Create(toast, TweenInfo.new(0.4, Enum.EasingStyle.Back), {Position = UDim2.new(1, -360, 0, 20)}):Play()
+	task.wait(duration or 3)
+	tween:Create(toast, TweenInfo.new(0.3), {Position = UDim2.new(1, -360, 0, -50)}):Play()
+	task.wait(0.3)
+	toast:Destroy()
 end
+
+-- Tooltip global (usado pelas janelas)
+local tooltipActive = nil
+function Nexus:AddTooltip(button, text)
+	if not self.Settings.Tooltips then return end
+	local tipConn
+	button.MouseEnter:Connect(function()
+		tipConn = task.delay(0.3, function()
+			if tooltipActive then tooltipActive:Destroy() end
+			local tip = Instance.new("TextLabel")
+			tip.Parent = player:WaitForChild("PlayerGui")
+			tip.Size = UDim2.new(0, #text * 8 + 30, 0, 30)
+			tip.Position = UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 40)
+			tip.BackgroundColor3 = Color3.fromRGB(20,20,30)
+			tip.Text = text
+			tip.Font = Enum.Font.Gotham
+			tip.TextSize = 15
+			tip.TextColor3 = Color3.new(1,1,1)
+			Instance.new("UICorner", tip).CornerRadius = UDim.new(0,8)
+			Instance.new("UIStroke", tip).Color = self.Themes[self.Settings.Theme].Primary
+			tip.Visible = false
+			tip:TweenPosition(UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 45), "Out", "Quad", 0.2, true)
+			tip.Visible = true
+			tooltipActive = tip
+		end)
+	end)
+	button.MouseLeave:Connect(function()
+		if tipConn then task.cancel(tipConn) end
+		if tooltipActive then
+			tooltipActive:Destroy()
+			tooltipActive = nil
+		end
+	end)
+end
+
+-- Função para criar uma nova janela
+function Nexus:Window(title, themeName)
+	themeName = themeName or self.Settings.Theme
+	local theme = self.Themes[themeName] or self.Themes.Purple
+	local window = {}
+	window.Theme = theme
+	window.Title = title or "Nexus Window"
+	window.Settings = self.Settings  -- referência às configurações globais
+	window.Assets = self.Assets
+	window.Notify = function(msg, dur, col) self:Notify(msg, dur, col) end
+	window.AddTooltip = function(btn, txt) self:AddTooltip(btn, txt) end
+
+	-- Conexões da janela
+	window.Connections = {}
+
+	function window:AddConnection(conn)
+		if conn then table.insert(self.Connections, conn) end
+	end
+
+	function window:DisconnectAll()
+		for _, conn in ipairs(self.Connections) do
+			pcall(conn.Disconnect, conn)
+		end
+		self.Connections = {}
+	end
+
+	-- Criar GUI
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "AxiomX_Window"
+	screenGui.Parent = player:WaitForChild("PlayerGui")
+	screenGui.ResetOnSpawn = false
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.DisplayOrder = 100
+
+	local main = Instance.new("Frame")
+	main.Parent = screenGui
+	main.Size = UDim2.new(0, 750, 0, 550)
+	main.Position = UDim2.new(0.5, -375, 0.5, -275)
+	main.BackgroundColor3 = theme.BgColor
+	main.BorderSizePixel = 0
+	main.Active = true
+	main.ClipsDescendants = true
+	main.Name = "MainFrame"
+
+	local uiCorner = Instance.new("UICorner", main)
+	uiCorner.CornerRadius = UDim.new(0,24)
+
+	local stroke = Instance.new("UIStroke", main)
+	stroke.Thickness = 3
+	stroke.Color = theme.Primary
+	stroke.Enabled = self.Settings.BorderAnimation
+
+	local shadow = Instance.new("ImageLabel")
+	shadow.Name = "Shadow"
+	shadow.Parent = main
+	shadow.BackgroundTransparency = 1
+	shadow.Position = UDim2.new(0, -20, 0, -20)
+	shadow.Size = UDim2.new(1, 40, 1, 40)
+	shadow.Image = "rbxassetid://6014261993"
+	shadow.ImageColor3 = Color3.new(0,0,0)
+	shadow.ImageTransparency = 0.7
+	shadow.ScaleType = Enum.ScaleType.Slice
+	shadow.SliceCenter = Rect.new(10,10,118,118)
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Parent = main
+	titleLabel.Size = UDim2.new(1, 0, 0, 70)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = title
+	titleLabel.Font = Enum.Font.GothamBlack
+	titleLabel.TextSize = 36
+	titleLabel.TextColor3 = theme.Secondary
+	titleLabel.TextStrokeTransparency = 0.6
+	titleLabel.TextStrokeColor3 = theme.Primary
+
+	local line = Instance.new("Frame")
+	line.Parent = main
+	line.Size = UDim2.new(1, -40, 0, 4)
+	line.Position = UDim2.new(0, 20, 0, 70)
+	line.BackgroundColor3 = theme.Primary
+	line.BorderSizePixel = 0
+	Instance.new("UICorner", line).CornerRadius = UDim.new(1,0)
+
+	-- Botões de controle
+	local closeBtn = Instance.new("ImageButton")
+	closeBtn.Parent = main
+	closeBtn.Size = UDim2.new(0, 40, 0, 40)
+	closeBtn.Position = UDim2.new(1, -50, 0, 15)
+	closeBtn.BackgroundTransparency = 1
+	closeBtn.Image = self.Assets.Close
+	closeBtn.ImageColor3 = Color3.fromRGB(255,100,100)
+	window:AddTooltip(closeBtn, "Fechar")
+	closeBtn.MouseButton1Click:Connect(function()
+		window:DisconnectAll()
+		main:TweenSizeAndPosition(UDim2.new(0,0,0,0), UDim2.new(0.5,0,0.5,0), "In", "Back", 0.4, true)
+		task.wait(0.4)
+		screenGui:Destroy()
+	end)
+
+	local minBtn = Instance.new("ImageButton")
+	minBtn.Parent = main
+	minBtn.Size = UDim2.new(0, 40, 0, 40)
+	minBtn.Position = UDim2.new(1, -96, 0, 15)
+	minBtn.BackgroundTransparency = 1
+	minBtn.Image = self.Assets.Minimize
+	minBtn.ImageColor3 = theme.Primary
+	window:AddTooltip(minBtn, "Minimizar")
+	local minimized = false
+	minBtn.MouseButton1Click:Connect(function()
+		minimized = not minimized
+		if minimized then
+			main:TweenSize(UDim2.new(0, 350, 0, 70), "Out", "Quad", 0.25, true)
+			minBtn.Image = self.Assets.Minimize2
+			window:AddTooltip(minBtn, "Restaurar")
+		else
+			main:TweenSize(UDim2.new(0, 750, 0, 550), "Out", "Quad", 0.25, true)
+			minBtn.Image = self.Assets.Minimize
+			window:AddTooltip(minBtn, "Minimizar")
+		end
+	end)
+
+	-- Área de abas
+	local tabsFrame = Instance.new("Frame")
+	tabsFrame.Parent = main
+	tabsFrame.Size = UDim2.new(0, 180, 1, -90)
+	tabsFrame.Position = UDim2.new(0, 0, 0, 80)
+	tabsFrame.BackgroundTransparency = 1
+
+	local contentFrame = Instance.new("Frame")
+	contentFrame.Parent = main
+	contentFrame.Size = UDim2.new(1, -190, 1, -100)
+	contentFrame.Position = UDim2.new(0, 185, 0, 85)
+	contentFrame.BackgroundTransparency = 1
+	contentFrame.ClipsDescendants = true
+
+	window.Tabs = {}
+	window.TabsFrame = tabsFrame
+	window.ContentFrame = contentFrame
+	window.Main = main
+	window.ScreenGui = screenGui
+
+	-- Método para criar uma nova aba
+	function window:Tab(name, icon)
+		icon = icon or self.Assets.Features
+		local tab = {}
+		tab.Name = name
+		tab.Window = self
+		tab.Theme = self.Theme
+		tab.Connections = {}
+
+		local page = Instance.new("ScrollingFrame")
+		page.Parent = self.ContentFrame
+		page.Size = UDim2.new(1, 0, 1, 0)
+		page.BackgroundTransparency = 1
+		page.BorderSizePixel = 0
+		page.ScrollBarThickness = 6
+		page.ScrollBarImageColor3 = self.Theme.Primary
+		page.CanvasSize = UDim2.new(0,0,0,0)
+		page.Visible = false
+		local layout = Instance.new("UIListLayout", page)
+		layout.Padding = UDim.new(0, 12)
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			page.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 30)
+		end)
+
+		tab.Page = page
+
+		local btn = Instance.new("TextButton")
+		btn.Parent = self.TabsFrame
+		btn.Size = UDim2.new(1, -10, 0, 50)
+		btn.Text = "   " .. name
+		btn.Font = Enum.Font.GothamSemibold
+		btn.TextSize = 18
+		btn.BackgroundColor3 = self.Theme.Button
+		btn.TextColor3 = self.Theme.Text
+		btn.TextXAlignment = Enum.TextXAlignment.Left
+		Instance.new("UICorner", btn).CornerRadius = UDim.new(0,16)
+		local strokeBtn = Instance.new("UIStroke", btn)
+		strokeBtn.Color = self.Theme.Primary
+		strokeBtn.Thickness = 2
+		self:AddTooltip(btn, "Abrir aba " .. name)
+
+		local ic = Instance.new("ImageLabel")
+		ic.Parent = btn
+		ic.Size = UDim2.new(0, 26, 0, 26)
+		ic.Position = UDim2.new(0, 10, 0.5, -13)
+		ic.BackgroundTransparency = 1
+		ic.Image = icon
+		ic.ImageColor3 = self.Theme.Text
+
+		btn.MouseButton1Click:Connect(function()
+			for _, t in pairs(self.Tabs) do
+				t.Page.Visible = false
+				t.Button.BackgroundColor3 = self.Theme.Button
+				t.Button.TextColor3 = self.Theme.Text
+				t.Button.UIStroke.Color = self.Theme.Primary
+				if t.Icon then t.Icon.ImageColor3 = self.Theme.Text end
+			end
+			page.Visible = true
+			btn.BackgroundColor3 = self.Theme.Secondary
+			btn.TextColor3 = Color3.new(0,0,0)
+			btn.UIStroke.Color = Color3.new(1,1,1)
+			ic.ImageColor3 = Color3.new(0,0,0)
+		end)
+
+		tab.Button = btn
+		tab.Icon = ic
+
+		table.insert(self.Tabs, tab)
+
+		-- Métodos da aba
+		function tab:Section(text)
+			local sec = Instance.new("TextLabel")
+			sec.Parent = self.Page
+			sec.Size = UDim2.new(1, -20, 0, 30)
+			sec.BackgroundTransparency = 1
+			sec.Text = text
+			sec.Font = Enum.Font.GothamBlack
+			sec.TextSize = 20
+			sec.TextColor3 = self.Theme.Secondary
+			sec.TextXAlignment = Enum.TextXAlignment.Left
+			sec.PaddingLeft = UDim.new(0, 10)
+			return sec
+		end
+
+		function tab:Button(text, callback, tooltip, icon)
+			local btn = Instance.new("TextButton")
+			btn.Parent = self.Page
+			btn.Size = UDim2.new(1, -20, 0, 48)
+			btn.Text = text
+			btn.Font = Enum.Font.Gotham
+			btn.TextSize = 18
+			btn.TextColor3 = self.Theme.Text
+			btn.BackgroundColor3 = self.Theme.Button
+			btn.BorderSizePixel = 0
+			btn.AutoButtonColor = false
+			btn.TextXAlignment = Enum.TextXAlignment.Left
+			btn.PaddingLeft = UDim.new(0, 45)
+			Instance.new("UICorner", btn).CornerRadius = UDim.new(0,16)
+			Instance.new("UIStroke", btn).Color = self.Theme.Primary
+			self.Window:AddTooltip(btn, tooltip or text)
+			if icon then
+				local ic = Instance.new("ImageLabel")
+				ic.Parent = btn
+				ic.Size = UDim2.new(0, 28, 0, 28)
+				ic.Position = UDim2.new(0, 10, 0.5, -14)
+				ic.BackgroundTransparency = 1
+				ic.Image = icon
+				ic.ImageColor3 = self.Theme.Text
+			end
+			btn.MouseEnter:Connect(function()
+				tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Theme.ButtonHover}):Play()
+			end)
+			btn.MouseLeave:Connect(function()
+				tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Theme.Button}):Play()
+			end)
+			btn.MouseButton1Click:Connect(function()
+				local s, e = pcall(callback or function() end)
+				if not s then self.Window:Notify("Erro: " .. tostring(e), 3, Color3.new(1,0,0)) end
+			end)
+			return btn
+		end
+
+		function tab:Toggle(text, getter, setter, tooltip, icon)
+			local btn = Instance.new("TextButton")
+			btn.Parent = self.Page
+			btn.Size = UDim2.new(1, -20, 0, 52)
+			btn.Text = text
+			btn.Font = Enum.Font.GothamSemibold
+			btn.TextSize = 18
+			btn.TextColor3 = self.Theme.Text
+			btn.BackgroundColor3 = self.Theme.Button
+			btn.BorderSizePixel = 0
+			btn.AutoButtonColor = false
+			btn.TextXAlignment = Enum.TextXAlignment.Left
+			btn.PaddingLeft = UDim.new(0, 45)
+			Instance.new("UICorner", btn).CornerRadius = UDim.new(0,18)
+			Instance.new("UIStroke", btn).Color = self.Theme.Primary
+			self.Window:AddTooltip(btn, tooltip or text)
+			if icon then
+				local ic = Instance.new("ImageLabel")
+				ic.Parent = btn
+				ic.Size = UDim2.new(0, 28, 0, 28)
+				ic.Position = UDim2.new(0, 10, 0.5, -14)
+				ic.BackgroundTransparency = 1
+				ic.Image = icon
+				ic.ImageColor3 = self.Theme.Text
+			end
+			local indicator = Instance.new("Frame")
+			indicator.Parent = btn
+			indicator.Size = UDim2.new(0, 22, 0, 22)
+			indicator.Position = UDim2.new(1, -38, 0.5, -11)
+			indicator.BackgroundColor3 = getter() and Color3.new(0,1,0) or Color3.new(0.5,0.5,0.5)
+			indicator.BorderSizePixel = 0
+			Instance.new("UICorner", indicator).CornerRadius = UDim.new(1,0)
+			btn.MouseButton1Click:Connect(function()
+				local new = not getter()
+				setter(new)
+				indicator.BackgroundColor3 = new and Color3.new(0,1,0) or Color3.new(0.5,0.5,0.5)
+			end)
+			return btn
+		end
+
+		function tab:Slider(name, min, max, default, callback, tooltip)
+			local container = Instance.new("Frame")
+			container.Parent = self.Page
+			container.Size = UDim2.new(1, -20, 0, 80)
+			container.BackgroundTransparency = 1
+			
+			local label = Instance.new("TextLabel")
+			label.Parent = container
+			label.Size = UDim2.new(1, 0, 0, 28)
+			label.Text = name .. ": " .. default
+			label.BackgroundTransparency = 1
+			label.TextColor3 = self.Theme.Text
+			label.Font = Enum.Font.Gotham
+			label.TextSize = 18
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.PaddingLeft = UDim.new(0, 10)
+			
+			local sliderBg = Instance.new("Frame")
+			sliderBg.Parent = container
+			sliderBg.Size = UDim2.new(1, -20, 0, 16)
+			sliderBg.Position = UDim2.new(0, 10, 0, 38)
+			sliderBg.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
+			
+			local fill = Instance.new("Frame")
+			fill.Parent = sliderBg
+			fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
+			fill.BackgroundColor3 = self.Theme.Primary
+			Instance.new("UICorner", fill).CornerRadius = UDim.new(1,0)
+			
+			local drag = Instance.new("TextButton")
+			drag.Parent = sliderBg
+			drag.Size = UDim2.new(0, 26, 0, 26)
+			drag.Position = UDim2.new(fill.Size.X.Scale, -13, 0.5, -13)
+			drag.BackgroundColor3 = Color3.new(1,1,1)
+			drag.Text = ""
+			Instance.new("UICorner", drag).CornerRadius = UDim.new(1,0)
+			Instance.new("UIStroke", drag).Color = self.Theme.Primary
+			self.Window:AddTooltip(drag, tooltip or "Arraste")
+			
+			local val = default
+			drag.MouseButton1Down:Connect(function()
+				local move
+				move = mouse.Move:Connect(function()
+					local rel = (mouse.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
+					rel = math.clamp(rel, 0, 1)
+					fill.Size = UDim2.new(rel, 0, 1, 0)
+					drag.Position = UDim2.new(rel, -13, 0.5, -13)
+					val = math.floor(min + (max-min) * rel)
+					label.Text = name .. ": " .. val
+					callback(val)
+				end)
+				local release
+				release = mouse.Button1Up:Connect(function()
+					move:Disconnect()
+					release:Disconnect()
+				end)
+			end)
+			return container
+		end
+
+		function tab:Dropdown(name, options, getter, setter, tooltip)
+			local btn = self:Button(name .. ": " .. getter(), function()
+				local current = getter()
+				local idx = 0
+				for i, opt in ipairs(options) do
+					if opt == current then idx = i end
+				end
+				local next = options[(idx % #options) + 1]
+				setter(next)
+				btn.Text = name .. ": " .. next
+			end, tooltip)
+			return btn
+		end
+
+		function tab:Label(text)
+			local lbl = Instance.new("TextLabel")
+			lbl.Parent = self.Page
+			lbl.Size = UDim2.new(1, -20, 0, 30)
+			lbl.BackgroundTransparency = 1
+			lbl.Text = text
+			lbl.Font = Enum.Font.Gotham
+			lbl.TextSize = 16
+			lbl.TextColor3 = self.Theme.Text
+			lbl.TextWrapped = true
+			return lbl
+		end
+
+		return tab
+	end
+
+	-- Ativar a primeira aba (se houver)
+	task.defer(function()
+		local first = window.Tabs[1]
+		if first then
+			first.Button.MouseButton1Click:Fire()
+		end
+	end)
+
+	-- Animação de entrada
+	main.Size = UDim2.new(0,0,0,0)
+	main.Position = UDim2.new(0.5,0,0.5,0)
+	tween:Create(main, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0,750,0,550),
+		Position = UDim2.new(0.5,-375,0.5,-275)
+	}):Play()
+
+	return window
+end
+
+-- Função para aplicar tema global (atualiza todas as janelas? Seria complexo, melhor deixar cada janela com seu tema)
+-- Mas podemos ter um método para mudar o tema de uma janela existente
+function Nexus:ApplyTheme(window, themeName)
+	local theme = self.Themes[themeName]
+	if not theme then return end
+	window.Theme = theme
+	window.Main.BackgroundColor3 = theme.BgColor
+	window.Main.UIStroke.Color = theme.Primary
+	window.Main.Title.TextColor3 = theme.Secondary
+	window.Main.Title.TextStrokeColor3 = theme.Primary
+	window.Main.Line.BackgroundColor3 = theme.Primary
+	window.MinBtn.ImageColor3 = theme.Primary
+	-- Atualizar abas
+	for _, btn in pairs(window.TabsFrame:GetChildren()) do
+		if btn:IsA("TextButton") then
+			btn.BackgroundColor3 = theme.Button
+			btn.TextColor3 = theme.Text
+			btn.UIStroke.Color = theme.Primary
+			local ic = btn:FindFirstChildOfClass("ImageLabel")
+			if ic then ic.ImageColor3 = theme.Text end
+		end
+	end
+	window:Notify("Tema " .. themeName .. " aplicado!", 2, theme.Primary)
+end
+
+-- Exportar
+return Nexus
