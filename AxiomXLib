@@ -1,6 +1,10 @@
--- AxiomX Nexus Library v2.0 – Corrigida e 100% funcional
+-- AxiomX Nexus Library v3.0 – Completa e Poderosa
 -- By: Você 🔥
--- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
+-- Modo de usar:
+-- local Nexus = loadstring(game:HttpGet("raw_url"))()
+-- local win = Nexus:Window("Meu Script")
+-- local tab = win:Tab("Principal")
+-- tab:Button("Clique", function() print("oi") end)
 
 local Nexus = {}
 
@@ -22,60 +26,16 @@ local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local Camera = Workspace.CurrentCamera
 
--- Fallback para o parent seguro (usa CoreGui se PlayerGui falhar)
+-- Função segura para obter o pai da GUI
 local function GetSafeParent()
 	local success, gui = pcall(function() return Player:WaitForChild("PlayerGui") end)
 	if success and gui then return gui end
 	return CoreGui
 end
 
--- 10 TEMAS EXCLUSIVOS
-Nexus.Themes = {
-	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Ocean = { Name = "Ocean", BgColor = Color3.fromRGB(0,20,40), Primary = Color3.fromRGB(0,150,255), Secondary = Color3.fromRGB(100,200,255), Button = Color3.fromRGB(0,40,60), ButtonHover = Color3.fromRGB(0,70,100), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(0,30,50), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Forest = { Name = "Forest", BgColor = Color3.fromRGB(10,30,10), Primary = Color3.fromRGB(0,180,0), Secondary = Color3.fromRGB(100,255,100), Button = Color3.fromRGB(20,50,20), ButtonHover = Color3.fromRGB(40,80,40), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,40,20), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Cyber = { Name = "Cyber", BgColor = Color3.fromRGB(0,0,20), Primary = Color3.fromRGB(255,0,255), Secondary = Color3.fromRGB(0,255,255), Button = Color3.fromRGB(30,0,40), ButtonHover = Color3.fromRGB(60,0,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,0,30), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Ice = { Name = "Ice", BgColor = Color3.fromRGB(20,40,60), Primary = Color3.fromRGB(100,200,255), Secondary = Color3.fromRGB(200,255,255), Button = Color3.fromRGB(30,60,80), ButtonHover = Color3.fromRGB(50,90,120), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,50,70), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Lava = { Name = "Lava", BgColor = Color3.fromRGB(40,10,0), Primary = Color3.fromRGB(255,100,0), Secondary = Color3.fromRGB(255,200,100), Button = Color3.fromRGB(80,20,0), ButtonHover = Color3.fromRGB(120,40,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,15,0), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-}
-
--- Ícones (assets)
-Nexus.Assets = {
-	Minimize = "rbxassetid://10734895698",
-	Minimize2 = "rbxassetid://10734895530",
-	Close = "rbxassetid://10747384394",
-	Settings = "rbxassetid://10747413906",
-	Theme = "rbxassetid://10747408934",
-	Player = "rbxassetid://10747407760",
-	Features = "rbxassetid://10747406838",
-	Console = "rbxassetid://10747405262",
-	Explorer = "rbxassetid://10747402998",
-	Credits = "rbxassetid://10747402022",
-	ESP = "rbxassetid://10747400464",
-	Aimbot = "rbxassetid://10747398986",
-	World = "rbxassetid://10747397456",
-	Character = "rbxassetid://10747395766",
-}
-
--- Conexões globais
-Nexus.GlobalConnections = {}
-
-function Nexus:AddGlobalConnection(conn)
-	if conn then table.insert(self.GlobalConnections, conn) end
-end
-
-function Nexus:DisconnectAllGlobal()
-	for _, conn in ipairs(self.GlobalConnections) do
-		pcall(conn.Disconnect, conn)
-	end
-	self.GlobalConnections = {}
-end
-
--- Configurações persistentes
+-- ==================================================
+-- 🔧 MÓDULO DE CONFIGURAÇÕES PERSISTENTES
+-- ==================================================
 Nexus.Settings = {
 	Theme = "Purple",
 	FPSMonitor = false,
@@ -96,10 +56,9 @@ Nexus.Settings = {
 	Optimization = { FPSBoost = false, RemoveParticles = false, RemoveWater = false },
 }
 
--- Carregar configurações
 local function LoadSettings()
 	local success, data = pcall(function()
-		local store = Player:FindFirstChild("AxiomX_Settings_v5")
+		local store = Player:FindFirstChild("AxiomX_Settings_v6")
 		if store and store:IsA("StringValue") then
 			return Http:JSONDecode(store.Value)
 		end
@@ -120,10 +79,10 @@ end
 local function SaveSettings()
 	pcall(function()
 		local data = Http:JSONEncode(Nexus.Settings)
-		local store = Player:FindFirstChild("AxiomX_Settings_v5")
+		local store = Player:FindFirstChild("AxiomX_Settings_v6")
 		if not store then
 			store = Instance.new("StringValue")
-			store.Name = "AxiomX_Settings_v5"
+			store.Name = "AxiomX_Settings_v6"
 			store.Parent = Player
 		end
 		store.Value = data
@@ -131,9 +90,48 @@ local function SaveSettings()
 end
 
 LoadSettings()
+
+-- ==================================================
+-- 🎨 MÓDULO DE TEMAS
+-- ==================================================
+Nexus.Themes = {
+	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Ocean = { Name = "Ocean", BgColor = Color3.fromRGB(0,20,40), Primary = Color3.fromRGB(0,150,255), Secondary = Color3.fromRGB(100,200,255), Button = Color3.fromRGB(0,40,60), ButtonHover = Color3.fromRGB(0,70,100), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(0,30,50), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Forest = { Name = "Forest", BgColor = Color3.fromRGB(10,30,10), Primary = Color3.fromRGB(0,180,0), Secondary = Color3.fromRGB(100,255,100), Button = Color3.fromRGB(20,50,20), ButtonHover = Color3.fromRGB(40,80,40), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,40,20), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Cyber = { Name = "Cyber", BgColor = Color3.fromRGB(0,0,20), Primary = Color3.fromRGB(255,0,255), Secondary = Color3.fromRGB(0,255,255), Button = Color3.fromRGB(30,0,40), ButtonHover = Color3.fromRGB(60,0,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,0,30), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Ice = { Name = "Ice", BgColor = Color3.fromRGB(20,40,60), Primary = Color3.fromRGB(100,200,255), Secondary = Color3.fromRGB(200,255,255), Button = Color3.fromRGB(30,60,80), ButtonHover = Color3.fromRGB(50,90,120), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,50,70), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Lava = { Name = "Lava", BgColor = Color3.fromRGB(40,10,0), Primary = Color3.fromRGB(255,100,0), Secondary = Color3.fromRGB(255,200,100), Button = Color3.fromRGB(80,20,0), ButtonHover = Color3.fromRGB(120,40,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,15,0), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+}
+
 Nexus.CurrentTheme = Nexus.Themes[Nexus.Settings.Theme] or Nexus.Themes.Purple
 
--- Sistema de notificações (fila)
+-- ==================================================
+-- 🖼️ ASSETS (ÍCONES)
+-- ==================================================
+Nexus.Assets = {
+	Minimize = "rbxassetid://10734895698",
+	Minimize2 = "rbxassetid://10734895530",
+	Close = "rbxassetid://10747384394",
+	Settings = "rbxassetid://10747413906",
+	Theme = "rbxassetid://10747408934",
+	Player = "rbxassetid://10747407760",
+	Features = "rbxassetid://10747406838",
+	Console = "rbxassetid://10747405262",
+	Explorer = "rbxassetid://10747402998",
+	Credits = "rbxassetid://10747402022",
+	ESP = "rbxassetid://10747400464",
+	Aimbot = "rbxassetid://10747398986",
+	World = "rbxassetid://10747397456",
+	Character = "rbxassetid://10747395766",
+}
+
+-- ==================================================
+-- 🔔 SISTEMA DE NOTIFICAÇÕES
+-- ==================================================
 local NotificationQueue = {}
 local NotificationActive = false
 
@@ -223,7 +221,9 @@ function Nexus:ShowNotification(msg, duration, color, icon)
 	toast:Destroy()
 end
 
--- Sistema de tooltips
+-- ==================================================
+-- 💬 SISTEMA DE TOOLTIPS
+-- ==================================================
 local TooltipActive = nil
 function Nexus:AddTooltip(button, text, delay)
 	if not self.Settings.Tooltips then return end
@@ -259,7 +259,9 @@ function Nexus:AddTooltip(button, text, delay)
 	end)
 end
 
--- Construtor de janela
+-- ==================================================
+-- 🪟 CONSTRUTOR DE JANELA
+-- ==================================================
 function Nexus:Window(title, themeName)
 	themeName = themeName or self.Settings.Theme
 	local theme = self.Themes[themeName] or self.Themes.Purple
@@ -468,7 +470,9 @@ function Nexus:Window(title, themeName)
 
 		table.insert(self.Tabs, tab)
 
-		-- Métodos da aba
+		-- ==================================================
+		-- MÉTODOS DA ABA
+		-- ==================================================
 		function tab:Section(text)
 			local sec = Instance.new("TextLabel")
 			sec.Parent = self.Page
@@ -705,7 +709,9 @@ function Nexus:Window(title, themeName)
 	return window
 end
 
--- Aplicar tema em uma janela existente
+-- ==================================================
+-- 🎨 APLICAR TEMA EM UMA JANELA
+-- ==================================================
 function Nexus:ApplyTheme(window, themeName)
 	local theme = self.Themes[themeName]
 	if not theme then return end
@@ -728,7 +734,9 @@ function Nexus:ApplyTheme(window, themeName)
 	window:Notify("Tema " .. themeName .. " aplicado!", 2, theme.Primary, "info")
 end
 
--- Keybinds globais
+-- ==================================================
+-- 🔑 KEYBINDS GLOBAIS
+-- ==================================================
 UIS.InputBegan:Connect(function(input, gp)
 	if gp then return end
 	if input.UserInputType == Enum.UserInputType.Keyboard then
@@ -741,5 +749,270 @@ UIS.InputBegan:Connect(function(input, gp)
 		end
 	end
 end)
+
+-- ==================================================
+-- 🧩 MÓDULOS DE FUNCIONALIDADES (OPCIONAIS)
+-- ==================================================
+-- Estes módulos podem ser chamados pelo usuário para ativar funções prontas.
+
+-- Módulo ESP
+function Nexus:CreateESP(settings)
+	settings = settings or self.Settings.ESP
+	local espObjects = {}
+	local function addESP(plr)
+		if plr == Player then return end
+		if plr.Character then
+			if settings.Box and not plr.Character:FindFirstChild("AxiomX_Box") then
+				local box = Instance.new("BoxHandleAdornment")
+				box.Name = "AxiomX_Box"
+				box.Adornee = plr.Character
+				box.ZIndex = 10
+				box.Size = Vector3.new(4,6,2)
+				box.Color3 = settings.Color
+				box.Transparency = 0.5
+				box.AlwaysOnTop = true
+				box.Parent = plr.Character
+				table.insert(espObjects, box)
+			end
+			if settings.Name and not plr.Character:FindFirstChild("AxiomX_Name") then
+				local head = plr.Character:FindFirstChild("Head")
+				if head then
+					local bg = Instance.new("BillboardGui")
+					bg.Name = "AxiomX_Name"
+					bg.Adornee = head
+					bg.Size = UDim2.new(0, 100, 0, 30)
+					bg.StudsOffset = Vector3.new(0,2,0)
+					bg.AlwaysOnTop = true
+					local label = Instance.new("TextLabel")
+					label.Parent = bg
+					label.Size = UDim2.new(1,0,1,0)
+					label.BackgroundTransparency = 1
+					label.Text = plr.Name
+					label.TextColor3 = settings.Color
+					label.TextStrokeColor3 = Color3.new(0,0,0)
+					label.TextStrokeTransparency = 0.3
+					label.Font = Enum.Font.GothamBold
+					label.TextSize = 16
+					bg.Parent = plr.Character
+					table.insert(espObjects, bg)
+				end
+			end
+		end
+	end
+	local function removeESP()
+		for _, obj in ipairs(espObjects) do
+			pcall(obj.Destroy, obj)
+		end
+		espObjects = {}
+	end
+	local conn1 = Players.PlayerAdded:Connect(addESP)
+	local conn2 = Players.PlayerRemoving:Connect(function(plr)
+		removeESP() -- simplificado, mas poderia ser mais eficiente
+	end)
+	-- Retorna funções para controle
+	return {
+		Enable = function()
+			removeESP()
+			for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end
+		end,
+		Disable = removeESP,
+		Update = function() removeESP(); for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end end
+	}
+end
+
+-- Módulo Fly
+function Nexus:CreateFly()
+	local flying = false
+	local bodyVelocity = nil
+	local function start()
+		if flying then return end
+		local char = Player.Character
+		if not char then return end
+		local root = char:FindFirstChild("HumanoidRootPart")
+		local humanoid = char:FindFirstChild("Humanoid")
+		if not root or not humanoid then return end
+		flying = true
+		humanoid.PlatformStand = true
+		bodyVelocity = Instance.new("BodyVelocity")
+		bodyVelocity.MaxForce = Vector3.new(1,1,1)*math.huge
+		bodyVelocity.Velocity = Vector3.new(0,0,0)
+		bodyVelocity.Parent = root
+		local conn = Run.Heartbeat:Connect(function()
+			if not flying or not root.Parent then return end
+			local move = Vector3.new()
+			if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + Camera.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - Camera.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - Camera.CFrame.RightVector end
+			if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + Camera.CFrame.RightVector end
+			if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
+			if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
+			bodyVelocity.Velocity = move * 60
+		end)
+		return conn
+	end
+	local function stop()
+		flying = false
+		if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
+		local char = Player.Character
+		if char then
+			local humanoid = char:FindFirstChild("Humanoid")
+			if humanoid then humanoid.PlatformStand = false end
+		end
+	end
+	return {
+		Toggle = function()
+			if flying then stop() else start() end
+			return flying
+		end,
+		Enable = start,
+		Disable = stop,
+		IsActive = function() return flying end
+	}
+end
+
+-- Módulo Aimbot (simples)
+function Nexus:CreateAimbot(settings)
+	settings = settings or self.Settings.Aimbot
+	local active = false
+	local connection = nil
+	local function start()
+		if active then return end
+		active = true
+		connection = Run.RenderStepped:Connect(function()
+			if not active then return end
+			local target = nil
+			local shortest = settings.FOV
+			local center = Camera.ViewportSize / 2
+			for _, plr in pairs(Players:GetPlayers()) do
+				if plr ~= Player and plr.Character and plr.Character:FindFirstChild(settings.TargetPart) then
+					if settings.TeamCheck and plr.Team == Player.Team then continue end
+					local part = plr.Character[settings.TargetPart]
+					local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
+					if onScreen then
+						local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+						if dist < shortest then
+							shortest = dist
+							target = part
+						end
+					end
+				end
+			end
+			if target then
+				local look = CFrame.lookAt(Camera.CFrame.Position, target.Position)
+				Camera.CFrame = Camera.CFrame:Lerp(look, settings.Smoothness, Enum.EasingStyle.Sine)
+			end
+		end)
+	end
+	local function stop()
+		active = false
+		if connection then connection:Disconnect() connection = nil end
+	end
+	return {
+		Toggle = function()
+			if active then stop() else start() end
+			return active
+		end,
+		Enable = start,
+		Disable = stop,
+		IsActive = function() return active end
+	}
+end
+
+-- Módulo NoClip
+function Nexus:CreateNoClip()
+	local active = false
+	local connection = nil
+	local function start()
+		if active then return end
+		active = true
+		connection = Run.Stepped:Connect(function()
+			if not active then return end
+			local char = Player.Character
+			if char then
+				local root = char:FindFirstChild("HumanoidRootPart")
+				if root then root.CanCollide = false end
+			end
+		end)
+	end
+	local function stop()
+		active = false
+		if connection then connection:Disconnect() connection = nil end
+	end
+	return {
+		Toggle = function()
+			if active then stop() else start() end
+			return active
+		end,
+		Enable = start,
+		Disable = stop,
+		IsActive = function() return active end
+	}
+end
+
+-- Módulo Infinite Jump
+function Nexus:CreateInfiniteJump()
+	local active = false
+	local connection = nil
+	local function start()
+		if active then return end
+		active = true
+		connection = UIS.JumpRequest:Connect(function()
+			if active then
+				local char = Player.Character
+				if char then
+					local humanoid = char:FindFirstChild("Humanoid")
+					if humanoid then
+						humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+					end
+				end
+			end
+		end)
+	end
+	local function stop()
+		active = false
+		if connection then connection:Disconnect() connection = nil end
+	end
+	return {
+		Toggle = function()
+			if active then stop() else start() end
+			return active
+		end,
+		Enable = start,
+		Disable = stop,
+		IsActive = function() return active end
+	}
+end
+
+-- Módulo Anti-AFK
+function Nexus:CreateAntiAFK()
+	local active = false
+	local thread = nil
+	local function start()
+		if active then return end
+		active = true
+		thread = task.spawn(function()
+			while active do
+				task.wait(60)
+				Virtual:CaptureController()
+				Virtual:Button2Down(Vector2.new(0,0))
+				task.wait(0.1)
+				Virtual:Button2Up(Vector2.new(0,0))
+			end
+		end)
+	end
+	local function stop()
+		active = false
+		if thread then task.cancel(thread) thread = nil end
+	end
+	return {
+		Toggle = function()
+			if active then stop() else start() end
+			return active
+		end,
+		Enable = start,
+		Disable = stop,
+		IsActive = function() return active end
+	}
+end
 
 return Nexus
