@@ -1,10 +1,10 @@
--- AxiomX Nexus Library v3.0 – Completa e Poderosa
--- By: Você 🔥
--- Modo de usar:
+-- Nexus Library v4.0 (Estilo Rayfield)
+-- Por: Você 🔥
+-- Uso:
 -- local Nexus = loadstring(game:HttpGet("raw_url"))()
--- local win = Nexus:Window("Meu Script")
--- local tab = win:Tab("Principal")
--- tab:Button("Clique", function() print("oi") end)
+-- local win = Nexus:CreateWindow("Título")
+-- local tab = win:CreateTab("Principal")
+-- tab:CreateButton("Clique", function() print("oi") end)
 
 local Nexus = {}
 
@@ -34,7 +34,7 @@ local function GetSafeParent()
 end
 
 -- ==================================================
--- 🔧 MÓDULO DE CONFIGURAÇÕES PERSISTENTES
+-- CONFIGURAÇÕES PERSISTENTES
 -- ==================================================
 Nexus.Settings = {
 	Theme = "Purple",
@@ -45,20 +45,12 @@ Nexus.Settings = {
 	SoundEffects = false,
 	Keybinds = {
 		ToggleUI = Enum.KeyCode.RightShift,
-		ToggleESP = Enum.KeyCode.E,
-		ToggleFly = Enum.KeyCode.F,
-		TeleportToMouse = Enum.KeyCode.T,
 	},
-	ESP = { Enabled = false, Box = true, Name = true, Color = Color3.fromRGB(255,255,255) },
-	Aimbot = { Enabled = false, Smoothness = 0.5, FOV = 100, TargetPart = "Head", TeamCheck = false },
-	Character = { WalkSpeed = 16, JumpPower = 50, Gravity = 196.2, InfiniteJump = false, NoClip = false, Fly = false, AntiAFK = false },
-	World = { Brightness = 1, GlobalShadows = true, FogEnd = 100000 },
-	Optimization = { FPSBoost = false, RemoveParticles = false, RemoveWater = false },
 }
 
 local function LoadSettings()
 	local success, data = pcall(function()
-		local store = Player:FindFirstChild("AxiomX_Settings_v6")
+		local store = Player:FindFirstChild("Nexus_Settings")
 		if store and store:IsA("StringValue") then
 			return Http:JSONDecode(store.Value)
 		end
@@ -79,10 +71,10 @@ end
 local function SaveSettings()
 	pcall(function()
 		local data = Http:JSONEncode(Nexus.Settings)
-		local store = Player:FindFirstChild("AxiomX_Settings_v6")
+		local store = Player:FindFirstChild("Nexus_Settings")
 		if not store then
 			store = Instance.new("StringValue")
-			store.Name = "AxiomX_Settings_v6"
+			store.Name = "Nexus_Settings"
 			store.Parent = Player
 		end
 		store.Value = data
@@ -92,202 +84,93 @@ end
 LoadSettings()
 
 -- ==================================================
--- 🎨 MÓDULO DE TEMAS
+-- TEMAS
 -- ==================================================
 Nexus.Themes = {
-	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Ocean = { Name = "Ocean", BgColor = Color3.fromRGB(0,20,40), Primary = Color3.fromRGB(0,150,255), Secondary = Color3.fromRGB(100,200,255), Button = Color3.fromRGB(0,40,60), ButtonHover = Color3.fromRGB(0,70,100), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(0,30,50), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Forest = { Name = "Forest", BgColor = Color3.fromRGB(10,30,10), Primary = Color3.fromRGB(0,180,0), Secondary = Color3.fromRGB(100,255,100), Button = Color3.fromRGB(20,50,20), ButtonHover = Color3.fromRGB(40,80,40), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,40,20), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Cyber = { Name = "Cyber", BgColor = Color3.fromRGB(0,0,20), Primary = Color3.fromRGB(255,0,255), Secondary = Color3.fromRGB(0,255,255), Button = Color3.fromRGB(30,0,40), ButtonHover = Color3.fromRGB(60,0,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,0,30), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Ice = { Name = "Ice", BgColor = Color3.fromRGB(20,40,60), Primary = Color3.fromRGB(100,200,255), Secondary = Color3.fromRGB(200,255,255), Button = Color3.fromRGB(30,60,80), ButtonHover = Color3.fromRGB(50,90,120), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,50,70), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Lava = { Name = "Lava", BgColor = Color3.fromRGB(40,10,0), Primary = Color3.fromRGB(255,100,0), Secondary = Color3.fromRGB(255,200,100), Button = Color3.fromRGB(80,20,0), ButtonHover = Color3.fromRGB(120,40,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,15,0), Shadow = Color3.new(0,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50) },
+	Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30) },
+	Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0) },
+	Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5) },
+	Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40) },
 }
 
 Nexus.CurrentTheme = Nexus.Themes[Nexus.Settings.Theme] or Nexus.Themes.Purple
 
 -- ==================================================
--- 🖼️ ASSETS (ÍCONES)
+-- NOTIFICAÇÕES
 -- ==================================================
-Nexus.Assets = {
-	Minimize = "rbxassetid://10734895698",
-	Minimize2 = "rbxassetid://10734895530",
-	Close = "rbxassetid://10747384394",
-	Settings = "rbxassetid://10747413906",
-	Theme = "rbxassetid://10747408934",
-	Player = "rbxassetid://10747407760",
-	Features = "rbxassetid://10747406838",
-	Console = "rbxassetid://10747405262",
-	Explorer = "rbxassetid://10747402998",
-	Credits = "rbxassetid://10747402022",
-	ESP = "rbxassetid://10747400464",
-	Aimbot = "rbxassetid://10747398986",
-	World = "rbxassetid://10747397456",
-	Character = "rbxassetid://10747395766",
-}
-
--- ==================================================
--- 🔔 SISTEMA DE NOTIFICAÇÕES
--- ==================================================
-local NotificationQueue = {}
-local NotificationActive = false
-
-function Nexus:Notify(msg, duration, color, icon, sound)
+function Nexus:Notify(notification)
 	if not self.Settings.Notifications then return end
-	table.insert(NotificationQueue, {
-		Message = msg,
-		Duration = duration or 3,
-		Color = color or self.CurrentTheme.ToastColor,
-		Icon = icon or "info",
-		Sound = sound
-	})
-	if not NotificationActive then
-		self:ProcessNotificationQueue()
-	end
-end
+	notification = notification or {}
+	local title = notification.Title or "Nexus"
+	local content = notification.Content or ""
+	local duration = notification.Duration or 5
+	local image = notification.Image or 4483362458
 
-function Nexus:ProcessNotificationQueue()
-	if #NotificationQueue == 0 then
-		NotificationActive = false
-		return
-	end
-	NotificationActive = true
-	local data = table.remove(NotificationQueue, 1)
-	self:ShowNotification(data.Message, data.Duration, data.Color, data.Icon)
-	if data.Sound and self.Settings.SoundEffects then
-		pcall(function()
-			local snd = Instance.new("Sound")
-			snd.SoundId = "rbxassetid://9120386431"
-			snd.Volume = 0.3
-			snd.Parent = Sound
-			snd:Play()
-			task.wait(0.5)
-			snd:Destroy()
-		end)
-	end
-	task.wait(0.4)
-	self:ProcessNotificationQueue()
-end
-
-function Nexus:ShowNotification(msg, duration, color, icon)
 	local parent = GetSafeParent()
-	local toast = Instance.new("TextLabel")
-	toast.Parent = parent
-	toast.Size = UDim2.new(0, 340, 0, 50)
-	toast.Position = UDim2.new(1, -360, 0, 20)
-	toast.BackgroundColor3 = color
-	toast.Text = "  " .. msg
-	toast.Font = Enum.Font.GothamSemibold
-	toast.TextSize = 17
-	toast.TextColor3 = Color3.new(1,1,1)
-	toast.BackgroundTransparency = 0.1
-	toast.BorderSizePixel = 0
-	toast.TextXAlignment = Enum.TextXAlignment.Left
-	toast.ZIndex = 999
-	Instance.new("UICorner", toast).CornerRadius = UDim.new(0,16)
-	local stroke = Instance.new("UIStroke", toast)
-	stroke.Color = self.CurrentTheme.Primary
-	stroke.Thickness = 2
+	local frame = Instance.new("Frame")
+	frame.Parent = parent
+	frame.Size = UDim2.new(0, 300, 0, 80)
+	frame.Position = UDim2.new(1, -320, 0, -100)
+	frame.BackgroundColor3 = Nexus.CurrentTheme.BgColor
+	frame.BackgroundTransparency = 0.2
+	frame.BorderSizePixel = 0
+	frame.ClipsDescendants = true
+	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+	Instance.new("UIStroke", frame).Color = Nexus.CurrentTheme.Primary
 
-	local iconLabel = Instance.new("ImageLabel")
-	iconLabel.Parent = toast
-	iconLabel.Size = UDim2.new(0, 30, 0, 30)
-	iconLabel.Position = UDim2.new(0, 12, 0.5, -15)
-	iconLabel.BackgroundTransparency = 1
-	if icon == "success" then
-		iconLabel.Image = "rbxassetid://10709789981"
-	elseif icon == "error" then
-		iconLabel.Image = "rbxassetid://10709790282"
-	elseif icon == "warning" then
-		iconLabel.Image = "rbxassetid://10709790428"
-	else
-		iconLabel.Image = "rbxassetid://6031094678"
-	end
-	iconLabel.ImageColor3 = self.CurrentTheme.Secondary
+	local icon = Instance.new("ImageLabel")
+	icon.Parent = frame
+	icon.Size = UDim2.new(0, 40, 0, 40)
+	icon.Position = UDim2.new(0, 10, 0.5, -20)
+	icon.BackgroundTransparency = 1
+	icon.Image = "rbxassetid://" .. image
+	icon.ImageColor3 = Nexus.CurrentTheme.Primary
 
-	toast.Position = UDim2.new(1, -360, 0, -50)
-	Tween:Create(toast, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-		Position = UDim2.new(1, -360, 0, 20)
-	}):Play()
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Parent = frame
+	titleLabel.Size = UDim2.new(1, -60, 0, 30)
+	titleLabel.Position = UDim2.new(0, 60, 0, 10)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = title
+	titleLabel.Font = Enum.Font.GothamSemibold
+	titleLabel.TextSize = 16
+	titleLabel.TextColor3 = Nexus.CurrentTheme.Secondary
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+	local contentLabel = Instance.new("TextLabel")
+	contentLabel.Parent = frame
+	contentLabel.Size = UDim2.new(1, -60, 0, 30)
+	contentLabel.Position = UDim2.new(0, 60, 0, 40)
+	contentLabel.BackgroundTransparency = 1
+	contentLabel.Text = content
+	contentLabel.Font = Enum.Font.Gotham
+	contentLabel.TextSize = 14
+	contentLabel.TextColor3 = Nexus.CurrentTheme.Text
+	contentLabel.TextXAlignment = Enum.TextXAlignment.Left
+	contentLabel.TextWrapped = true
+
+	frame:TweenPosition(UDim2.new(1, -320, 0, 20), Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
 
 	task.wait(duration)
-	Tween:Create(toast, TweenInfo.new(0.3), {
-		Position = UDim2.new(1, -360, 0, -50)
-	}):Play()
-	task.wait(0.3)
-	toast:Destroy()
+	frame:TweenPosition(UDim2.new(1, -320, 0, -100), Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.5, true)
+	task.wait(0.5)
+	frame:Destroy()
 end
 
 -- ==================================================
--- 💬 SISTEMA DE TOOLTIPS
+-- CRIAÇÃO DA JANELA PRINCIPAL
 -- ==================================================
-local TooltipActive = nil
-function Nexus:AddTooltip(button, text, delay)
-	if not self.Settings.Tooltips then return end
-	delay = delay or 0.3
-	local tipConn
-	button.MouseEnter:Connect(function()
-		tipConn = task.delay(delay, function()
-			if TooltipActive then TooltipActive:Destroy() end
-			local parent = GetSafeParent()
-			local tip = Instance.new("TextLabel")
-			tip.Parent = parent
-			tip.Size = UDim2.new(0, #text * 8 + 30, 0, 30)
-			tip.Position = UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 40)
-			tip.BackgroundColor3 = Color3.fromRGB(20,20,30)
-			tip.Text = text
-			tip.Font = Enum.Font.Gotham
-			tip.TextSize = 15
-			tip.TextColor3 = Color3.new(1,1,1)
-			Instance.new("UICorner", tip).CornerRadius = UDim.new(0,8)
-			Instance.new("UIStroke", tip).Color = self.CurrentTheme.Primary
-			tip.Visible = false
-			tip:TweenPosition(UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 45), "Out", "Quad", 0.2, true)
-			tip.Visible = true
-			TooltipActive = tip
-		end)
-	end)
-	button.MouseLeave:Connect(function()
-		if tipConn then task.cancel(tipConn) end
-		if TooltipActive then
-			TooltipActive:Destroy()
-			TooltipActive = nil
-		end
-	end)
-end
-
--- ==================================================
--- 🪟 CONSTRUTOR DE JANELA
--- ==================================================
-function Nexus:Window(title, themeName)
-	themeName = themeName or self.Settings.Theme
-	local theme = self.Themes[themeName] or self.Themes.Purple
-	local window = {}
-	window.Theme = theme
-	window.Title = title or "Nexus Window"
-	window.Settings = self.Settings
-	window.Assets = self.Assets
-	window.Notify = function(msg, dur, col, icon) self:Notify(msg, dur, col, icon) end
-	window.AddTooltip = function(btn, txt, delay) self:AddTooltip(btn, txt, delay) end
-
-	-- Conexões da janela
-	window.Connections = {}
-	function window:AddConnection(conn)
-		if conn then table.insert(self.Connections, conn) end
-	end
-	function window:DisconnectAll()
-		for _, conn in ipairs(self.Connections) do
-			pcall(conn.Disconnect, conn)
-		end
-		self.Connections = {}
-	end
+function Nexus:CreateWindow(options)
+	options = options or {}
+	local title = options.Title or "Nexus Window"
+	local theme = options.Theme or self.Settings.Theme
+	local size = options.Size or UDim2.new(0, 600, 0, 400)
+	local themeTable = self.Themes[theme] or self.Themes.Purple
 
 	local parent = GetSafeParent()
 	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "AxiomX_Window"
+	screenGui.Name = "Nexus_Window"
 	screenGui.Parent = parent
 	screenGui.ResetOnSpawn = false
 	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -295,315 +178,291 @@ function Nexus:Window(title, themeName)
 
 	local main = Instance.new("Frame")
 	main.Parent = screenGui
-	main.Size = UDim2.new(0, 750, 0, 550)
-	main.Position = UDim2.new(0.5, -375, 0.5, -275)
-	main.BackgroundColor3 = theme.BgColor
+	main.Size = size
+	main.Position = UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2)
+	main.BackgroundColor3 = themeTable.BgColor
 	main.BorderSizePixel = 0
 	main.Active = true
 	main.ClipsDescendants = true
-	main.Name = "MainFrame"
+	Instance.new("UICorner", main).CornerRadius = UDim.new(0, 16)
+	Instance.new("UIStroke", main).Color = themeTable.Primary
 
-	local uiCorner = Instance.new("UICorner", main)
-	uiCorner.CornerRadius = UDim.new(0,24)
-
-	local stroke = Instance.new("UIStroke", main)
-	stroke.Thickness = 3
-	stroke.Color = theme.Primary
-	stroke.Enabled = self.Settings.BorderAnimation
-
-	local shadow = Instance.new("ImageLabel")
-	shadow.Name = "Shadow"
-	shadow.Parent = main
-	shadow.BackgroundTransparency = 1
-	shadow.Position = UDim2.new(0, -20, 0, -20)
-	shadow.Size = UDim2.new(1, 40, 1, 40)
-	shadow.Image = "rbxassetid://6014261993"
-	shadow.ImageColor3 = Color3.new(0,0,0)
-	shadow.ImageTransparency = 0.7
-	shadow.ScaleType = Enum.ScaleType.Slice
-	shadow.SliceCenter = Rect.new(10,10,118,118)
+	local titleBar = Instance.new("Frame")
+	titleBar.Parent = main
+	titleBar.Size = UDim2.new(1, 0, 0, 40)
+	titleBar.BackgroundTransparency = 1
+	titleBar.ZIndex = 10
 
 	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Parent = main
-	titleLabel.Size = UDim2.new(1, 0, 0, 70)
+	titleLabel.Parent = titleBar
+	titleLabel.Size = UDim2.new(1, -80, 1, 0)
+	titleLabel.Position = UDim2.new(0, 10, 0, 0)
 	titleLabel.BackgroundTransparency = 1
 	titleLabel.Text = title
-	titleLabel.Font = Enum.Font.GothamBlack
-	titleLabel.TextSize = 36
-	titleLabel.TextColor3 = theme.Secondary
-	titleLabel.TextStrokeTransparency = 0.6
-	titleLabel.TextStrokeColor3 = theme.Primary
+	titleLabel.Font = Enum.Font.GothamSemibold
+	titleLabel.TextSize = 18
+	titleLabel.TextColor3 = themeTable.Secondary
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-	local line = Instance.new("Frame")
-	line.Parent = main
-	line.Size = UDim2.new(1, -40, 0, 4)
-	line.Position = UDim2.new(0, 20, 0, 70)
-	line.BackgroundColor3 = theme.Primary
-	line.BorderSizePixel = 0
-	Instance.new("UICorner", line).CornerRadius = UDim.new(1,0)
-
-	-- Botões de controle
 	local closeBtn = Instance.new("ImageButton")
-	closeBtn.Parent = main
-	closeBtn.Size = UDim2.new(0, 40, 0, 40)
-	closeBtn.Position = UDim2.new(1, -50, 0, 15)
+	closeBtn.Parent = titleBar
+	closeBtn.Size = UDim2.new(0, 30, 0, 30)
+	closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
 	closeBtn.BackgroundTransparency = 1
-	closeBtn.Image = self.Assets.Close
-	closeBtn.ImageColor3 = Color3.fromRGB(255,100,100)
-	window:AddTooltip(closeBtn, "Fechar", 0.2)
+	closeBtn.Image = "rbxassetid://10747384394"
+	closeBtn.ImageColor3 = Color3.fromRGB(255, 100, 100)
 	closeBtn.MouseButton1Click:Connect(function()
-		window:DisconnectAll()
-		main:TweenSizeAndPosition(UDim2.new(0,0,0,0), UDim2.new(0.5,0,0.5,0), "In", "Back", 0.4, true)
-		task.wait(0.4)
 		screenGui:Destroy()
 	end)
 
 	local minBtn = Instance.new("ImageButton")
-	minBtn.Parent = main
-	minBtn.Size = UDim2.new(0, 40, 0, 40)
-	minBtn.Position = UDim2.new(1, -96, 0, 15)
+	minBtn.Parent = titleBar
+	minBtn.Size = UDim2.new(0, 30, 0, 30)
+	minBtn.Position = UDim2.new(1, -80, 0.5, -15)
 	minBtn.BackgroundTransparency = 1
-	minBtn.Image = self.Assets.Minimize
-	minBtn.ImageColor3 = theme.Primary
-	window:AddTooltip(minBtn, "Minimizar", 0.2)
+	minBtn.Image = "rbxassetid://10734895698"
+	minBtn.ImageColor3 = themeTable.Primary
 	local minimized = false
 	minBtn.MouseButton1Click:Connect(function()
 		minimized = not minimized
 		if minimized then
-			main:TweenSize(UDim2.new(0, 350, 0, 70), "Out", "Quad", 0.25, true)
-			minBtn.Image = self.Assets.Minimize2
-			window:AddTooltip(minBtn, "Restaurar", 0.2)
+			main:TweenSize(UDim2.new(0, 600, 0, 40), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+			minBtn.Image = "rbxassetid://10734895530"
 		else
-			main:TweenSize(UDim2.new(0, 750, 0, 550), "Out", "Quad", 0.25, true)
-			minBtn.Image = self.Assets.Minimize
-			window:AddTooltip(minBtn, "Minimizar", 0.2)
+			main:TweenSize(size, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+			minBtn.Image = "rbxassetid://10734895698"
 		end
 	end)
 
-	-- Área de abas
-	local tabsFrame = Instance.new("Frame")
-	tabsFrame.Parent = main
-	tabsFrame.Size = UDim2.new(0, 180, 1, -90)
-	tabsFrame.Position = UDim2.new(0, 0, 0, 80)
-	tabsFrame.BackgroundTransparency = 1
+	local tabFrame = Instance.new("Frame")
+	tabFrame.Parent = main
+	tabFrame.Size = UDim2.new(1, -20, 0, 40)
+	tabFrame.Position = UDim2.new(0, 10, 0, 50)
+	tabFrame.BackgroundTransparency = 1
+
+	local tabLayout = Instance.new("UIListLayout", tabFrame)
+	tabLayout.FillDirection = Enum.FillDirection.Horizontal
+	tabLayout.Padding = UDim.new(0, 5)
+	tabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 
 	local contentFrame = Instance.new("Frame")
 	contentFrame.Parent = main
-	contentFrame.Size = UDim2.new(1, -190, 1, -100)
-	contentFrame.Position = UDim2.new(0, 185, 0, 85)
+	contentFrame.Size = UDim2.new(1, -20, 1, -100)
+	contentFrame.Position = UDim2.new(0, 10, 0, 95)
 	contentFrame.BackgroundTransparency = 1
 	contentFrame.ClipsDescendants = true
 
-	window.Tabs = {}
-	window.TabsFrame = tabsFrame
-	window.ContentFrame = contentFrame
+	local window = {}
 	window.Main = main
 	window.ScreenGui = screenGui
+	window.Theme = themeTable
+	window.Tabs = {}
+	window.TabFrame = tabFrame
+	window.ContentFrame = contentFrame
+	window.Notify = function(notif) Nexus:Notify(notif) end
+
+	-- Arrastar a janela
+	local dragging = false
+	local dragStart, startPos
+	titleBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = main.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	titleBar.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+			local delta = input.Position - dragStart
+			local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			main.Position = newPos
+		end
+	end)
 
 	-- Método para criar aba
-	function window:Tab(name, icon)
-		icon = icon or self.Assets.Features
+	function window:CreateTab(name, image)
+		image = image or 4483362458
 		local tab = {}
 		tab.Name = name
 		tab.Window = self
-		tab.Theme = self.Theme
-		tab.Connections = {}
 
-		local page = Instance.new("ScrollingFrame")
-		page.Parent = self.ContentFrame
-		page.Size = UDim2.new(1, 0, 1, 0)
-		page.BackgroundTransparency = 1
-		page.BorderSizePixel = 0
-		page.ScrollBarThickness = 6
-		page.ScrollBarImageColor3 = self.Theme.Primary
-		page.CanvasSize = UDim2.new(0,0,0,0)
-		page.Visible = false
-		local layout = Instance.new("UIListLayout", page)
-		layout.Padding = UDim.new(0, 12)
-		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-			page.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 30)
+		local tabButton = Instance.new("TextButton")
+		tabButton.Parent = self.TabFrame
+		tabButton.Size = UDim2.new(0, 100, 0, 30)
+		tabButton.BackgroundColor3 = self.Theme.Button
+		tabButton.Text = "  " .. name
+		tabButton.Font = Enum.Font.Gotham
+		tabButton.TextSize = 14
+		tabButton.TextColor3 = self.Theme.Text
+		tabButton.TextXAlignment = Enum.TextXAlignment.Left
+		Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 8)
+		Instance.new("UIStroke", tabButton).Color = self.Theme.Primary
+
+		local tabIcon = Instance.new("ImageLabel")
+		tabIcon.Parent = tabButton
+		tabIcon.Size = UDim2.new(0, 20, 0, 20)
+		tabIcon.Position = UDim2.new(0, 5, 0.5, -10)
+		tabIcon.BackgroundTransparency = 1
+		tabIcon.Image = "rbxassetid://" .. image
+		tabIcon.ImageColor3 = self.Theme.Text
+
+		local tabPage = Instance.new("ScrollingFrame")
+		tabPage.Parent = self.ContentFrame
+		tabPage.Size = UDim2.new(1, 0, 1, 0)
+		tabPage.BackgroundTransparency = 1
+		tabPage.BorderSizePixel = 0
+		tabPage.ScrollBarThickness = 5
+		tabPage.ScrollBarImageColor3 = self.Theme.Primary
+		tabPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+		tabPage.Visible = false
+
+		local pageLayout = Instance.new("UIListLayout", tabPage)
+		pageLayout.Padding = UDim.new(0, 8)
+		pageLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			tabPage.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 20)
 		end)
 
-		tab.Page = page
+		tab.Page = tabPage
+		tab.Button = tabButton
 
-		local btn = Instance.new("TextButton")
-		btn.Parent = self.TabsFrame
-		btn.Size = UDim2.new(1, -10, 0, 50)
-		btn.Text = "   " .. name
-		btn.Font = Enum.Font.GothamSemibold
-		btn.TextSize = 18
-		btn.BackgroundColor3 = self.Theme.Button
-		btn.TextColor3 = self.Theme.Text
-		btn.TextXAlignment = Enum.TextXAlignment.Left
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0,16)
-		local strokeBtn = Instance.new("UIStroke", btn)
-		strokeBtn.Color = self.Theme.Primary
-		strokeBtn.Thickness = 2
-		self.Window:AddTooltip(btn, "Abrir aba " .. name, 0.2)
-
-		local ic = Instance.new("ImageLabel")
-		ic.Parent = btn
-		ic.Size = UDim2.new(0, 26, 0, 26)
-		ic.Position = UDim2.new(0, 10, 0.5, -13)
-		ic.BackgroundTransparency = 1
-		ic.Image = icon
-		ic.ImageColor3 = self.Theme.Text
-
-		btn.MouseButton1Click:Connect(function()
-			for _, t in pairs(self.Tabs) do
-				t.Page.Visible = false
-				t.Button.BackgroundColor3 = self.Theme.Button
-				t.Button.TextColor3 = self.Theme.Text
-				t.Button.UIStroke.Color = self.Theme.Primary
-				if t.Icon then t.Icon.ImageColor3 = self.Theme.Text end
+		tabButton.MouseButton1Click:Connect(function()
+			for _, otherTab in pairs(self.Tabs) do
+				otherTab.Page.Visible = false
+				otherTab.Button.BackgroundColor3 = self.Theme.Button
+				otherTab.Button.TextColor3 = self.Theme.Text
+				otherTab.Button.UIStroke.Color = self.Theme.Primary
+				if otherTab.Icon then otherTab.Icon.ImageColor3 = self.Theme.Text end
 			end
-			page.Visible = true
-			btn.BackgroundColor3 = self.Theme.Secondary
-			btn.TextColor3 = Color3.new(0,0,0)
-			btn.UIStroke.Color = Color3.new(1,1,1)
-			ic.ImageColor3 = Color3.new(0,0,0)
+			tabPage.Visible = true
+			tabButton.BackgroundColor3 = self.Theme.Secondary
+			tabButton.TextColor3 = Color3.new(0,0,0)
+			tabButton.UIStroke.Color = Color3.new(1,1,1)
+			tabIcon.ImageColor3 = Color3.new(0,0,0)
 		end)
 
-		tab.Button = btn
-		tab.Icon = ic
-
-		table.insert(self.Tabs, tab)
-
-		-- ==================================================
-		-- MÉTODOS DA ABA
-		-- ==================================================
-		function tab:Section(text)
-			local sec = Instance.new("TextLabel")
-			sec.Parent = self.Page
-			sec.Size = UDim2.new(1, -20, 0, 30)
-			sec.BackgroundTransparency = 1
-			sec.Text = text
-			sec.Font = Enum.Font.GothamBlack
-			sec.TextSize = 20
-			sec.TextColor3 = self.Theme.Secondary
-			sec.TextXAlignment = Enum.TextXAlignment.Left
-			sec.PaddingLeft = UDim.new(0, 10)
-			return sec
+		-- Métodos da aba
+		function tab:CreateSection(text)
+			local section = Instance.new("TextLabel")
+			section.Parent = self.Page
+			section.Size = UDim2.new(1, -20, 0, 25)
+			section.BackgroundTransparency = 1
+			section.Text = text
+			section.Font = Enum.Font.GothamBlack
+			section.TextSize = 16
+			section.TextColor3 = self.Window.Theme.Secondary
+			section.TextXAlignment = Enum.TextXAlignment.Left
+			section.PaddingLeft = UDim.new(0, 10)
+			return section
 		end
 
-		function tab:Button(text, callback, tooltip, icon)
+		function tab:CreateButton(text, callback)
 			local btn = Instance.new("TextButton")
 			btn.Parent = self.Page
-			btn.Size = UDim2.new(1, -20, 0, 48)
+			btn.Size = UDim2.new(1, -20, 0, 35)
+			btn.BackgroundColor3 = self.Window.Theme.Button
 			btn.Text = text
 			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 18
-			btn.TextColor3 = self.Theme.Text
-			btn.BackgroundColor3 = self.Theme.Button
-			btn.BorderSizePixel = 0
-			btn.AutoButtonColor = false
-			btn.TextXAlignment = Enum.TextXAlignment.Left
-			btn.PaddingLeft = UDim.new(0, 45)
-			Instance.new("UICorner", btn).CornerRadius = UDim.new(0,16)
-			Instance.new("UIStroke", btn).Color = self.Theme.Primary
-			self.Window:AddTooltip(btn, tooltip or text)
-			if icon then
-				local ic = Instance.new("ImageLabel")
-				ic.Parent = btn
-				ic.Size = UDim2.new(0, 28, 0, 28)
-				ic.Position = UDim2.new(0, 10, 0.5, -14)
-				ic.BackgroundTransparency = 1
-				ic.Image = icon
-				ic.ImageColor3 = self.Theme.Text
-			end
+			btn.TextSize = 14
+			btn.TextColor3 = self.Window.Theme.Text
+			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+			Instance.new("UIStroke", btn).Color = self.Window.Theme.Primary
 			btn.MouseEnter:Connect(function()
-				Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Theme.ButtonHover}):Play()
+				Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Window.Theme.ButtonHover}):Play()
 			end)
 			btn.MouseLeave:Connect(function()
-				Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Theme.Button}):Play()
+				Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Window.Theme.Button}):Play()
 			end)
 			btn.MouseButton1Click:Connect(function()
-				local s, e = pcall(callback or function() end)
-				if not s then self.Window:Notify("Erro: " .. tostring(e), 3, self.Theme.Error, "error") end
+				local s, e = pcall(callback)
+				if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
 			end)
 			return btn
 		end
 
-		function tab:Toggle(text, getter, setter, tooltip, icon)
+		function tab:CreateToggle(options)
+			local text = options.Text or "Toggle"
+			local state = options.Default or false
+			local callback = options.Callback or function() end
+
 			local btn = Instance.new("TextButton")
 			btn.Parent = self.Page
-			btn.Size = UDim2.new(1, -20, 0, 52)
+			btn.Size = UDim2.new(1, -20, 0, 35)
+			btn.BackgroundColor3 = self.Window.Theme.Button
 			btn.Text = text
-			btn.Font = Enum.Font.GothamSemibold
-			btn.TextSize = 18
-			btn.TextColor3 = self.Theme.Text
-			btn.BackgroundColor3 = self.Theme.Button
-			btn.BorderSizePixel = 0
-			btn.AutoButtonColor = false
+			btn.Font = Enum.Font.Gotham
+			btn.TextSize = 14
+			btn.TextColor3 = self.Window.Theme.Text
 			btn.TextXAlignment = Enum.TextXAlignment.Left
-			btn.PaddingLeft = UDim.new(0, 45)
-			Instance.new("UICorner", btn).CornerRadius = UDim.new(0,18)
-			Instance.new("UIStroke", btn).Color = self.Theme.Primary
-			self.Window:AddTooltip(btn, tooltip or text)
-			if icon then
-				local ic = Instance.new("ImageLabel")
-				ic.Parent = btn
-				ic.Size = UDim2.new(0, 28, 0, 28)
-				ic.Position = UDim2.new(0, 10, 0.5, -14)
-				ic.BackgroundTransparency = 1
-				ic.Image = icon
-				ic.ImageColor3 = self.Theme.Text
-			end
+			btn.PaddingLeft = UDim.new(0, 10)
+			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+			Instance.new("UIStroke", btn).Color = self.Window.Theme.Primary
+
 			local indicator = Instance.new("Frame")
 			indicator.Parent = btn
-			indicator.Size = UDim2.new(0, 22, 0, 22)
-			indicator.Position = UDim2.new(1, -38, 0.5, -11)
-			indicator.BackgroundColor3 = getter() and self.Theme.Success or Color3.fromRGB(0.5,0.5,0.5)
-			indicator.BorderSizePixel = 0
+			indicator.Size = UDim2.new(0, 20, 0, 20)
+			indicator.Position = UDim2.new(1, -30, 0.5, -10)
+			indicator.BackgroundColor3 = state and self.Window.Theme.Success or Color3.fromRGB(0.5,0.5,0.5)
 			Instance.new("UICorner", indicator).CornerRadius = UDim.new(1,0)
+
 			btn.MouseButton1Click:Connect(function()
-				local new = not getter()
-				setter(new)
-				indicator.BackgroundColor3 = new and self.Theme.Success or Color3.fromRGB(0.5,0.5,0.5)
+				state = not state
+				indicator.BackgroundColor3 = state and self.Window.Theme.Success or Color3.fromRGB(0.5,0.5,0.5)
+				local s, e = pcall(callback, state)
+				if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
 			end)
 			return btn
 		end
 
-		function tab:Slider(name, min, max, default, callback, tooltip)
+		function tab:CreateSlider(options)
+			local text = options.Text or "Slider"
+			local min = options.Min or 0
+			local max = options.Max or 100
+			local default = options.Default or 50
+			local callback = options.Callback or function() end
+
 			local container = Instance.new("Frame")
 			container.Parent = self.Page
-			container.Size = UDim2.new(1, -20, 0, 80)
+			container.Size = UDim2.new(1, -20, 0, 45)
 			container.BackgroundTransparency = 1
 
 			local label = Instance.new("TextLabel")
 			label.Parent = container
-			label.Size = UDim2.new(1, 0, 0, 28)
-			label.Text = name .. ": " .. default
+			label.Size = UDim2.new(1, 0, 0, 20)
 			label.BackgroundTransparency = 1
-			label.TextColor3 = self.Theme.Text
+			label.Text = text .. ": " .. default
 			label.Font = Enum.Font.Gotham
-			label.TextSize = 18
+			label.TextSize = 14
+			label.TextColor3 = self.Window.Theme.Text
 			label.TextXAlignment = Enum.TextXAlignment.Left
-			label.PaddingLeft = UDim.new(0, 10)
+			label.PaddingLeft = UDim.new(0, 5)
 
 			local sliderBg = Instance.new("Frame")
 			sliderBg.Parent = container
-			sliderBg.Size = UDim2.new(1, -20, 0, 16)
-			sliderBg.Position = UDim2.new(0, 10, 0, 38)
+			sliderBg.Size = UDim2.new(1, -10, 0, 10)
+			sliderBg.Position = UDim2.new(0, 5, 0, 25)
 			sliderBg.BackgroundColor3 = Color3.fromRGB(50,50,50)
 			Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
 
 			local fill = Instance.new("Frame")
 			fill.Parent = sliderBg
 			fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
-			fill.BackgroundColor3 = self.Theme.Primary
+			fill.BackgroundColor3 = self.Window.Theme.Primary
 			Instance.new("UICorner", fill).CornerRadius = UDim.new(1,0)
 
 			local drag = Instance.new("TextButton")
 			drag.Parent = sliderBg
-			drag.Size = UDim2.new(0, 26, 0, 26)
-			drag.Position = UDim2.new(fill.Size.X.Scale, -13, 0.5, -13)
+			drag.Size = UDim2.new(0, 20, 0, 20)
+			drag.Position = UDim2.new(fill.Size.X.Scale, -10, 0.5, -10)
 			drag.BackgroundColor3 = Color3.new(1,1,1)
 			drag.Text = ""
 			Instance.new("UICorner", drag).CornerRadius = UDim.new(1,0)
-			Instance.new("UIStroke", drag).Color = self.Theme.Primary
-			self.Window:AddTooltip(drag, tooltip or "Arraste")
+			Instance.new("UIStroke", drag).Color = self.Window.Theme.Primary
 
 			local val = default
 			drag.MouseButton1Down:Connect(function()
@@ -612,10 +471,11 @@ function Nexus:Window(title, themeName)
 					local rel = (Mouse.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
 					rel = math.clamp(rel, 0, 1)
 					fill.Size = UDim2.new(rel, 0, 1, 0)
-					drag.Position = UDim2.new(rel, -13, 0.5, -13)
+					drag.Position = UDim2.new(rel, -10, 0.5, -10)
 					val = math.floor(min + (max-min) * rel)
-					label.Text = name .. ": " .. val
-					callback(val)
+					label.Text = text .. ": " .. val
+					local s, e = pcall(callback, val)
+					if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
 				end)
 				local release
 				release = Mouse.Button1Up:Connect(function()
@@ -626,204 +486,101 @@ function Nexus:Window(title, themeName)
 			return container
 		end
 
-		function tab:Dropdown(name, options, getter, setter, tooltip)
-			local btn = self:Button(name .. ": " .. getter(), function()
-				local current = getter()
+		function tab:CreateDropdown(options)
+			local text = options.Text or "Dropdown"
+			local values = options.Values or {}
+			local default = options.Default or values[1]
+			local callback = options.Callback or function() end
+
+			local btn = self:CreateButton(text .. ": " .. tostring(default), function()
+				local current = default
 				local idx = 0
-				for i, opt in ipairs(options) do
-					if opt == current then idx = i end
+				for i, v in ipairs(values) do
+					if v == current then idx = i end
 				end
-				local next = options[(idx % #options) + 1]
-				setter(next)
-				btn.Text = name .. ": " .. next
-			end, tooltip)
+				local nextVal = values[(idx % #values) + 1]
+				default = nextVal
+				btn.Text = text .. ": " .. tostring(nextVal)
+				callback(nextVal)
+			end)
 			return btn
 		end
 
-		function tab:Label(text)
-			local lbl = Instance.new("TextLabel")
-			lbl.Parent = self.Page
-			lbl.Size = UDim2.new(1, -20, 0, 30)
-			lbl.BackgroundTransparency = 1
-			lbl.Text = text
-			lbl.Font = Enum.Font.Gotham
-			lbl.TextSize = 16
-			lbl.TextColor3 = self.Theme.Text
-			lbl.TextWrapped = true
-			return lbl
-		end
+		function tab:CreateTextbox(options)
+			local text = options.Text or "Texto"
+			local default = options.Default or ""
+			local callback = options.Callback or function() end
 
-		function tab:TextBox(placeholder, textGetter, textSetter, tooltip)
 			local box = Instance.new("TextBox")
 			box.Parent = self.Page
-			box.Size = UDim2.new(1, -20, 0, 48)
-			box.PlaceholderText = placeholder or "Digite algo..."
-			box.Text = textGetter() or ""
+			box.Size = UDim2.new(1, -20, 0, 35)
+			box.PlaceholderText = text
+			box.Text = default
 			box.Font = Enum.Font.Gotham
-			box.TextSize = 18
-			box.TextColor3 = self.Theme.Text
-			box.BackgroundColor3 = self.Theme.Button
+			box.TextSize = 14
+			box.TextColor3 = self.Window.Theme.Text
+			box.BackgroundColor3 = self.Window.Theme.Button
 			box.BorderSizePixel = 0
-			Instance.new("UICorner", box).CornerRadius = UDim.new(0,16)
-			Instance.new("UIStroke", box).Color = self.Theme.Primary
-			self.Window:AddTooltip(box, tooltip or placeholder)
+			Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+			Instance.new("UIStroke", box).Color = self.Window.Theme.Primary
 			box.FocusLost:Connect(function(enter)
-				if enter then textSetter(box.Text) end
+				if enter then
+					local s, e = pcall(callback, box.Text)
+					if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
+				end
 			end)
 			return box
 		end
 
-		function tab:ColorPicker(text, getter, setter, tooltip)
-			local btn = self:Button(text .. ": " .. tostring(getter()), function()
-				local colors = {Color3.new(1,0,0), Color3.new(0,1,0), Color3.new(0,0,1), Color3.new(1,1,0), Color3.new(1,0,1), Color3.new(0,1,1)}
-				local current = getter()
-				local idx = 0
-				for i, c in ipairs(colors) do
-					if c == current then idx = i end
-				end
-				local nextColor = colors[(idx % #colors) + 1]
-				setter(nextColor)
-				btn.Text = text .. ": " .. tostring(nextColor)
-			end, tooltip)
-			return btn
+		function tab:CreateLabel(text)
+			local label = Instance.new("TextLabel")
+			label.Parent = self.Page
+			label.Size = UDim2.new(1, -20, 0, 20)
+			label.BackgroundTransparency = 1
+			label.Text = text
+			label.Font = Enum.Font.Gotham
+			label.TextSize = 14
+			label.TextColor3 = self.Window.Theme.Text
+			return label
 		end
 
+		function tab:CreateParagraph(text)
+			local para = Instance.new("TextLabel")
+			para.Parent = self.Page
+			para.Size = UDim2.new(1, -20, 0, 50)
+			para.BackgroundTransparency = 1
+			para.Text = text
+			para.Font = Enum.Font.Gotham
+			para.TextSize = 14
+			para.TextColor3 = self.Window.Theme.Text
+			para.TextWrapped = true
+			para.TextYAlignment = Enum.TextYAlignment.Top
+			return para
+		end
+
+		table.insert(self.Window.Tabs, tab)
 		return tab
 	end
 
-	-- Ativar primeira aba
+	-- Selecionar primeira aba automaticamente
 	task.defer(function()
 		if window.Tabs[1] then
 			window.Tabs[1].Button.MouseButton1Click:Fire()
 		end
 	end)
 
-	-- Animação de entrada
-	main.Size = UDim2.new(0,0,0,0)
-	main.Position = UDim2.new(0.5,0,0.5,0)
-	Tween:Create(main, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-		Size = UDim2.new(0,750,0,550),
-		Position = UDim2.new(0.5,-375,0.5,-275)
-	}):Play()
-
 	return window
 end
 
 -- ==================================================
--- 🎨 APLICAR TEMA EM UMA JANELA
+-- MÓDULOS DE FUNCIONALIDADE (OPCIONAIS)
 -- ==================================================
-function Nexus:ApplyTheme(window, themeName)
-	local theme = self.Themes[themeName]
-	if not theme then return end
-	window.Theme = theme
-	window.Main.BackgroundColor3 = theme.BgColor
-	window.Main.UIStroke.Color = theme.Primary
-	window.Main.Title.TextColor3 = theme.Secondary
-	window.Main.Title.TextStrokeColor3 = theme.Primary
-	window.Main.Line.BackgroundColor3 = theme.Primary
-	window.MinBtn.ImageColor3 = theme.Primary
-	for _, btn in pairs(window.TabsFrame:GetChildren()) do
-		if btn:IsA("TextButton") then
-			btn.BackgroundColor3 = theme.Button
-			btn.TextColor3 = theme.Text
-			btn.UIStroke.Color = theme.Primary
-			local ic = btn:FindFirstChildOfClass("ImageLabel")
-			if ic then ic.ImageColor3 = theme.Text end
-		end
-	end
-	window:Notify("Tema " .. themeName .. " aplicado!", 2, theme.Primary, "info")
-end
-
--- ==================================================
--- 🔑 KEYBINDS GLOBAIS
--- ==================================================
-UIS.InputBegan:Connect(function(input, gp)
-	if gp then return end
-	if input.UserInputType == Enum.UserInputType.Keyboard then
-		if input.KeyCode == Nexus.Settings.Keybinds.ToggleUI then
-			for _, v in pairs(GetSafeParent():GetChildren()) do
-				if v.Name == "AxiomX_Window" then
-					v.Visible = not v.Visible
-				end
-			end
-		end
-	end
-end)
-
--- ==================================================
--- 🧩 MÓDULOS DE FUNCIONALIDADES (OPCIONAIS)
--- ==================================================
--- Estes módulos podem ser chamados pelo usuário para ativar funções prontas.
-
--- Módulo ESP
-function Nexus:CreateESP(settings)
-	settings = settings or self.Settings.ESP
-	local espObjects = {}
-	local function addESP(plr)
-		if plr == Player then return end
-		if plr.Character then
-			if settings.Box and not plr.Character:FindFirstChild("AxiomX_Box") then
-				local box = Instance.new("BoxHandleAdornment")
-				box.Name = "AxiomX_Box"
-				box.Adornee = plr.Character
-				box.ZIndex = 10
-				box.Size = Vector3.new(4,6,2)
-				box.Color3 = settings.Color
-				box.Transparency = 0.5
-				box.AlwaysOnTop = true
-				box.Parent = plr.Character
-				table.insert(espObjects, box)
-			end
-			if settings.Name and not plr.Character:FindFirstChild("AxiomX_Name") then
-				local head = plr.Character:FindFirstChild("Head")
-				if head then
-					local bg = Instance.new("BillboardGui")
-					bg.Name = "AxiomX_Name"
-					bg.Adornee = head
-					bg.Size = UDim2.new(0, 100, 0, 30)
-					bg.StudsOffset = Vector3.new(0,2,0)
-					bg.AlwaysOnTop = true
-					local label = Instance.new("TextLabel")
-					label.Parent = bg
-					label.Size = UDim2.new(1,0,1,0)
-					label.BackgroundTransparency = 1
-					label.Text = plr.Name
-					label.TextColor3 = settings.Color
-					label.TextStrokeColor3 = Color3.new(0,0,0)
-					label.TextStrokeTransparency = 0.3
-					label.Font = Enum.Font.GothamBold
-					label.TextSize = 16
-					bg.Parent = plr.Character
-					table.insert(espObjects, bg)
-				end
-			end
-		end
-	end
-	local function removeESP()
-		for _, obj in ipairs(espObjects) do
-			pcall(obj.Destroy, obj)
-		end
-		espObjects = {}
-	end
-	local conn1 = Players.PlayerAdded:Connect(addESP)
-	local conn2 = Players.PlayerRemoving:Connect(function(plr)
-		removeESP() -- simplificado, mas poderia ser mais eficiente
-	end)
-	-- Retorna funções para controle
-	return {
-		Enable = function()
-			removeESP()
-			for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end
-		end,
-		Disable = removeESP,
-		Update = function() removeESP(); for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end end
-	}
-end
 
 -- Módulo Fly
 function Nexus:CreateFly()
 	local flying = false
 	local bodyVelocity = nil
+	local connection = nil
 	local function start()
 		if flying then return end
 		local char = Player.Character
@@ -837,7 +594,7 @@ function Nexus:CreateFly()
 		bodyVelocity.MaxForce = Vector3.new(1,1,1)*math.huge
 		bodyVelocity.Velocity = Vector3.new(0,0,0)
 		bodyVelocity.Parent = root
-		local conn = Run.Heartbeat:Connect(function()
+		connection = Run.Heartbeat:Connect(function()
 			if not flying or not root.Parent then return end
 			local move = Vector3.new()
 			if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + Camera.CFrame.LookVector end
@@ -848,11 +605,11 @@ function Nexus:CreateFly()
 			if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
 			bodyVelocity.Velocity = move * 60
 		end)
-		return conn
 	end
 	local function stop()
 		flying = false
 		if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
+		if connection then connection:Disconnect() connection = nil end
 		local char = Player.Character
 		if char then
 			local humanoid = char:FindFirstChild("Humanoid")
@@ -870,149 +627,58 @@ function Nexus:CreateFly()
 	}
 end
 
--- Módulo Aimbot (simples)
-function Nexus:CreateAimbot(settings)
-	settings = settings or self.Settings.Aimbot
-	local active = false
-	local connection = nil
-	local function start()
-		if active then return end
-		active = true
-		connection = Run.RenderStepped:Connect(function()
-			if not active then return end
-			local target = nil
-			local shortest = settings.FOV
-			local center = Camera.ViewportSize / 2
-			for _, plr in pairs(Players:GetPlayers()) do
-				if plr ~= Player and plr.Character and plr.Character:FindFirstChild(settings.TargetPart) then
-					if settings.TeamCheck and plr.Team == Player.Team then continue end
-					local part = plr.Character[settings.TargetPart]
-					local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
-					if onScreen then
-						local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
-						if dist < shortest then
-							shortest = dist
-							target = part
-						end
-					end
+-- Módulo ESP simples
+function Nexus:CreateESP()
+	local espObjects = {}
+	local function addESP(plr)
+		if plr == Player then return end
+		if plr.Character then
+			local highlight = Instance.new("Highlight")
+			highlight.Name = "Nexus_ESP"
+			highlight.FillColor = Nexus.CurrentTheme.Primary
+			highlight.OutlineColor = Nexus.CurrentTheme.Secondary
+			highlight.FillTransparency = 0.5
+			highlight.Parent = plr.Character
+			table.insert(espObjects, highlight)
+		end
+	end
+	local function removeESP()
+		for _, obj in ipairs(espObjects) do
+			pcall(obj.Destroy, obj)
+		end
+		espObjects = {}
+	end
+	local function enable()
+		removeESP()
+		for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end
+	end
+	local function disable()
+		removeESP()
+	end
+	return {
+		Enable = enable,
+		Disable = disable,
+		Toggle = function()
+			if #espObjects > 0 then disable() else enable() end
+			return #espObjects > 0
+		end
+	}
+end
+
+-- ==================================================
+-- KEYBIND GLOBAL
+-- ==================================================
+UIS.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == Nexus.Settings.Keybinds.ToggleUI then
+			for _, v in pairs(GetSafeParent():GetChildren()) do
+				if v.Name == "Nexus_Window" then
+					v.Visible = not v.Visible
 				end
 			end
-			if target then
-				local look = CFrame.lookAt(Camera.CFrame.Position, target.Position)
-				Camera.CFrame = Camera.CFrame:Lerp(look, settings.Smoothness, Enum.EasingStyle.Sine)
-			end
-		end)
+		end
 	end
-	local function stop()
-		active = false
-		if connection then connection:Disconnect() connection = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
-end
-
--- Módulo NoClip
-function Nexus:CreateNoClip()
-	local active = false
-	local connection = nil
-	local function start()
-		if active then return end
-		active = true
-		connection = Run.Stepped:Connect(function()
-			if not active then return end
-			local char = Player.Character
-			if char then
-				local root = char:FindFirstChild("HumanoidRootPart")
-				if root then root.CanCollide = false end
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if connection then connection:Disconnect() connection = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
-end
-
--- Módulo Infinite Jump
-function Nexus:CreateInfiniteJump()
-	local active = false
-	local connection = nil
-	local function start()
-		if active then return end
-		active = true
-		connection = UIS.JumpRequest:Connect(function()
-			if active then
-				local char = Player.Character
-				if char then
-					local humanoid = char:FindFirstChild("Humanoid")
-					if humanoid then
-						humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-					end
-				end
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if connection then connection:Disconnect() connection = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
-end
-
--- Módulo Anti-AFK
-function Nexus:CreateAntiAFK()
-	local active = false
-	local thread = nil
-	local function start()
-		if active then return end
-		active = true
-		thread = task.spawn(function()
-			while active do
-				task.wait(60)
-				Virtual:CaptureController()
-				Virtual:Button2Down(Vector2.new(0,0))
-				task.wait(0.1)
-				Virtual:Button2Up(Vector2.new(0,0))
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if thread then task.cancel(thread) thread = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
-end
+end)
 
 return Nexus
