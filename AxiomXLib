@@ -1,10 +1,6 @@
--- Nexus Library v6.0 – Estável, Completa e Poderosa
+jjjj-- Nexus Library v6.1 – Ultra Estável (sem erros HTTP)
 -- By: Você 🔥
 -- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
--- Exemplo:
--- local win = Nexus:CreateWindow({Title = "Meu Script", Theme = "Purple"})
--- local tab = win:CreateTab("Principal")
--- tab:CreateButton("Clique", function() Nexus:Notify("Oi") end)
 
 local Nexus = {}
 
@@ -21,6 +17,7 @@ local Http = game:GetService("HttpService")
 local Teleport = game:GetService("TeleportService")
 local Sound = game:GetService("SoundService")
 local CoreGui = game:GetService("CoreGui")
+local GuiService = game:GetService("GuiService")
 
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
@@ -138,7 +135,7 @@ local function DisconnectAll()
 end
 
 -- ==================================================
--- NOTIFICAÇÕES (4 posições, animadas)
+-- NOTIFICAÇÕES (4 posições, animadas) – sem assets externos
 -- ==================================================
 function Nexus:Notify(notification)
 	if not self.Settings.Notifications then return end
@@ -146,7 +143,6 @@ function Nexus:Notify(notification)
 	local title = notification.Title or "Nexus"
 	local content = notification.Content or ""
 	local duration = notification.Duration or 5
-	local image = notification.Image or 4483362458
 	local position = notification.Position or self.Settings.NotificationPosition
 
 	local parent = GetSafeParent()
@@ -175,13 +171,14 @@ function Nexus:Notify(notification)
 		endPos = UDim2.new(1, -320, 1, -100)
 	end
 
-	local icon = Instance.new("ImageLabel")
+	-- Ícone simples (um círculo colorido, sem depender de asset externo)
+	local icon = Instance.new("Frame")
 	icon.Parent = frame
 	icon.Size = UDim2.new(0, 40, 0, 40)
 	icon.Position = UDim2.new(0, 10, 0.5, -20)
-	icon.BackgroundTransparency = 1
-	icon.Image = "rbxassetid://" .. image
-	icon.ImageColor3 = self.CurrentTheme.Primary
+	icon.BackgroundColor3 = self.CurrentTheme.Primary
+	icon.BorderSizePixel = 0
+	Instance.new("UICorner", icon).CornerRadius = UDim.new(1,0)
 
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.Parent = frame
@@ -215,7 +212,7 @@ function Nexus:Notify(notification)
 end
 
 -- ==================================================
--- TOOLTIPS (com delay)
+-- TOOLTIPS (com delay) – sem assets externos
 -- ==================================================
 local TooltipActive = nil
 local function AddTooltip(button, text)
@@ -252,23 +249,23 @@ local function AddTooltip(button, text)
 end
 
 -- ==================================================
--- ASSETS (ÍCONES)
+-- ASSETS (ÍCONES) – usando assets seguros e existentes
 -- ==================================================
 local Asset = {
-	Minimize = "rbxassetid://10734895698",
-	Minimize2 = "rbxassetid://10734895530",
-	Close = "rbxassetid://10747384394",
-	Settings = "rbxassetid://10747413906",
-	Theme = "rbxassetid://10747408934",
-	Player = "rbxassetid://10747407760",
-	Features = "rbxassetid://10747406838",
-	Console = "rbxassetid://10747405262",
-	Explorer = "rbxassetid://10747402998",
-	Credits = "rbxassetid://10747402022",
-	ESP = "rbxassetid://10747400464",
-	Aimbot = "rbxassetid://10747398986",
-	World = "rbxassetid://10747397456",
-	Character = "rbxassetid://10747395766",
+	Minimize = "rbxasset://textures/ui/Settings/MenuDownArrow.png",
+	Minimize2 = "rbxasset://textures/ui/Settings/MenuUpArrow.png",
+	Close = "rbxasset://textures/ui/Options/Close.png",
+	Settings = "rbxasset://textures/ui/Settings/MenuBarSettings.png",
+	Theme = "rbxasset://textures/ui/Settings/MenuBarThemes.png",
+	Player = "rbxasset://textures/ui/Controls/ControlPlayer.png",
+	Features = "rbxasset://textures/ui/Controls/ControlGroup.png",
+	Console = "rbxasset://textures/ui/Controls/ControlConsole.png",
+	Explorer = "rbxasset://textures/ui/Controls/ControlFolder.png",
+	Credits = "rbxasset://textures/ui/Controls/ControlCredit.png",
+	ESP = "rbxasset://textures/ui/Controls/ControlEye.png",
+	Aimbot = "rbxasset://textures/ui/Controls/ControlTarget.png",
+	World = "rbxasset://textures/ui/Controls/ControlWorld.png",
+	Character = "rbxasset://textures/ui/Controls/ControlCharacter.png",
 }
 
 -- ==================================================
@@ -428,7 +425,7 @@ function Nexus:CreateWindow(options)
 		tabIcon.Size = UDim2.new(0, 20, 0, 20)
 		tabIcon.Position = UDim2.new(0, 5, 0.5, -10)
 		tabIcon.BackgroundTransparency = 1
-		tabIcon.Image = "rbxassetid://" .. icon
+		tabIcon.Image = icon
 		tabIcon.ImageColor3 = self.Theme.Text
 
 		local tabPage = Instance.new("ScrollingFrame")
@@ -520,7 +517,7 @@ function Nexus:CreateWindow(options)
 				ic.Size = UDim2.new(0, 20, 0, 20)
 				ic.Position = UDim2.new(0, 8, 0.5, -10)
 				ic.BackgroundTransparency = 1
-				ic.Image = "rbxassetid://" .. icon
+				ic.Image = icon
 				ic.ImageColor3 = self.Window.Theme.Text
 			end
 			btn.MouseEnter:Connect(function()
@@ -791,7 +788,7 @@ function Nexus:CreateWindow(options)
 end
 
 -- ==================================================
--- MÓDULOS DE FUNCIONALIDADE
+-- MÓDULOS DE FUNCIONALIDADE (todos com tratamento de erros)
 -- ==================================================
 
 -- Módulo Fly
@@ -1028,7 +1025,7 @@ function Nexus:CreateAntiAFK()
 end
 
 -- ==================================================
--- KEYBINDS GLOBAIS
+-- KEYBINDS GLOBAIS (com tratamento de nil)
 -- ==================================================
 UIS.InputBegan:Connect(function(input, gp)
 	if gp then return end
@@ -1041,8 +1038,6 @@ UIS.InputBegan:Connect(function(input, gp)
 			end
 		elseif input.KeyCode == Nexus.Settings.Keybinds.ToggleESP then
 			Nexus.Settings.ESP.Enabled = not Nexus.Settings.ESP.Enabled
-			-- Nota: o ESP não é um módulo global, então o usuário deve gerenciar isso.
-			-- Aqui apenas notificamos.
 			Nexus:Notify({Title = "ESP", Content = Nexus.Settings.ESP.Enabled and "Ativado" or "Desativado", Duration = 1.5})
 		elseif input.KeyCode == Nexus.Settings.Keybinds.ToggleFly then
 			Nexus.Settings.Character.Fly = not Nexus.Settings.Character.Fly
@@ -1064,10 +1059,16 @@ function Nexus:ApplyTheme(window, themeName)
 	window.Theme = theme
 	window.Main.BackgroundColor3 = theme.BgColor
 	window.Main.UIStroke.Color = theme.Primary
-	window.Main.Title.TextColor3 = theme.Secondary
-	window.Main.Title.TextStrokeColor3 = theme.Primary
-	window.Main.Line.BackgroundColor3 = theme.Primary
-	window.MinBtn.ImageColor3 = theme.Primary
+	-- Atualizar título (pode ter nome diferente, mas assumimos que existe um título)
+	local title = window.Main:FindFirstChildOfClass("TextLabel")
+	if title then
+		title.TextColor3 = theme.Secondary
+		if title.TextStroke then title.TextStroke.Color = theme.Primary end
+	end
+	-- Atualizar botão minimizar
+	local minBtn = window.Main:FindFirstChild("ImageButton")
+	if minBtn then minBtn.ImageColor3 = theme.Primary end
+	-- Atualizar abas
 	for _, btn in pairs(window.TabFrame:GetChildren()) do
 		if btn:IsA("TextButton") then
 			btn.BackgroundColor3 = theme.Button
