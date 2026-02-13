@@ -1,14 +1,32 @@
--- Nexus Library v6.2 – Completa e Corrigida
+-- Nexus Library v7.0 – Ultimate Edition
 -- By: Você 🔥
 -- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
--- Exemplo:
--- local win = Nexus:CreateWindow({Title = "Meu Script", Theme = "Purple"})
--- local tab = win:CreateTab("Principal", Nexus.Assets.Features)
--- tab:CreateButton("Clique", function() Nexus:Notify({Title="Oi", Content="Teste"}) end)
+-- Documentação: https://github.com/seu_usuario/nexus-lib
 
 local Nexus = {}
 
--- Serviços
+-- ==================================================
+-- CONFIGURAÇÕES GLOBAIS
+-- ==================================================
+Nexus.Settings = {
+    Theme = "Purple",
+    FPSMonitor = false,
+    BorderAnimation = true,
+    Notifications = true,
+    Tooltips = true,
+    SoundEffects = false,
+    NotificationPosition = "TopRight",
+    GlobalKeybinds = {
+        ToggleUI = Enum.KeyCode.RightShift,
+        ToggleESP = Enum.KeyCode.E,
+        ToggleFly = Enum.KeyCode.F,
+        TeleportToMouse = Enum.KeyCode.T,
+    },
+}
+
+-- ==================================================
+-- SERVIÇOS
+-- ==================================================
 local Players = game:GetService("Players")
 local Tween = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
@@ -21,774 +39,1351 @@ local Http = game:GetService("HttpService")
 local Teleport = game:GetService("TeleportService")
 local Sound = game:GetService("SoundService")
 local CoreGui = game:GetService("CoreGui")
-local GuiService = game:GetService("GuiService")
 
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local Camera = Workspace.CurrentCamera
 
--- Função segura para obter o pai da GUI (fallback para CoreGui)
+-- ==================================================
+-- UTILITÁRIOS
+-- ==================================================
 local function GetSafeParent()
-	local success, gui = pcall(function() return Player:WaitForChild("PlayerGui") end)
-	if success and gui then return gui end
-	return CoreGui
+    local success, gui = pcall(function() return Player:WaitForChild("PlayerGui") end)
+    if success and gui then return gui end
+    return CoreGui
+end
+
+local function DeepCopy(t)
+    local copy = {}
+    for k, v in pairs(t) do
+        if type(v) == "table" then copy[k] = DeepCopy(v) else copy[k] = v end
+    end
+    return copy
 end
 
 -- ==================================================
--- CONFIGURAÇÕES PERSISTENTES
--- ==================================================
-Nexus.Settings = {
-	Theme = "Purple",
-	FPSMonitor = false,
-	BorderAnimation = true,
-	Notifications = true,
-	Tooltips = true,
-	SoundEffects = false,
-	NotificationPosition = "TopRight",
-	Keybinds = {
-		ToggleUI = Enum.KeyCode.RightShift,
-		ToggleESP = Enum.KeyCode.E,
-		ToggleFly = Enum.KeyCode.F,
-		TeleportToMouse = Enum.KeyCode.T,
-	},
-	ESP = { Enabled = false, Box = true, Name = true, Color = Color3.fromRGB(255,255,255) },
-	Aimbot = { Enabled = false, Smoothness = 0.5, FOV = 100, TargetPart = "Head", TeamCheck = false },
-	Character = { WalkSpeed = 16, JumpPower = 50, Gravity = 196.2, InfiniteJump = false, NoClip = false, Fly = false, AntiAFK = false },
-	World = { Brightness = 1, GlobalShadows = true, FogEnd = 100000 },
-	Optimization = { FPSBoost = false, RemoveParticles = false, RemoveWater = false },
-}
-
-local function LoadSettings()
-	local success, data = pcall(function()
-		local store = Player:FindFirstChild("Nexus_Settings")
-		if store and store:IsA("StringValue") then
-			return Http:JSONDecode(store.Value)
-		end
-	end)
-	if success and data then
-		for k, v in pairs(data) do
-			if type(Nexus.Settings[k]) == "table" and type(v) == "table" then
-				for k2, v2 in pairs(v) do
-					Nexus.Settings[k][k2] = v2
-				end
-			else
-				Nexus.Settings[k] = v
-			end
-		end
-	end
-end
-
-local function SaveSettings()
-	pcall(function()
-		local data = Http:JSONEncode(Nexus.Settings)
-		local store = Player:FindFirstChild("Nexus_Settings")
-		if not store then
-			store = Instance.new("StringValue")
-			store.Name = "Nexus_Settings"
-			store.Parent = Player
-		end
-		store.Value = data
-	end)
-end
-
-LoadSettings()
-
--- ==================================================
--- TEMAS (10 temas)
--- ==================================================
-Nexus.Themes = {
-	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Ocean = { Name = "Ocean", BgColor = Color3.fromRGB(0,20,40), Primary = Color3.fromRGB(0,150,255), Secondary = Color3.fromRGB(100,200,255), Button = Color3.fromRGB(0,40,60), ButtonHover = Color3.fromRGB(0,70,100), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(0,30,50), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Forest = { Name = "Forest", BgColor = Color3.fromRGB(10,30,10), Primary = Color3.fromRGB(0,180,0), Secondary = Color3.fromRGB(100,255,100), Button = Color3.fromRGB(20,50,20), ButtonHover = Color3.fromRGB(40,80,40), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,40,20), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Cyber = { Name = "Cyber", BgColor = Color3.fromRGB(0,0,20), Primary = Color3.fromRGB(255,0,255), Secondary = Color3.fromRGB(0,255,255), Button = Color3.fromRGB(30,0,40), ButtonHover = Color3.fromRGB(60,0,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,0,30), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Ice = { Name = "Ice", BgColor = Color3.fromRGB(20,40,60), Primary = Color3.fromRGB(100,200,255), Secondary = Color3.fromRGB(200,255,255), Button = Color3.fromRGB(30,60,80), ButtonHover = Color3.fromRGB(50,90,120), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,50,70), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-	Lava = { Name = "Lava", BgColor = Color3.fromRGB(40,10,0), Primary = Color3.fromRGB(255,100,0), Secondary = Color3.fromRGB(255,200,100), Button = Color3.fromRGB(80,20,0), ButtonHover = Color3.fromRGB(120,40,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,15,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
-}
-
-Nexus.CurrentTheme = Nexus.Themes[Nexus.Settings.Theme] or Nexus.Themes.Purple
-
--- ==================================================
--- GERENCIADOR DE CONEXÕES (ANTI-LEAK)
+-- GERENCIADOR DE CONEXÕES
 -- ==================================================
 local Connections = {}
 local function AddConnection(conn, tag)
-	if conn then
-		table.insert(Connections, { conn, tag })
-	end
+    if conn then table.insert(Connections, { conn, tag }) end
 end
-
 local function DisconnectByTag(tag)
-	for i = #Connections, 1, -1 do
-		local item = Connections[i]
-		if item and item[2] == tag then
-			pcall(item[1].Disconnect, item[1])
-			table.remove(Connections, i)
-		end
-	end
+    for i = #Connections, 1, -1 do
+        local item = Connections[i]
+        if item and item[2] == tag then
+            pcall(item[1].Disconnect, item[1])
+            table.remove(Connections, i)
+        end
+    end
 end
-
 local function DisconnectAll()
-	for _, item in ipairs(Connections) do
-		pcall(item[1].Disconnect, item[1])
-	end
-	Connections = {}
+    for _, item in ipairs(Connections) do
+        pcall(item[1].Disconnect, item[1])
+    end
+    Connections = {}
 end
 
 -- ==================================================
--- NOTIFICAÇÕES (4 posições, animadas) – sem assets externos
+-- SISTEMA DE TEMAS (12 temas)
 -- ==================================================
-function Nexus:Notify(notification)
-	if not self.Settings.Notifications then return end
-	notification = notification or {}
-	local title = notification.Title or "Nexus"
-	local content = notification.Content or ""
-	local duration = notification.Duration or 5
-	local position = notification.Position or self.Settings.NotificationPosition
-
-	local parent = GetSafeParent()
-	local frame = Instance.new("Frame")
-	frame.Parent = parent
-	frame.Size = UDim2.new(0, 300, 0, 80)
-	frame.BackgroundColor3 = self.CurrentTheme.ToastColor
-	frame.BackgroundTransparency = 0.2
-	frame.BorderSizePixel = 0
-	frame.ClipsDescendants = true
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-	Instance.new("UIStroke", frame).Color = self.CurrentTheme.Primary
-
-	local startPos, endPos
-	if position == "TopLeft" then
-		frame.Position = UDim2.new(0, -320, 0, 20)
-		endPos = UDim2.new(0, 20, 0, 20)
-	elseif position == "TopRight" then
-		frame.Position = UDim2.new(1, -20, 0, -100)
-		endPos = UDim2.new(1, -320, 0, 20)
-	elseif position == "BottomLeft" then
-		frame.Position = UDim2.new(0, -320, 1, -100)
-		endPos = UDim2.new(0, 20, 1, -100)
-	elseif position == "BottomRight" then
-		frame.Position = UDim2.new(1, -20, 1, -100)
-		endPos = UDim2.new(1, -320, 1, -100)
-	end
-
-	-- Ícone simples (um círculo colorido, sem depender de asset externo)
-	local icon = Instance.new("Frame")
-	icon.Parent = frame
-	icon.Size = UDim2.new(0, 40, 0, 40)
-	icon.Position = UDim2.new(0, 10, 0.5, -20)
-	icon.BackgroundColor3 = self.CurrentTheme.Primary
-	icon.BorderSizePixel = 0
-	Instance.new("UICorner", icon).CornerRadius = UDim.new(1,0)
-
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Parent = frame
-	titleLabel.Size = UDim2.new(1, -60, 0, 30)
-	titleLabel.Position = UDim2.new(0, 60, 0, 10)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Text = title
-	titleLabel.Font = Enum.Font.GothamSemibold
-	titleLabel.TextSize = 16
-	titleLabel.TextColor3 = self.CurrentTheme.Secondary
-	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-	local contentLabel = Instance.new("TextLabel")
-	contentLabel.Parent = frame
-	contentLabel.Size = UDim2.new(1, -60, 0, 30)
-	contentLabel.Position = UDim2.new(0, 60, 0, 40)
-	contentLabel.BackgroundTransparency = 1
-	contentLabel.Text = content
-	contentLabel.Font = Enum.Font.Gotham
-	contentLabel.TextSize = 14
-	contentLabel.TextColor3 = self.CurrentTheme.Text
-	contentLabel.TextXAlignment = Enum.TextXAlignment.Left
-	contentLabel.TextWrapped = true
-
-	frame:TweenPosition(endPos, Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
-
-	task.wait(duration)
-	frame:TweenPosition(startPos, Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.5, true)
-	task.wait(0.5)
-	frame:Destroy()
-end
-
--- ==================================================
--- TOOLTIPS (com delay) – sem assets externos
--- ==================================================
-local TooltipActive = nil
-local function AddTooltip(button, text)
-	if not Nexus.Settings.Tooltips then return end
-	local tipConn
-	button.MouseEnter:Connect(function()
-		tipConn = task.delay(0.3, function()
-			if TooltipActive then TooltipActive:Destroy() end
-			local parent = GetSafeParent()
-			local tip = Instance.new("TextLabel")
-			tip.Parent = parent
-			tip.Size = UDim2.new(0, #text * 8 + 30, 0, 30)
-			tip.Position = UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 40)
-			tip.BackgroundColor3 = Color3.fromRGB(20,20,30)
-			tip.Text = text
-			tip.Font = Enum.Font.Gotham
-			tip.TextSize = 15
-			tip.TextColor3 = Color3.new(1,1,1)
-			Instance.new("UICorner", tip).CornerRadius = UDim.new(0,8)
-			Instance.new("UIStroke", tip).Color = Nexus.CurrentTheme.Primary
-			tip.Visible = false
-			tip:TweenPosition(UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 45), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-			tip.Visible = true
-			TooltipActive = tip
-		end)
-	end)
-	button.MouseLeave:Connect(function()
-		if tipConn then task.cancel(tipConn) end
-		if TooltipActive then
-			TooltipActive:Destroy()
-			TooltipActive = nil
-		end
-	end)
-end
-
--- ==================================================
--- ASSETS (ÍCONES) – usando assets seguros e existentes
--- ==================================================
-local Asset = {
-	Minimize = "rbxasset://textures/ui/Settings/MenuDownArrow.png",
-	Minimize2 = "rbxasset://textures/ui/Settings/MenuUpArrow.png",
-	Close = "rbxasset://textures/ui/Options/Close.png",
-	Settings = "rbxasset://textures/ui/Settings/MenuBarSettings.png",
-	Theme = "rbxasset://textures/ui/Settings/MenuBarThemes.png",
-	Player = "rbxasset://textures/ui/Controls/ControlPlayer.png",
-	Features = "rbxasset://textures/ui/Controls/ControlGroup.png",
-	Console = "rbxasset://textures/ui/Controls/ControlConsole.png",
-	Explorer = "rbxasset://textures/ui/Controls/ControlFolder.png",
-	Credits = "rbxasset://textures/ui/Controls/ControlCredit.png",
-	ESP = "rbxasset://textures/ui/Controls/ControlEye.png",
-	Aimbot = "rbxasset://textures/ui/Controls/ControlTarget.png",
-	World = "rbxasset://textures/ui/Controls/ControlWorld.png",
-	Character = "rbxasset://textures/ui/Controls/ControlCharacter.png",
+Nexus.Themes = {
+    Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Dark = { Name = "Dark", BgColor = Color3.fromRGB(8,8,12), Primary = Color3.fromRGB(0,200,255), Secondary = Color3.fromRGB(0,255,200), Button = Color3.fromRGB(20,20,30), ButtonHover = Color3.fromRGB(40,40,60), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,20,30), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Blood = { Name = "Blood", BgColor = Color3.fromRGB(25,0,0), Primary = Color3.fromRGB(200,0,0), Secondary = Color3.fromRGB(255,80,80), Button = Color3.fromRGB(50,0,0), ButtonHover = Color3.fromRGB(80,0,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,0,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Gold = { Name = "Gold", BgColor = Color3.fromRGB(20,15,5), Primary = Color3.fromRGB(255,200,0), Secondary = Color3.fromRGB(255,230,100), Button = Color3.fromRGB(50,40,10), ButtonHover = Color3.fromRGB(80,65,20), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(40,30,5), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Candy = { Name = "Candy", BgColor = Color3.fromRGB(40,10,30), Primary = Color3.fromRGB(255,120,200), Secondary = Color3.fromRGB(255,200,220), Button = Color3.fromRGB(80,20,50), ButtonHover = Color3.fromRGB(110,40,70), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,20,40), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Ocean = { Name = "Ocean", BgColor = Color3.fromRGB(0,20,40), Primary = Color3.fromRGB(0,150,255), Secondary = Color3.fromRGB(100,200,255), Button = Color3.fromRGB(0,40,60), ButtonHover = Color3.fromRGB(0,70,100), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(0,30,50), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Forest = { Name = "Forest", BgColor = Color3.fromRGB(10,30,10), Primary = Color3.fromRGB(0,180,0), Secondary = Color3.fromRGB(100,255,100), Button = Color3.fromRGB(20,50,20), ButtonHover = Color3.fromRGB(40,80,40), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,40,20), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Cyber = { Name = "Cyber", BgColor = Color3.fromRGB(0,0,20), Primary = Color3.fromRGB(255,0,255), Secondary = Color3.fromRGB(0,255,255), Button = Color3.fromRGB(30,0,40), ButtonHover = Color3.fromRGB(60,0,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(20,0,30), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Ice = { Name = "Ice", BgColor = Color3.fromRGB(20,40,60), Primary = Color3.fromRGB(100,200,255), Secondary = Color3.fromRGB(200,255,255), Button = Color3.fromRGB(30,60,80), ButtonHover = Color3.fromRGB(50,90,120), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,50,70), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Lava = { Name = "Lava", BgColor = Color3.fromRGB(40,10,0), Primary = Color3.fromRGB(255,100,0), Secondary = Color3.fromRGB(255,200,100), Button = Color3.fromRGB(80,20,0), ButtonHover = Color3.fromRGB(120,40,0), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(60,15,0), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Midnight = { Name = "Midnight", BgColor = Color3.fromRGB(5,5,15), Primary = Color3.fromRGB(100,100,255), Secondary = Color3.fromRGB(150,150,255), Button = Color3.fromRGB(20,20,40), ButtonHover = Color3.fromRGB(40,40,80), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(10,10,30), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
+    Sunset = { Name = "Sunset", BgColor = Color3.fromRGB(40,10,20), Primary = Color3.fromRGB(255,100,100), Secondary = Color3.fromRGB(255,150,150), Button = Color3.fromRGB(60,20,30), ButtonHover = Color3.fromRGB(90,40,50), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(50,15,25), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
 }
 
--- Exportar assets para o usuário
-Nexus.Assets = Asset
+-- ==================================================
+-- ÍCONES (ORGANIZADOS POR CATEGORIA)
+-- ==================================================
+Nexus.Assets = {
+    Window = {
+        Minimize = "rbxassetid://10734895698",
+        Minimize2 = "rbxassetid://10734895530",
+        Close = "rbxassetid://10747384394",
+        Settings = "rbxassetid://10734950309",
+        Theme = "rbxassetid://10734910430",
+        Menu = "rbxassetid://10734887784",
+        MoreHorizontal = "rbxassetid://10734897250",
+        MoreVertical = "rbxassetid://10734897387",
+        Maximize = "rbxassetid://10734886735",
+        Maximize2 = "rbxassetid://10734886496",
+    },
+    Player = {
+        User = "rbxassetid://10747373176",
+        Users = "rbxassetid://10747373426",
+        UserCheck = "rbxassetid://10747371901",
+        UserMinus = "rbxassetid://10747372346",
+        UserPlus = "rbxassetid://10747372702",
+        UserX = "rbxassetid://10747372992",
+        UserCog = "rbxassetid://10747372167",
+        Character = "rbxassetid://10734920149",
+        Bot = "rbxassetid://10709782230",
+    },
+    Features = {
+        ESP = "rbxassetid://10723346959",
+        EyeOff = "rbxassetid://10723346871",
+        Aimbot = "rbxassetid://10734977012",
+        Target = "rbxassetid://10734977012",
+        Crosshair = "rbxassetid://10709818534",
+        World = "rbxassetid://10723404337",
+        Globe2 = "rbxassetid://10723398002",
+        Map = "rbxassetid://10734886202",
+        MapPin = "rbxassetid://10734886004",
+        Compass = "rbxassetid://10709811445",
+        Layers = "rbxassetid://10723424505",
+        Console = "rbxassetid://10734982144",
+        Terminal = "rbxassetid://10734982144",
+        Explorer = "rbxassetid://10723387563",
+        Folder = "rbxassetid://10723387563",
+        Package = "rbxassetid://10734909540",
+        Code = "rbxassetid://10709810463",
+        Git = "rbxassetid://10723396676",
+        Database = "rbxassetid://10709818996",
+        Cloud = "rbxassetid://10709806740",
+    },
+    Media = {
+        Play = "rbxassetid://10734923549",
+        Pause = "rbxassetid://10734919336",
+        Stop = "rbxassetid://10734972621",
+        SkipBack = "rbxassetid://10734961526",
+        SkipForward = "rbxassetid://10734961809",
+        Rewind = "rbxassetid://10734934347",
+        FastForward = "rbxassetid://10723354521",
+        Shuffle = "rbxassetid://10734953451",
+        Repeat = "rbxassetid://10734933966",
+        Volume = "rbxassetid://10747376008",
+        VolumeX = "rbxassetid://10747375880",
+        Mic = "rbxassetid://10734888864",
+        MicOff = "rbxassetid://10734888646",
+        Camera = "rbxassetid://10709789686",
+        CameraOff = "rbxassetid://10747822677",
+        Video = "rbxassetid://10747374938",
+        VideoOff = "rbxassetid://10747374721",
+        Music = "rbxassetid://10734905958",
+        Headphones = "rbxassetid://10723406165",
+    },
+    Actions = {
+        Edit = "rbxassetid://10734883598",
+        Pencil = "rbxassetid://10734919691",
+        Brush = "rbxassetid://10709782758",
+        Eraser = "rbxassetid://10723346158",
+        PaintBucket = "rbxassetid://10734909847",
+        Pipette = "rbxassetid://10734922497",
+        Scissors = "rbxassetid://10734942778",
+        Copy = "rbxassetid://10709812159",
+        Clipboard = "rbxassetid://10709799288",
+        ClipboardCheck = "rbxassetid://10709798443",
+        Save = "rbxassetid://10734941499",
+        Download = "rbxassetid://10723344270",
+        Upload = "rbxassetid://10747366434",
+        Trash = "rbxassetid://10747362393",
+        Trash2 = "rbxassetid://10747362241",
+        Undo = "rbxassetid://10747365484",
+        Redo = "rbxassetid://10734932822",
+        ZoomIn = "rbxassetid://10747384552",
+        ZoomOut = "rbxassetid://10747384679",
+        Search = "rbxassetid://10734943674",
+        Filter = "rbxassetid://10723375128",
+        SortAsc = "rbxassetid://10734965115",
+        SortDesc = "rbxassetid://10734965287",
+        Lock = "rbxassetid://10723434711",
+        Unlock = "rbxassetid://10747366027",
+        Key = "rbxassetid://10723416652",
+        Flag = "rbxassetid://10723375890",
+        Award = "rbxassetid://10709769406",
+        Trophy = "rbxassetid://10747363809",
+        Heart = "rbxassetid://10723406885",
+        Star = "rbxassetid://10734966248",
+        ThumbsUp = "rbxassetid://10734983629",
+        ThumbsDown = "rbxassetid://10734983359",
+        Check = "rbxassetid://10709790644",
+        CheckCircle = "rbxassetid://10709790387",
+        X = "rbxassetid://10747384394",
+        XCircle = "rbxassetid://10747383819",
+        AlertCircle = "rbxassetid://10709752996",
+        AlertTriangle = "rbxassetid://10709753149",
+        Info = "rbxassetid://10723415903",
+        HelpCircle = "rbxassetid://10723406988",
+    },
+    GameObjects = {
+        Sword = "rbxassetid://10734975486",
+        Shield = "rbxassetid://10734951847",
+        Axe = "rbxassetid://10709769508",
+        Bomb = "rbxassetid://10709781460",
+        Hammer = "rbxassetid://10723405360",
+        Wrench = "rbxassetid://10747383470",
+        Key = "rbxassetid://10723416652",
+        Coin = "rbxassetid://10709811110",
+        Gem = "rbxassetid://10723396000",
+        Potion = "rbxassetid://10709774756",
+        Flask = "rbxassetid://10734883986",
+        Bone = "rbxassetid://10709781605",
+        Skull = "rbxassetid://10734962068",
+        Ghost = "rbxassetid://10723396107",
+        Crown = "rbxassetid://10709818626",
+        Hat = "rbxassetid://10734952036",
+        Backpack = "rbxassetid://10709769841",
+        Gift = "rbxassetid://10723396402",
+        Cake = "rbxassetid://10709783217",
+        Cookie = "rbxassetid://10709812067",
+        Pizza = "rbxassetid://10734922774",
+        Coffee = "rbxassetid://10709810814",
+        Beer = "rbxassetid://10709775167",
+    },
+    Arrows = {
+        ArrowDown = "rbxassetid://10709767827",
+        ArrowUp = "rbxassetid://10709768939",
+        ArrowLeft = "rbxassetid://10709768114",
+        ArrowRight = "rbxassetid://10709768347",
+        ChevronDown = "rbxassetid://10709790948",
+        ChevronUp = "rbxassetid://10709791523",
+        ChevronLeft = "rbxassetid://10709791281",
+        ChevronRight = "rbxassetid://10709791402",
+        ChevronsDown = "rbxassetid://10709796864",
+        ChevronsUp = "rbxassetid://10709797622",
+        ChevronsLeft = "rbxassetid://10709797151",
+        ChevronsRight = "rbxassetid://10709797382",
+        Move = "rbxassetid://10734900011",
+        MoveHorizontal = "rbxassetid://10734899414",
+        MoveVertical = "rbxassetid://10734899821",
+        Expand = "rbxassetid://10723346553",
+        Shrink = "rbxassetid://10734953073",
+    },
+    Misc = {
+        Accessibility = "rbxassetid://10709751939",
+        Activity = "rbxassetid://10709752035",
+        Airplay = "rbxassetid://10709752254",
+        AlarmClock = "rbxassetid://10709752630",
+        Anchor = "rbxassetid://10709761530",
+        Apple = "rbxassetid://10709761889",
+        Archive = "rbxassetid://10709762233",
+        Armchair = "rbxassetid://10709762327",
+        Award = "rbxassetid://10709769406",
+        Baby = "rbxassetid://10709769732",
+        Banana = "rbxassetid://10709770005",
+        Banknote = "rbxassetid://10709770178",
+        BarChart = "rbxassetid://10709773755",
+        Barcode = "rbxassetid://10747360675",
+        Bath = "rbxassetid://10709773963",
+        Battery = "rbxassetid://10709774640",
+        Bed = "rbxassetid://10709775036",
+        Bell = "rbxassetid://10709775704",
+        Bike = "rbxassetid://10709775894",
+        Bitcoin = "rbxassetid://10709776126",
+        Bluetooth = "rbxassetid://10709776655",
+        Bold = "rbxassetid://10747813908",
+        Book = "rbxassetid://10709781824",
+        Bookmark = "rbxassetid://10709782154",
+        Box = "rbxassetid://10709782497",
+        Briefcase = "rbxassetid://10709782662",
+        Bug = "rbxassetid://10709782845",
+        Building = "rbxassetid://10709783051",
+        Bus = "rbxassetid://10709783137",
+        Calculator = "rbxassetid://10709783311",
+        Calendar = "rbxassetid://10709789505",
+        Car = "rbxassetid://10709789810",
+        Carrot = "rbxassetid://10709789960",
+        Cast = "rbxassetid://10709790097",
+        Charge = "rbxassetid://10709790202",
+        ChefHat = "rbxassetid://10709790757",
+        Cherry = "rbxassetid://10709790875",
+        Chrome = "rbxassetid://10709797725",
+        Circle = "rbxassetid://10709798174",
+        Citrus = "rbxassetid://10709798276",
+        Clapperboard = "rbxassetid://10709798350",
+        Clock = "rbxassetid://10709805144",
+        Clover = "rbxassetid://10709806995",
+        Codepen = "rbxassetid://10709810534",
+        Codesandbox = "rbxassetid://10709810676",
+        Cog = "rbxassetid://10709810948",
+        Columns = "rbxassetid://10709811261",
+        Command = "rbxassetid://10709811365",
+        Component = "rbxassetid://10709811595",
+        ConciergeBell = "rbxassetid://10709811706",
+        Contact = "rbxassetid://10709811834",
+        Contrast = "rbxassetid://10709811939",
+        Copyleft = "rbxassetid://10709812251",
+        Copyright = "rbxassetid://10709812311",
+        CornerDownLeft = "rbxassetid://10709812396",
+        CornerDownRight = "rbxassetid://10709812485",
+        Cpu = "rbxassetid://10709813383",
+        Croissant = "rbxassetid://10709818125",
+        Crop = "rbxassetid://10709818245",
+        Cross = "rbxassetid://10709818399",
+        CupSoda = "rbxassetid://10709818763",
+        CurlyBraces = "rbxassetid://10709818847",
+        Currency = "rbxassetid://10709818931",
+        Delete = "rbxassetid://10709819059",
+        Diamond = "rbxassetid://10709819149",
+        Dice = "rbxassetid://10723343321",
+        Divide = "rbxassetid://10723343805",
+        DollarSign = "rbxassetid://10723343958",
+        Droplet = "rbxassetid://10723344432",
+        Drumstick = "rbxassetid://10723344737",
+        Egg = "rbxassetid://10723345518",
+        Electricity = "rbxassetid://10723345749",
+        Equal = "rbxassetid://10723345990",
+        Euro = "rbxassetid://10723346372",
+        ExternalLink = "rbxassetid://10723346684",
+        Factory = "rbxassetid://10723347051",
+        Fan = "rbxassetid://10723354359",
+        Feather = "rbxassetid://10723354671",
+        Figma = "rbxassetid://10723354801",
+        File = "rbxassetid://10723374641",
+        Film = "rbxassetid://10723374981",
+        Fingerprint = "rbxassetid://10723375250",
+        Flame = "rbxassetid://10723376114",
+        Flashlight = "rbxassetid://10723376471",
+        FlipHorizontal = "rbxassetid://10723376884",
+        FlipVertical = "rbxassetid://10723377138",
+        Flower = "rbxassetid://10747830374",
+        Focus = "rbxassetid://10723377537",
+        FormInput = "rbxassetid://10723387841",
+        Forward = "rbxassetid://10723388016",
+        Frame = "rbxassetid://10723394389",
+        Framer = "rbxassetid://10723394565",
+        Frown = "rbxassetid://10723394681",
+        Fuel = "rbxassetid://10723394846",
+        FunctionSquare = "rbxassetid://10723395041",
+        Gamepad = "rbxassetid://10723395457",
+        Gauge = "rbxassetid://10723395708",
+        Gavel = "rbxassetid://10723395896",
+        Glass = "rbxassetid://10723397788",
+        Glasses = "rbxassetid://10723397895",
+        Grab = "rbxassetid://10723404472",
+        GraduationCap = "rbxassetid://10723404691",
+        Grape = "rbxassetid://10723404822",
+        Grid = "rbxassetid://10723404936",
+        GripHorizontal = "rbxassetid://10723405089",
+        GripVertical = "rbxassetid://10723405236",
+        Hand = "rbxassetid://10723405649",
+        HardDrive = "rbxassetid://10723405749",
+        HardHat = "rbxassetid://10723405859",
+        Hash = "rbxassetid://10723405975",
+        Haze = "rbxassetid://10723406078",
+        Hexagon = "rbxassetid://10723407092",
+        Highlighter = "rbxassetid://10723407192",
+        History = "rbxassetid://10723407335",
+        Home = "rbxassetid://10723407389",
+        Hourglass = "rbxassetid://10723407498",
+        IceCream = "rbxassetid://10723414308",
+        Image = "rbxassetid://10723415040",
+        Import = "rbxassetid://10723415205",
+        Inbox = "rbxassetid://10723415335",
+        Indent = "rbxassetid://10723415494",
+        IndianRupee = "rbxassetid://10723415642",
+        Infinity = "rbxassetid://10723415766",
+        Inspect = "rbxassetid://10723416057",
+        Italic = "rbxassetid://10723416195",
+        JapaneseYen = "rbxassetid://10723416363",
+        Joystick = "rbxassetid://10723416527",
+        Keyboard = "rbxassetid://10723416765",
+        Lamp = "rbxassetid://10723417513",
+        Landmark = "rbxassetid://10723417608",
+        Languages = "rbxassetid://10723417703",
+        Laptop = "rbxassetid://10723423881",
+        Lasso = "rbxassetid://10723424235",
+        Laugh = "rbxassetid://10723424372",
+        Layout = "rbxassetid://10723425376",
+        Leaf = "rbxassetid://10723425539",
+        Library = "rbxassetid://10723425615",
+        Lifebuoy = "rbxassetid://10723425685",
+        Lightbulb = "rbxassetid://10723425852",
+        LineChart = "rbxassetid://10723426393",
+        Link = "rbxassetid://10723426722",
+        List = "rbxassetid://10723433811",
+        Loader = "rbxassetid://10723434070",
+        Locate = "rbxassetid://10723434557",
+        Login = "rbxassetid://10723434830",
+        Logout = "rbxassetid://10723434906",
+        Luggage = "rbxassetid://10723434993",
+        Magnet = "rbxassetid://10723435069",
+        Mail = "rbxassetid://10734885430",
+        Medal = "rbxassetid://10734887072",
+        Megaphone = "rbxassetid://10734887454",
+        Meh = "rbxassetid://10734887603",
+        MessageCircle = "rbxassetid://10734888000",
+        MessageSquare = "rbxassetid://10734888228",
+        Microscope = "rbxassetid://10734889106",
+        Microwave = "rbxassetid://10734895076",
+        Milestone = "rbxassetid://10734895310",
+        Minus = "rbxassetid://10734896206",
+        Monitor = "rbxassetid://10734896881",
+        Moon = "rbxassetid://10734897102",
+        Mountain = "rbxassetid://10734897956",
+        Mouse = "rbxassetid://10734898592",
+        MousePointer = "rbxassetid://10734898476",
+        Navigation = "rbxassetid://10734906744",
+        Network = "rbxassetid://10734906975",
+        Newspaper = "rbxassetid://10734907168",
+        Octagon = "rbxassetid://10734907361",
+        Option = "rbxassetid://10734907649",
+        Outdent = "rbxassetid://10734907933",
+        Package = "rbxassetid://10734909540",
+        Paintbrush = "rbxassetid://10734910187",
+        PalmTree = "rbxassetid://10734910680",
+        Paperclip = "rbxassetid://10734910927",
+        PartyPopper = "rbxassetid://10734918735",
+        PenTool = "rbxassetid://10734919503",
+        Percent = "rbxassetid://10734919919",
+        Phone = "rbxassetid://10734921524",
+        PieChart = "rbxassetid://10734921727",
+        PiggyBank = "rbxassetid://10734921935",
+        Pin = "rbxassetid://10734922324",
+        Plane = "rbxassetid://10734922971",
+        Plus = "rbxassetid://10734924532",
+        Podcast = "rbxassetid://10734929553",
+        Pointer = "rbxassetid://10734929723",
+        PoundSterling = "rbxassetid://10734929981",
+        Power = "rbxassetid://10734930466",
+        Printer = "rbxassetid://10734930632",
+        Puzzle = "rbxassetid://10734930886",
+        Quote = "rbxassetid://10734931234",
+        Radio = "rbxassetid://10734931596",
+        RectangleHorizontal = "rbxassetid://10734931777",
+        RectangleVertical = "rbxassetid://10734932081",
+        Recycle = "rbxassetid://10734932295",
+        RefreshCcw = "rbxassetid://10734933056",
+        RefreshCw = "rbxassetid://10734933222",
+        Refrigerator = "rbxassetid://10734933465",
+        Regex = "rbxassetid://10734933655",
+        Reply = "rbxassetid://10734934252",
+        Rocket = "rbxassetid://10734934585",
+        RockingChair = "rbxassetid://10734939942",
+        Rotate3d = "rbxassetid://10734940107",
+        RotateCcw = "rbxassetid://10734940376",
+        RotateCw = "rbxassetid://10734940654",
+        Rss = "rbxassetid://10734940825",
+        Ruler = "rbxassetid://10734941018",
+        RussianRuble = "rbxassetid://10734941199",
+        Sailboat = "rbxassetid://10734941354",
+        Scale = "rbxassetid://10734941912",
+        Scan = "rbxassetid://10734942565",
+        ScanFace = "rbxassetid://10734942198",
+        ScanLine = "rbxassetid://10734942351",
+        ScreenShare = "rbxassetid://10734943193",
+        Scroll = "rbxassetid://10734943448",
+        Send = "rbxassetid://10734943902",
+        SeparatorHorizontal = "rbxassetid://10734944115",
+        SeparatorVertical = "rbxassetid://10734944326",
+        Server = "rbxassetid://10734949856",
+        Settings2 = "rbxassetid://10734950020",
+        Share = "rbxassetid://10734950813",
+        Sheet = "rbxassetid://10734951038",
+        Shield = "rbxassetid://10734951847",
+        ShoppingBag = "rbxassetid://10734952273",
+        ShoppingCart = "rbxassetid://10734952479",
+        Shovel = "rbxassetid://10734952773",
+        ShowerHead = "rbxassetid://10734952942",
+        Shrub = "rbxassetid://10734953241",
+        Sidebar = "rbxassetid://10734954301",
+        Sigma = "rbxassetid://10734954538",
+        Signal = "rbxassetid://10734961133",
+        Siren = "rbxassetid://10734961284",
+        Slack = "rbxassetid://10734962339",
+        Slash = "rbxassetid://10734962600",
+        Slice = "rbxassetid://10734963024",
+        Sliders = "rbxassetid://10734963400",
+        Smartphone = "rbxassetid://10734963940",
+        Smile = "rbxassetid://10734964441",
+        Snowflake = "rbxassetid://10734964600",
+        Sofa = "rbxassetid://10734964852",
+        Speaker = "rbxassetid://10734965419",
+        Sprout = "rbxassetid://10734965572",
+        Square = "rbxassetid://10734965702",
+        Stethoscope = "rbxassetid://10734966384",
+        Sticker = "rbxassetid://10734972234",
+        StickyNote = "rbxassetid://10734972463",
+        StretchHorizontal = "rbxassetid://10734972862",
+        StretchVertical = "rbxassetid://10734973130",
+        Strikethrough = "rbxassetid://10734973290",
+        Subscript = "rbxassetid://10734973457",
+        Sun = "rbxassetid://10734974297",
+        Sunrise = "rbxassetid://10734974522",
+        Sunset = "rbxassetid://10734974689",
+        Superscript = "rbxassetid://10734974850",
+        SwissFranc = "rbxassetid://10734975024",
+        SwitchCamera = "rbxassetid://10734975214",
+        Sword = "rbxassetid://10734975486",
+        Swords = "rbxassetid://10734975692",
+        Syringe = "rbxassetid://10734975932",
+        Table = "rbxassetid://10734976230",
+        Tablet = "rbxassetid://10734976394",
+        Tag = "rbxassetid://10734976528",
+        Tags = "rbxassetid://10734976739",
+        Tent = "rbxassetid://10734981750",
+        TextCursor = "rbxassetid://10734982395",
+        Thermometer = "rbxassetid://10734983134",
+        Ticket = "rbxassetid://10734983868",
+        Timer = "rbxassetid://10734984606",
+        ToggleLeft = "rbxassetid://10734984834",
+        ToggleRight = "rbxassetid://10734985040",
+        Tornado = "rbxassetid://10734985247",
+        ToyBrick = "rbxassetid://10747361919",
+        Train = "rbxassetid://10747362105",
+        TreeDeciduous = "rbxassetid://10747362534",
+        TreePine = "rbxassetid://10747362748",
+        Trees = "rbxassetid://10747363016",
+        TrendingDown = "rbxassetid://10747363205",
+        TrendingUp = "rbxassetid://10747363465",
+        Triangle = "rbxassetid://10747363621",
+        Truck = "rbxassetid://10747364031",
+        Tv = "rbxassetid://10747364593",
+        Type = "rbxassetid://10747364761",
+        Umbrella = "rbxassetid://10747364971",
+        Underline = "rbxassetid://10747365191",
+        Unlink = "rbxassetid://10747365771",
+        Usb = "rbxassetid://10747366606",
+        Utensils = "rbxassetid://10747373821",
+        VenetianMask = "rbxassetid://10747374003",
+        Verified = "rbxassetid://10747374131",
+        Vibrate = "rbxassetid://10747374489",
+        View = "rbxassetid://10747375132",
+        Voicemail = "rbxassetid://10747375281",
+        Wallet = "rbxassetid://10747376205",
+        Wand = "rbxassetid://10747376565",
+        Watch = "rbxassetid://10747376722",
+        Waves = "rbxassetid://10747376931",
+        Webcam = "rbxassetid://10747381992",
+        Wifi = "rbxassetid://10747382504",
+        Wind = "rbxassetid://10747382750",
+        WrapText = "rbxassetid://10747383065",
+        XOctagon = "rbxassetid://10747384037",
+        XSquare = "rbxassetid://10747384217",
+    }
+}
 
 -- ==================================================
--- CRIAÇÃO DA JANELA PRINCIPAL
+-- NOTIFICAÇÕES (4 posições, fila)
+-- ==================================================
+local NotificationQueue = {}
+local NotificationActive = false
+
+function Nexus:Notify(notification)
+    if not self.Settings.Notifications then return end
+    table.insert(NotificationQueue, notification)
+    if not NotificationActive then
+        self:ProcessNotificationQueue()
+    end
+end
+
+function Nexus:ProcessNotificationQueue()
+    if #NotificationQueue == 0 then
+        NotificationActive = false
+        return
+    end
+    NotificationActive = true
+    local notif = table.remove(NotificationQueue, 1)
+    self:ShowNotification(notif)
+    task.wait(0.5)
+    self:ProcessNotificationQueue()
+end
+
+function Nexus:ShowNotification(notification)
+    local title = notification.Title or "Nexus"
+    local content = notification.Content or ""
+    local duration = notification.Duration or 5
+    local position = notification.Position or self.Settings.NotificationPosition
+    local theme = self.CurrentTheme or self.Themes.Purple
+    local buttons = notification.Buttons or {}
+
+    local parent = GetSafeParent()
+    local frame = Instance.new("Frame")
+    frame.Parent = parent
+    frame.Size = UDim2.new(0, 300, 0, #buttons > 0 and 120 or 80)
+    frame.BackgroundColor3 = theme.ToastColor
+    frame.BackgroundTransparency = 0.2
+    frame.BorderSizePixel = 0
+    frame.ClipsDescendants = true
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+    Instance.new("UIStroke", frame).Color = theme.Primary
+
+    local startPos, endPos
+    if position == "TopLeft" then
+        frame.Position = UDim2.new(0, -320, 0, 20)
+        endPos = UDim2.new(0, 20, 0, 20)
+    elseif position == "TopRight" then
+        frame.Position = UDim2.new(1, -20, 0, -100)
+        endPos = UDim2.new(1, -320, 0, 20)
+    elseif position == "BottomLeft" then
+        frame.Position = UDim2.new(0, -320, 1, -100)
+        endPos = UDim2.new(0, 20, 1, -100)
+    elseif position == "BottomRight" then
+        frame.Position = UDim2.new(1, -20, 1, -100)
+        endPos = UDim2.new(1, -320, 1, -100)
+    end
+
+    local icon = Instance.new("Frame")
+    icon.Parent = frame
+    icon.Size = UDim2.new(0, 40, 0, 40)
+    icon.Position = UDim2.new(0, 10, 0.5, -20)
+    icon.BackgroundColor3 = theme.Primary
+    icon.BorderSizePixel = 0
+    Instance.new("UICorner", icon).CornerRadius = UDim.new(1,0)
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = frame
+    titleLabel.Size = UDim2.new(1, -60, 0, 30)
+    titleLabel.Position = UDim2.new(0, 60, 0, 10)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 16
+    titleLabel.TextColor3 = theme.Secondary
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local contentLabel = Instance.new("TextLabel")
+    contentLabel.Parent = frame
+    contentLabel.Size = UDim2.new(1, -60, 0, #buttons > 0 and 40 or 30)
+    contentLabel.Position = UDim2.new(0, 60, 0, 40)
+    contentLabel.BackgroundTransparency = 1
+    contentLabel.Text = content
+    contentLabel.Font = Enum.Font.Gotham
+    contentLabel.TextSize = 14
+    contentLabel.TextColor3 = theme.Text
+    contentLabel.TextXAlignment = Enum.TextXAlignment.Left
+    contentLabel.TextWrapped = true
+
+    if #buttons > 0 then
+        local btnContainer = Instance.new("Frame")
+        btnContainer.Parent = frame
+        btnContainer.Size = UDim2.new(1, -20, 0, 30)
+        btnContainer.Position = UDim2.new(0, 10, 1, -35)
+        btnContainer.BackgroundTransparency = 1
+
+        local btnLayout = Instance.new("UIListLayout", btnContainer)
+        btnLayout.FillDirection = Enum.FillDirection.Horizontal
+        btnLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        btnLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        btnLayout.Padding = UDim.new(0, 5)
+
+        for _, btnData in ipairs(buttons) do
+            local btn = Instance.new("TextButton")
+            btn.Parent = btnContainer
+            btn.Size = UDim2.new(0, 60, 0, 25)
+            btn.BackgroundColor3 = theme.Button
+            btn.Text = btnData.Text or "Ok"
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 12
+            btn.TextColor3 = theme.Text
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+            Instance.new("UIStroke", btn).Color = theme.Primary
+
+            btn.MouseButton1Click:Connect(function()
+                if btnData.Callback then pcall(btnData.Callback) end
+                frame:TweenPosition(startPos, Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.3, true)
+                task.wait(0.3)
+                frame:Destroy()
+            end)
+        end
+    end
+
+    frame:TweenPosition(endPos, Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
+    task.wait(duration)
+    frame:TweenPosition(startPos, Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.5, true)
+    task.wait(0.5)
+    frame:Destroy()
+end
+
+-- ==================================================
+-- TOOLTIPS (com delay e fade)
+-- ==================================================
+local TooltipActive = nil
+function Nexus:AddTooltip(button, text)
+    if not self.Settings.Tooltips then return end
+    local tipConn
+    button.MouseEnter:Connect(function()
+        tipConn = task.delay(0.3, function()
+            if TooltipActive then TooltipActive:Destroy() end
+            local parent = GetSafeParent()
+            local tip = Instance.new("TextLabel")
+            tip.Parent = parent
+            tip.Size = UDim2.new(0, #text * 8 + 30, 0, 30)
+            tip.Position = UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 40)
+            tip.BackgroundColor3 = Color3.fromRGB(20,20,30)
+            tip.Text = text
+            tip.Font = Enum.Font.Gotham
+            tip.TextSize = 15
+            tip.TextColor3 = Color3.new(1,1,1)
+            Instance.new("UICorner", tip).CornerRadius = UDim.new(0,8)
+            Instance.new("UIStroke", tip).Color = self.CurrentTheme.Primary
+            tip.Visible = false
+            tip:TweenPosition(UDim2.new(0, button.AbsolutePosition.X + button.AbsoluteSize.X/2 - tip.Size.X.Offset/2, 0, button.AbsolutePosition.Y - 45), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
+            tip.Visible = true
+            TooltipActive = tip
+        end)
+    end)
+    button.MouseLeave:Connect(function()
+        if tipConn then task.cancel(tipConn) end
+        if TooltipActive then
+            TooltipActive:Destroy()
+            TooltipActive = nil
+        end
+    end)
+end
+
+-- ==================================================
+-- CONSTRUTOR DE JANELA
 -- ==================================================
 function Nexus:CreateWindow(options)
-	options = options or {}
-	local title = options.Title or "Nexus Window"
-	local theme = options.Theme or self.Settings.Theme
-	local size = options.Size or UDim2.new(0, 750, 0, 550)
-	local themeTable = self.Themes[theme] or self.Themes.Purple
+    options = options or {}
+    local title = options.Title or "Nexus Window"
+    local themeName = options.Theme or self.Settings.Theme
+    local size = options.Size or UDim2.new(0, 750, 0, 550)
+    local theme = self.Themes[themeName] or self.Themes.Purple
+    self.CurrentTheme = theme
 
-	local parent = GetSafeParent()
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "Nexus_Window"
-	screenGui.Parent = parent
-	screenGui.ResetOnSpawn = false
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.DisplayOrder = 100
+    local parent = GetSafeParent()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "Nexus_Window"
+    screenGui.Parent = parent
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.DisplayOrder = 100
 
-	local main = Instance.new("Frame")
-	main.Parent = screenGui
-	main.Size = UDim2.new(0, 0, 0, 0)
-	main.Position = UDim2.new(0.5, 0, 0.5, 0)
-	main.BackgroundColor3 = themeTable.BgColor
-	main.BorderSizePixel = 0
-	main.Active = true
-	main.ClipsDescendants = true
-	main.Name = "MainFrame"
-	Instance.new("UICorner", main).CornerRadius = UDim.new(0, 24)
-	Instance.new("UIStroke", main).Color = themeTable.Primary
+    local main = Instance.new("Frame")
+    main.Parent = screenGui
+    main.Size = UDim2.new(0, 0, 0, 0)
+    main.Position = UDim2.new(0.5, 0, 0.5, 0)
+    main.BackgroundColor3 = theme.BgColor
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.ClipsDescendants = true
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 24)
+    Instance.new("UIStroke", main).Color = theme.Primary
 
-	local titleBar = Instance.new("Frame")
-	titleBar.Parent = main
-	titleBar.Size = UDim2.new(1, 0, 0, 40)
-	titleBar.BackgroundTransparency = 1
-	titleBar.ZIndex = 10
+    local titleBar = Instance.new("Frame")
+    titleBar.Parent = main
+    titleBar.Size = UDim2.new(1, 0, 0, 40)
+    titleBar.BackgroundTransparency = 1
+    titleBar.ZIndex = 10
 
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Parent = titleBar
-	titleLabel.Size = UDim2.new(1, -80, 1, 0)
-	titleLabel.Position = UDim2.new(0, 10, 0, 0)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Text = title
-	titleLabel.Font = Enum.Font.GothamSemibold
-	titleLabel.TextSize = 18
-	titleLabel.TextColor3 = themeTable.Secondary
-	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = titleBar
+    titleLabel.Size = UDim2.new(1, -80, 1, 0)
+    titleLabel.Position = UDim2.new(0, 10, 0, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 18
+    titleLabel.TextColor3 = theme.Secondary
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-	local closeBtn = Instance.new("ImageButton")
-	closeBtn.Parent = titleBar
-	closeBtn.Size = UDim2.new(0, 30, 0, 30)
-	closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
-	closeBtn.BackgroundTransparency = 1
-	closeBtn.Image = Asset.Close
-	closeBtn.ImageColor3 = Color3.fromRGB(255,100,100)
-	AddTooltip(closeBtn, "Fechar")
-	closeBtn.MouseButton1Click:Connect(function()
-		DisconnectAll()
-		SaveSettings()
-		main:TweenSizeAndPosition(UDim2.new(0,0,0,0), UDim2.new(0.5,0,0.5,0), Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.4, true)
-		task.wait(0.4)
-		screenGui:Destroy()
-	end)
+    local closeBtn = Instance.new("ImageButton")
+    closeBtn.Parent = titleBar
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
+    closeBtn.BackgroundTransparency = 1
+    closeBtn.Image = self.Assets.Window.Close
+    closeBtn.ImageColor3 = Color3.fromRGB(255,100,100)
+    self:AddTooltip(closeBtn, "Fechar")
+    closeBtn.MouseButton1Click:Connect(function()
+        DisconnectAll()
+        main:TweenSizeAndPosition(UDim2.new(0,0,0,0), UDim2.new(0.5,0,0.5,0), Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.4, true)
+        task.wait(0.4)
+        screenGui:Destroy()
+    end)
 
-	local minBtn = Instance.new("ImageButton")
-	minBtn.Parent = titleBar
-	minBtn.Size = UDim2.new(0, 30, 0, 30)
-	minBtn.Position = UDim2.new(1, -80, 0.5, -15)
-	minBtn.BackgroundTransparency = 1
-	minBtn.Image = Asset.Minimize
-	minBtn.ImageColor3 = themeTable.Primary
-	AddTooltip(minBtn, "Minimizar")
-	local minimized = false
-	minBtn.MouseButton1Click:Connect(function()
-		minimized = not minimized
-		if minimized then
-			main:TweenSize(UDim2.new(0, 350, 0, 40), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
-			minBtn.Image = Asset.Minimize2
-			AddTooltip(minBtn, "Restaurar")
-		else
-			main:TweenSize(size, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
-			minBtn.Image = Asset.Minimize
-			AddTooltip(minBtn, "Minimizar")
-		end
-	end)
+    local minBtn = Instance.new("ImageButton")
+    minBtn.Parent = titleBar
+    minBtn.Size = UDim2.new(0, 30, 0, 30)
+    minBtn.Position = UDim2.new(1, -80, 0.5, -15)
+    minBtn.BackgroundTransparency = 1
+    minBtn.Image = self.Assets.Window.Minimize
+    minBtn.ImageColor3 = theme.Primary
+    self:AddTooltip(minBtn, "Minimizar")
+    local minimized = false
+    minBtn.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        if minimized then
+            main:TweenSize(UDim2.new(0, 350, 0, 40), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+            minBtn.Image = self.Assets.Window.Minimize2
+            self:AddTooltip(minBtn, "Restaurar")
+        else
+            main:TweenSize(size, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+            minBtn.Image = self.Assets.Window.Minimize
+            self:AddTooltip(minBtn, "Minimizar")
+        end
+    end)
 
-	local tabsFrame = Instance.new("Frame")
-	tabsFrame.Parent = main
-	tabsFrame.Size = UDim2.new(0, 180, 1, -90)
-	tabsFrame.Position = UDim2.new(0, 0, 0, 50)
-	tabsFrame.BackgroundTransparency = 1
+    local tabsFrame = Instance.new("Frame")
+    tabsFrame.Parent = main
+    tabsFrame.Size = UDim2.new(0, 180, 1, -90)
+    tabsFrame.Position = UDim2.new(0, 0, 0, 50)
+    tabsFrame.BackgroundTransparency = 1
 
-	local contentFrame = Instance.new("Frame")
-	contentFrame.Parent = main
-	contentFrame.Size = UDim2.new(1, -190, 1, -100)
-	contentFrame.Position = UDim2.new(0, 185, 0, 55)
-	contentFrame.BackgroundTransparency = 1
-	contentFrame.ClipsDescendants = true
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Parent = main
+    contentFrame.Size = UDim2.new(1, -190, 1, -100)
+    contentFrame.Position = UDim2.new(0, 185, 0, 55)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.ClipsDescendants = true
 
-	local window = {}
-	window.Main = main
-	window.ScreenGui = screenGui
-	window.Theme = themeTable
-	window.Tabs = {}
-	window.TabFrame = tabsFrame
-	window.ContentFrame = contentFrame
-	window.Notify = function(notif) Nexus:Notify(notif) end
+    local window = {
+        Main = main,
+        ScreenGui = screenGui,
+        Theme = theme,
+        Tabs = {},
+        TabFrame = tabsFrame,
+        ContentFrame = contentFrame,
+        Notify = function(notif) Nexus:Notify(notif) end,
+        AddTooltip = function(btn, txt) Nexus:AddTooltip(btn, txt) end,
+        Keybinds = DeepCopy(Nexus.Settings.GlobalKeybinds)
+    }
 
-	-- Arrastar a janela (mouse e toque)
-	local dragging = false
-	local dragStart, startPos
-	titleBar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = main.Position
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-	titleBar.InputChanged:Connect(function(input)
-		if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-			local delta = input.Position - dragStart
-			local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-			main.Position = newPos
-		end
-	end)
+    -- Arrastar a janela
+    local dragging = false
+    local dragStart, startPos
+    titleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = main.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    titleBar.InputChanged:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+            local delta = input.Position - dragStart
+            local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            main.Position = newPos
+        end
+    end)
 
-	-- Animação de entrada
-	main:TweenSizeAndPosition(size, UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2), Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
+    -- Animação de entrada
+    main:TweenSizeAndPosition(size, UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2), Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
 
-	-- Método para criar aba
-	function window:CreateTab(name, icon)
-		icon = icon or Asset.Features
-		local tab = {}
-		tab.Name = name
-		tab.Window = self
+    -- Método para criar aba
+    function window:CreateTab(name, iconKey)
+        iconKey = iconKey or "Features" -- pode ser "Features", "Player", etc., ou uma string personalizada
+        local iconAsset = type(iconKey) == "string" and (Nexus.Assets[iconKey] and Nexus.Assets[iconKey].Features or Nexus.Assets.Features[iconKey] or Nexus.Assets.Misc[iconKey]) or iconKey
+        if not iconAsset then iconAsset = Nexus.Assets.Features.Layers end
 
-		local tabButton = Instance.new("TextButton")
-		tabButton.Parent = self.TabFrame
-		tabButton.Size = UDim2.new(1, -10, 0, 40)
-		tabButton.BackgroundColor3 = self.Theme.Button
-		tabButton.Text = "  " .. name
-		tabButton.Font = Enum.Font.Gotham
-		tabButton.TextSize = 14
-		tabButton.TextColor3 = self.Theme.Text
-		tabButton.TextXAlignment = Enum.TextXAlignment.Left
-		Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 8)
-		Instance.new("UIStroke", tabButton).Color = self.Theme.Primary
+        local tab = {
+            Name = name,
+            Window = self,
+            Page = Instance.new("ScrollingFrame"),
+            Button = Instance.new("TextButton"),
+            Icon = Instance.new("ImageLabel")
+        }
 
-		local tabIcon = Instance.new("ImageLabel")
-		tabIcon.Parent = tabButton
-		tabIcon.Size = UDim2.new(0, 20, 0, 20)
-		tabIcon.Position = UDim2.new(0, 5, 0.5, -10)
-		tabIcon.BackgroundTransparency = 1
-		tabIcon.Image = icon
-		tabIcon.ImageColor3 = self.Theme.Text
+        tab.Page.Parent = self.ContentFrame
+        tab.Page.Size = UDim2.new(1, 0, 1, 0)
+        tab.Page.BackgroundTransparency = 1
+        tab.Page.BorderSizePixel = 0
+        tab.Page.ScrollBarThickness = 5
+        tab.Page.ScrollBarImageColor3 = self.Theme.Primary
+        tab.Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+        tab.Page.Visible = false
 
-		local tabPage = Instance.new("ScrollingFrame")
-		tabPage.Parent = self.ContentFrame
-		tabPage.Size = UDim2.new(1, 0, 1, 0)
-		tabPage.BackgroundTransparency = 1
-		tabPage.BorderSizePixel = 0
-		tabPage.ScrollBarThickness = 5
-		tabPage.ScrollBarImageColor3 = self.Theme.Primary
-		tabPage.CanvasSize = UDim2.new(0, 0, 0, 0)
-		tabPage.Visible = false
+        local pageLayout = Instance.new("UIListLayout", tab.Page)
+        pageLayout.Padding = UDim.new(0, 8)
+        pageLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tab.Page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 20)
+        end)
 
-		local pageLayout = Instance.new("UIListLayout", tabPage)
-		pageLayout.Padding = UDim.new(0, 8)
-		pageLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-			tabPage.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 20)
-		end)
+        tab.Button.Parent = self.TabFrame
+        tab.Button.Size = UDim2.new(1, -10, 0, 40)
+        tab.Button.BackgroundColor3 = self.Theme.Button
+        tab.Button.Text = "  " .. name
+        tab.Button.Font = Enum.Font.Gotham
+        tab.Button.TextSize = 14
+        tab.Button.TextColor3 = self.Theme.Text
+        tab.Button.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", tab.Button).CornerRadius = UDim.new(0, 8)
+        Instance.new("UIStroke", tab.Button).Color = self.Theme.Primary
 
-		tab.Page = tabPage
-		tab.Button = tabButton
-		tab.Icon = tabIcon
+        tab.Icon.Parent = tab.Button
+        tab.Icon.Size = UDim2.new(0, 20, 0, 20)
+        tab.Icon.Position = UDim2.new(0, 5, 0.5, -10)
+        tab.Icon.BackgroundTransparency = 1
+        tab.Icon.Image = iconAsset
+        tab.Icon.ImageColor3 = self.Theme.Text
 
-		local function activateTab()
-			for _, other in ipairs(self.Tabs) do
-				other.Page.Visible = false
-				other.Button.BackgroundColor3 = self.Theme.Button
-				other.Button.TextColor3 = self.Theme.Text
-				other.Button.UIStroke.Color = self.Theme.Primary
-				if other.Icon then other.Icon.ImageColor3 = self.Theme.Text end
-			end
-			tabPage.Visible = true
-			tabButton.BackgroundColor3 = self.Theme.Secondary
-			tabButton.TextColor3 = Color3.new(0,0,0)
-			tabButton.UIStroke.Color = Color3.new(1,1,1)
-			tabIcon.ImageColor3 = Color3.new(0,0,0)
-		end
+        local function activateTab()
+            for _, other in ipairs(self.Tabs) do
+                other.Page.Visible = false
+                other.Button.BackgroundColor3 = self.Theme.Button
+                other.Button.TextColor3 = self.Theme.Text
+                other.Button.UIStroke.Color = self.Theme.Primary
+                if other.Icon then other.Icon.ImageColor3 = self.Theme.Text end
+            end
+            tab.Page.Visible = true
+            tab.Button.BackgroundColor3 = self.Theme.Secondary
+            tab.Button.TextColor3 = Color3.new(0,0,0)
+            tab.Button.UIStroke.Color = Color3.new(1,1,1)
+            tab.Icon.ImageColor3 = Color3.new(0,0,0)
+        end
 
-		tabButton.MouseButton1Click:Connect(activateTab)
-		tab.Activate = activateTab
+        tab.Button.MouseButton1Click:Connect(activateTab)
+        tab.Activate = activateTab
 
-		table.insert(self.Tabs, tab)
+        table.insert(self.Tabs, tab)
 
-		-- Se for a primeira aba, ativar automaticamente
-		if #self.Tabs == 1 then
-			task.defer(activateTab)
-		end
+        if #self.Tabs == 1 then
+            task.defer(activateTab)
+        end
 
-		-- Métodos da aba
-		function tab:CreateSection(text)
-			local container = Instance.new("Frame")
-			container.Parent = self.Page
-			container.Size = UDim2.new(1, -20, 0, 30)
-			container.BackgroundTransparency = 1
+        function tab:CreateSection(text)
+            local container = Instance.new("Frame")
+            container.Parent = self.Page
+            container.Size = UDim2.new(1, -20, 0, 30)
+            container.BackgroundTransparency = 1
 
-			local line = Instance.new("Frame")
-			line.Parent = container
-			line.Size = UDim2.new(1, 0, 0, 2)
-			line.Position = UDim2.new(0, 0, 1, -2)
-			line.BackgroundColor3 = self.Window.Theme.Primary
-			line.BackgroundTransparency = 0.5
-			Instance.new("UICorner", line).CornerRadius = UDim.new(1,0)
+            local line = Instance.new("Frame")
+            line.Parent = container
+            line.Size = UDim2.new(1, 0, 0, 2)
+            line.Position = UDim2.new(0, 0, 1, -2)
+            line.BackgroundColor3 = self.Window.Theme.Primary
+            line.BackgroundTransparency = 0.5
+            Instance.new("UICorner", line).CornerRadius = UDim.new(1,0)
 
-			local sectionLabel = Instance.new("TextLabel")
-			sectionLabel.Parent = container
-			sectionLabel.Size = UDim2.new(1, -10, 1, 0)
-			sectionLabel.BackgroundTransparency = 1
-			sectionLabel.Text = "   " .. text
-			sectionLabel.Font = Enum.Font.GothamBlack
-			sectionLabel.TextSize = 16
-			sectionLabel.TextColor3 = self.Window.Theme.Secondary
-			sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+            local sectionLabel = Instance.new("TextLabel")
+            sectionLabel.Parent = container
+            sectionLabel.Size = UDim2.new(1, -10, 1, 0)
+            sectionLabel.BackgroundTransparency = 1
+            sectionLabel.Text = "   " .. text
+            sectionLabel.Font = Enum.Font.GothamBlack
+            sectionLabel.TextSize = 16
+            sectionLabel.TextColor3 = self.Window.Theme.Secondary
+            sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-			return container
-		end
+            return container
+        end
 
-		function tab:CreateButton(text, callback, tooltip, icon)
-			local btn = Instance.new("TextButton")
-			btn.Parent = self.Page
-			btn.Size = UDim2.new(1, -20, 0, 35)
-			btn.BackgroundColor3 = self.Window.Theme.Button
-			btn.Text = text
-			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 14
-			btn.TextColor3 = self.Window.Theme.Text
-			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-			local stroke = Instance.new("UIStroke", btn)
-			stroke.Color = self.Window.Theme.Primary
-			stroke.Thickness = 1.5
-			if tooltip then AddTooltip(btn, tooltip) end
-			if icon then
-				local ic = Instance.new("ImageLabel")
-				ic.Parent = btn
-				ic.Size = UDim2.new(0, 20, 0, 20)
-				ic.Position = UDim2.new(0, 8, 0.5, -10)
-				ic.BackgroundTransparency = 1
-				ic.Image = icon
-				ic.ImageColor3 = self.Window.Theme.Text
-			end
-			btn.MouseEnter:Connect(function()
-				Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Window.Theme.ButtonHover}):Play()
-			end)
-			btn.MouseLeave:Connect(function()
-				Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Window.Theme.Button}):Play()
-			end)
-			btn.MouseButton1Click:Connect(function()
-				local s, e = pcall(callback or function() end)
-				if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
-			end)
-			return btn
-		end
+        function tab:CreateButton(options)
+            local text = options.Text or "Botão"
+            local callback = options.Callback or function() end
+            local tooltip = options.Tooltip
+            local iconKey = options.Icon -- pode ser string (ex: "Save") ou asset direto
 
-		function tab:CreateToggle(options)
-			local text = options.Text or "Toggle"
-			local state = options.Default or false
-			local callback = options.Callback or function() end
+            local btn = Instance.new("TextButton")
+            btn.Parent = self.Page
+            btn.Size = UDim2.new(1, -20, 0, 35)
+            btn.BackgroundColor3 = self.Window.Theme.Button
+            btn.Text = text
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 14
+            btn.TextColor3 = self.Window.Theme.Text
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+            local stroke = Instance.new("UIStroke", btn)
+            stroke.Color = self.Window.Theme.Primary
+            stroke.Thickness = 1.5
 
-			local btn = Instance.new("TextButton")
-			btn.Parent = self.Page
-			btn.Size = UDim2.new(1, -20, 0, 35)
-			btn.BackgroundColor3 = self.Window.Theme.Button
-			btn.Text = text
-			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 14
-			btn.TextColor3 = self.Window.Theme.Text
-			btn.TextXAlignment = Enum.TextXAlignment.Left
-			btn.PaddingLeft = UDim.new(0, 10)
-			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-			Instance.new("UIStroke", btn).Color = self.Window.Theme.Primary
-			if options.Tooltip then AddTooltip(btn, options.Tooltip) end
+            if tooltip then Nexus:AddTooltip(btn, tooltip) end
 
-			local indicator = Instance.new("Frame")
-			indicator.Parent = btn
-			indicator.Size = UDim2.new(0, 36, 0, 20)
-			indicator.Position = UDim2.new(1, -46, 0.5, -10)
-			indicator.BackgroundColor3 = Color3.fromRGB(0.5,0.5,0.5)
-			Instance.new("UICorner", indicator).CornerRadius = UDim.new(1,0)
+            if iconKey then
+                local iconAsset = type(iconKey) == "string" and (Nexus.Assets.Actions[iconKey] or Nexus.Assets.Features[iconKey] or Nexus.Assets.Misc[iconKey]) or iconKey
+                if iconAsset then
+                    local ic = Instance.new("ImageLabel")
+                    ic.Parent = btn
+                    ic.Size = UDim2.new(0, 20, 0, 20)
+                    ic.Position = UDim2.new(0, 8, 0.5, -10)
+                    ic.BackgroundTransparency = 1
+                    ic.Image = iconAsset
+                    ic.ImageColor3 = self.Window.Theme.Text
+                end
+            end
 
-			local knob = Instance.new("Frame")
-			knob.Parent = indicator
-			knob.Size = UDim2.new(0, 18, 0, 18)
-			knob.Position = state and UDim2.new(1, -19, 0.5, -9) or UDim2.new(0, 1, 0.5, -9)
-			knob.BackgroundColor3 = Color3.new(1,1,1)
-			Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
+            btn.MouseEnter:Connect(function()
+                Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Window.Theme.ButtonHover}):Play()
+            end)
+            btn.MouseLeave:Connect(function()
+                Tween:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = self.Window.Theme.Button}):Play()
+            end)
+            btn.MouseButton1Click:Connect(function()
+                local s, e = pcall(callback)
+                if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
+            end)
 
-			local function updateVisual(newState)
-				if newState then
-					indicator.BackgroundColor3 = self.Window.Theme.Success
-					knob:TweenPosition(UDim2.new(1, -19, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-				else
-					indicator.BackgroundColor3 = Color3.fromRGB(0.5,0.5,0.5)
-					knob:TweenPosition(UDim2.new(0, 1, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-				end
-			end
+            return btn
+        end
 
-			updateVisual(state)
+        function tab:CreateToggle(options)
+            local text = options.Text or "Toggle"
+            local state = options.Default or false
+            local callback = options.Callback or function() end
+            local tooltip = options.Tooltip
+            local keybind = options.Keybind
 
-			btn.MouseButton1Click:Connect(function()
-				state = not state
-				updateVisual(state)
-				local s, e = pcall(callback, state)
-				if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
-			end)
-			return btn
-		end
+            local btn = Instance.new("TextButton")
+            btn.Parent = self.Page
+            btn.Size = UDim2.new(1, -20, 0, 35)
+            btn.BackgroundColor3 = self.Window.Theme.Button
+            btn.Text = text
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 14
+            btn.TextColor3 = self.Window.Theme.Text
+            btn.TextXAlignment = Enum.TextXAlignment.Left
+            btn.PaddingLeft = UDim.new(0, 10)
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+            Instance.new("UIStroke", btn).Color = self.Window.Theme.Primary
+            if tooltip then Nexus:AddTooltip(btn, tooltip) end
 
-		function tab:CreateSlider(options)
-			local text = options.Text or "Slider"
-			local min = options.Min or 0
-			local max = options.Max or 100
-			local default = options.Default or 50
-			local callback = options.Callback or function() end
+            local indicator = Instance.new("Frame")
+            indicator.Parent = btn
+            indicator.Size = UDim2.new(0, 36, 0, 20)
+            indicator.Position = UDim2.new(1, -46, 0.5, -10)
+            indicator.BackgroundColor3 = Color3.fromRGB(0.5,0.5,0.5)
+            Instance.new("UICorner", indicator).CornerRadius = UDim.new(1,0)
 
-			local container = Instance.new("Frame")
-			container.Parent = self.Page
-			container.Size = UDim2.new(1, -20, 0, 45)
-			container.BackgroundTransparency = 1
+            local knob = Instance.new("Frame")
+            knob.Parent = indicator
+            knob.Size = UDim2.new(0, 18, 0, 18)
+            knob.Position = state and UDim2.new(1, -19, 0.5, -9) or UDim2.new(0, 1, 0.5, -9)
+            knob.BackgroundColor3 = Color3.new(1,1,1)
+            Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
 
-			local label = Instance.new("TextLabel")
-			label.Parent = container
-			label.Size = UDim2.new(1, 0, 0, 20)
-			label.BackgroundTransparency = 1
-			label.Text = text .. ": " .. default
-			label.Font = Enum.Font.Gotham
-			label.TextSize = 14
-			label.TextColor3 = self.Window.Theme.Text
-			label.TextXAlignment = Enum.TextXAlignment.Left
-			label.PaddingLeft = UDim.new(0, 5)
+            local function updateVisual(newState)
+                if newState then
+                    indicator.BackgroundColor3 = self.Window.Theme.Success
+                    knob:TweenPosition(UDim2.new(1, -19, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
+                else
+                    indicator.BackgroundColor3 = Color3.fromRGB(0.5,0.5,0.5)
+                    knob:TweenPosition(UDim2.new(0, 1, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
+                end
+            end
 
-			local sliderBg = Instance.new("Frame")
-			sliderBg.Parent = container
-			sliderBg.Size = UDim2.new(1, -10, 0, 10)
-			sliderBg.Position = UDim2.new(0, 5, 0, 25)
-			sliderBg.BackgroundColor3 = Color3.fromRGB(50,50,50)
-			Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
+            updateVisual(state)
 
-			local fill = Instance.new("Frame")
-			fill.Parent = sliderBg
-			fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
-			fill.BackgroundColor3 = self.Window.Theme.Primary
-			Instance.new("UICorner", fill).CornerRadius = UDim.new(1,0)
+            btn.MouseButton1Click:Connect(function()
+                state = not state
+                updateVisual(state)
+                local s, e = pcall(callback, state)
+                if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
+            end)
 
-			local drag = Instance.new("TextButton")
-			drag.Parent = sliderBg
-			drag.Size = UDim2.new(0, 20, 0, 20)
-			drag.Position = UDim2.new(fill.Size.X.Scale, -10, 0.5, -10)
-			drag.BackgroundColor3 = Color3.new(1,1,1)
-			drag.Text = ""
-			Instance.new("UICorner", drag).CornerRadius = UDim.new(1,0)
-			Instance.new("UIStroke", drag).Color = self.Window.Theme.Primary
-			if options.Tooltip then AddTooltip(drag, options.Tooltip) end
+            if keybind then
+                local keyConn
+                keyConn = UIS.InputBegan:Connect(function(input, gp)
+                    if gp then return end
+                    if input.KeyCode == keybind then
+                        btn.MouseButton1Click:Fire()
+                    end
+                end)
+                -- Armazenar conexão para limpeza futura (opcional)
+                -- Poderia ser adicionado a uma tabela de conexões da janela
+            end
 
-			local val = default
-			local dragging = false
-			drag.MouseButton1Down:Connect(function()
-				dragging = true
-				local move
-				move = Mouse.Move:Connect(function()
-					if not dragging then return end
-					local rel = (Mouse.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
-					rel = math.clamp(rel, 0, 1)
-					fill.Size = UDim2.new(rel, 0, 1, 0)
-					drag.Position = UDim2.new(rel, -10, 0.5, -10)
-					val = math.floor(min + (max-min) * rel)
-					label.Text = text .. ": " .. val
-				end)
-				local release
-				release = Mouse.Button1Up:Connect(function()
-					dragging = false
-					move:Disconnect()
-					release:Disconnect()
-					local s, e = pcall(callback, val)
-					if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
-				end)
-			end)
+            return btn
+        end
 
-			-- Suporte a toque
-			drag.TouchLongPress:Connect(function()
-				dragging = true
-				local move
-				move = Run.Heartbeat:Connect(function()
-					if not dragging then return end
-					local touchPos = UIS:GetTouchPosition()
-					if touchPos then
-						local rel = (touchPos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
-						rel = math.clamp(rel, 0, 1)
-						fill.Size = UDim2.new(rel, 0, 1, 0)
-						drag.Position = UDim2.new(rel, -10, 0.5, -10)
-						val = math.floor(min + (max-min) * rel)
-						label.Text = text .. ": " .. val
-					end
-				end)
-				local release
-				release = UIS.TouchEnded:Connect(function()
-					dragging = false
-					move:Disconnect()
-					release:Disconnect()
-					local s, e = pcall(callback, val)
-					if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
-				end)
-			end)
+        function tab:CreateSlider(options)
+            local text = options.Text or "Slider"
+            local min = options.Min or 0
+            local max = options.Max or 100
+            local default = options.Default or 50
+            local callback = options.Callback or function() end
+            local suffix = options.Suffix or ""
+            local tooltip = options.Tooltip
 
-			return container
-		end
+            local container = Instance.new("Frame")
+            container.Parent = self.Page
+            container.Size = UDim2.new(1, -20, 0, 60)
+            container.BackgroundTransparency = 1
 
-		function tab:CreateDropdown(options)
-			local text = options.Text or "Dropdown"
-			local values = options.Values or {}
-			local default = options.Default or values[1]
-			local callback = options.Callback or function() end
+            local label = Instance.new("TextLabel")
+            label.Parent = container
+            label.Size = UDim2.new(1, -80, 0, 20)
+            label.BackgroundTransparency = 1
+            label.Text = text .. ": " .. default .. suffix
+            label.Font = Enum.Font.Gotham
+            label.TextSize = 14
+            label.TextColor3 = self.Window.Theme.Text
+            label.TextXAlignment = Enum.TextXAlignment.Left
+            label.PaddingLeft = UDim.new(0, 5)
 
-			local btn = self:CreateButton(text .. ": " .. tostring(default), function()
-				local current = default
-				local idx = 0
-				for i, v in ipairs(values) do
-					if v == current then idx = i end
-				end
-				local nextVal = values[(idx % #values) + 1]
-				default = nextVal
-				btn.Text = text .. ": " .. tostring(nextVal)
-				callback(nextVal)
-			end, options.Tooltip)
-			return btn
-		end
+            local inputBox = Instance.new("TextBox")
+            inputBox.Parent = container
+            inputBox.Size = UDim2.new(0, 70, 0, 25)
+            inputBox.Position = UDim2.new(1, -75, 0, 0)
+            inputBox.BackgroundColor3 = self.Window.Theme.Button
+            inputBox.Text = tostring(default)
+            inputBox.Font = Enum.Font.Gotham
+            inputBox.TextSize = 14
+            inputBox.TextColor3 = self.Window.Theme.Text
+            inputBox.PlaceholderText = "Valor"
+            Instance.new("UICorner", inputBox).CornerRadius = UDim.new(0, 6)
+            Instance.new("UIStroke", inputBox).Color = self.Window.Theme.Primary
+            if tooltip then Nexus:AddTooltip(inputBox, tooltip) end
 
-		function tab:CreateTextbox(options)
-			local text = options.Text or "Texto"
-			local default = options.Default or ""
-			local callback = options.Callback or function() end
+            local sliderBg = Instance.new("Frame")
+            sliderBg.Parent = container
+            sliderBg.Size = UDim2.new(1, -10, 0, 10)
+            sliderBg.Position = UDim2.new(0, 5, 0, 35)
+            sliderBg.BackgroundColor3 = Color3.fromRGB(50,50,50)
+            Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
 
-			local box = Instance.new("TextBox")
-			box.Parent = self.Page
-			box.Size = UDim2.new(1, -20, 0, 35)
-			box.PlaceholderText = text
-			box.Text = default
-			box.Font = Enum.Font.Gotham
-			box.TextSize = 14
-			box.TextColor3 = self.Window.Theme.Text
-			box.BackgroundColor3 = self.Window.Theme.Button
-			box.BorderSizePixel = 0
-			Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
-			local stroke = Instance.new("UIStroke", box)
-			stroke.Color = self.Window.Theme.Primary
-			stroke.Thickness = 1.5
-			if options.Tooltip then AddTooltip(box, options.Tooltip) end
+            local fill = Instance.new("Frame")
+            fill.Parent = sliderBg
+            fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
+            fill.BackgroundColor3 = self.Window.Theme.Primary
+            Instance.new("UICorner", fill).CornerRadius = UDim.new(1,0)
 
-			box.Focused:Connect(function()
-				stroke.Color = self.Window.Theme.Secondary
-				stroke.Thickness = 2
-			end)
-			box.FocusLost:Connect(function(enter)
-				stroke.Color = self.Window.Theme.Primary
-				stroke.Thickness = 1.5
-				if enter then
-					local s, e = pcall(callback, box.Text)
-					if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
-				end
-			end)
-			return box
-		end
+            local drag = Instance.new("TextButton")
+            drag.Parent = sliderBg
+            drag.Size = UDim2.new(0, 20, 0, 20)
+            drag.Position = UDim2.new(fill.Size.X.Scale, -10, 0.5, -10)
+            drag.BackgroundColor3 = Color3.new(1,1,1)
+            drag.Text = ""
+            Instance.new("UICorner", drag).CornerRadius = UDim.new(1,0)
+            Instance.new("UIStroke", drag).Color = self.Window.Theme.Primary
 
-		function tab:CreateLabel(text)
-			local label = Instance.new("TextLabel")
-			label.Parent = self.Page
-			label.Size = UDim2.new(1, -20, 0, 20)
-			label.BackgroundTransparency = 1
-			label.Text = text
-			label.Font = Enum.Font.Gotham
-			label.TextSize = 14
-			label.TextColor3 = self.Window.Theme.Text
-			label.TextXAlignment = Enum.TextXAlignment.Left
-			label.PaddingLeft = UDim.new(0, 10)
-			return label
-		end
+            local val = default
+            local dragging = false
 
-		function tab:CreateParagraph(text)
-			local para = Instance.new("TextLabel")
-			para.Parent = self.Page
-			para.Size = UDim2.new(1, -20, 0, 50)
-			para.BackgroundTransparency = 1
-			para.Text = text
-			para.Font = Enum.Font.Gotham
-			para.TextSize = 14
-			para.TextColor3 = self.Window.Theme.Text
-			para.TextWrapped = true
-			para.TextYAlignment = Enum.TextYAlignment.Top
-			para.RichText = true
-			para.PaddingLeft = UDim.new(0, 10)
-			para.PaddingRight = UDim.new(0, 10)
-			return para
-		end
+            local function setValue(newVal)
+                newVal = math.clamp(newVal, min, max)
+                val = newVal
+                local percent = (val - min) / (max - min)
+                fill.Size = UDim2.new(percent, 0, 1, 0)
+                drag.Position = UDim2.new(percent, -10, 0.5, -10)
+                label.Text = text .. ": " .. val .. suffix
+                inputBox.Text = tostring(val)
+                pcall(callback, val)
+            end
 
-		return tab
-	end
+            drag.MouseButton1Down:Connect(function()
+                dragging = true
+                local move
+                move = Mouse.Move:Connect(function()
+                    if not dragging then return end
+                    local rel = (Mouse.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
+                    rel = math.clamp(rel, 0, 1)
+                    local newVal = math.floor(min + (max - min) * rel + 0.5)
+                    setValue(newVal)
+                end)
+                local release
+                release = Mouse.Button1Up:Connect(function()
+                    dragging = false
+                    move:Disconnect()
+                    release:Disconnect()
+                end)
+            end)
 
-	return window
+            inputBox.FocusLost:Connect(function(enter)
+                if enter then
+                    local num = tonumber(inputBox.Text)
+                    if num then
+                        setValue(num)
+                    else
+                        inputBox.Text = tostring(val)
+                    end
+                else
+                    inputBox.Text = tostring(val)
+                end
+            end)
+
+            drag.TouchLongPress:Connect(function()
+                dragging = true
+                local move
+                move = Run.Heartbeat:Connect(function()
+                    if not dragging then return end
+                    local touchPos = UIS:GetTouchPosition()
+                    if touchPos then
+                        local rel = (touchPos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
+                        rel = math.clamp(rel, 0, 1)
+                        local newVal = math.floor(min + (max - min) * rel + 0.5)
+                        setValue(newVal)
+                    end
+                end)
+                local release
+                release = UIS.TouchEnded:Connect(function()
+                    dragging = false
+                    move:Disconnect()
+                    release:Disconnect()
+                end)
+            end)
+
+            return container
+        end
+
+        function tab:CreateDropdown(options)
+            local text = options.Text or "Dropdown"
+            local values = options.Values or {}
+            local default = options.Default or values[1]
+            local callback = options.Callback or function() end
+            local tooltip = options.Tooltip
+
+            local container = Instance.new("Frame")
+            container.Parent = self.Page
+            container.Size = UDim2.new(1, -20, 0, 35)
+            container.BackgroundTransparency = 1
+
+            local label = Instance.new("TextLabel")
+            label.Parent = container
+            label.Size = UDim2.new(0, 100, 1, 0)
+            label.BackgroundTransparency = 1
+            label.Text = text .. ":"
+            label.Font = Enum.Font.Gotham
+            label.TextSize = 14
+            label.TextColor3 = self.Window.Theme.Text
+            label.TextXAlignment = Enum.TextXAlignment.Left
+            label.PaddingLeft = UDim.new(0, 5)
+
+            local dropdownBtn = Instance.new("TextButton")
+            dropdownBtn.Parent = container
+            dropdownBtn.Size = UDim2.new(1, -110, 1, 0)
+            dropdownBtn.Position = UDim2.new(0, 105, 0, 0)
+            dropdownBtn.BackgroundColor3 = self.Window.Theme.Button
+            dropdownBtn.Text = tostring(default)
+            dropdownBtn.Font = Enum.Font.Gotham
+            dropdownBtn.TextSize = 14
+            dropdownBtn.TextColor3 = self.Window.Theme.Text
+            Instance.new("UICorner", dropdownBtn).CornerRadius = UDim.new(0, 8)
+            Instance.new("UIStroke", dropdownBtn).Color = self.Window.Theme.Primary
+            if tooltip then Nexus:AddTooltip(dropdownBtn, tooltip) end
+
+            local arrow = Instance.new("ImageLabel")
+            arrow.Parent = dropdownBtn
+            arrow.Size = UDim2.new(0, 20, 0, 20)
+            arrow.Position = UDim2.new(1, -25, 0.5, -10)
+            arrow.BackgroundTransparency = 1
+            arrow.Image = Nexus.Assets.Arrows.ChevronDown
+            arrow.ImageColor3 = self.Window.Theme.Text
+            arrow.Rotation = 0
+
+            local menu = Instance.new("Frame")
+            menu.Parent = self.Page
+            menu.Size = UDim2.new(1, -110, 0, #values * 30 + 5)
+            menu.Position = UDim2.new(0, 105, 0, 40)
+            menu.BackgroundColor3 = self.Window.Theme.Button
+            menu.BorderSizePixel = 0
+            menu.Visible = false
+            menu.ZIndex = 10
+            Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 8)
+            Instance.new("UIStroke", menu).Color = self.Window.Theme.Primary
+
+            local menuLayout = Instance.new("UIListLayout", menu)
+            menuLayout.Padding = UDim.new(0, 2)
+            menuLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+            for _, val in ipairs(values) do
+                local optBtn = Instance.new("TextButton")
+                optBtn.Parent = menu
+                optBtn.Size = UDim2.new(1, -10, 0, 28)
+                optBtn.BackgroundColor3 = self.Window.Theme.ButtonHover
+                optBtn.Text = tostring(val)
+                optBtn.Font = Enum.Font.Gotham
+                optBtn.TextSize = 14
+                optBtn.TextColor3 = self.Window.Theme.Text
+                Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 6)
+
+                optBtn.MouseButton1Click:Connect(function()
+                    dropdownBtn.Text = tostring(val)
+                    menu.Visible = false
+                    arrow.Rotation = 0
+                    pcall(callback, val)
+                end)
+            end
+
+            dropdownBtn.MouseButton1Click:Connect(function()
+                menu.Visible = not menu.Visible
+                arrow.Rotation = menu.Visible and 180 or 0
+            end)
+
+            UIS.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+                    local menuAbs = menu.AbsolutePosition
+                    local menuSize = menu.AbsoluteSize
+                    if menu.Visible and not (mousePos.X >= menuAbs.X and mousePos.X <= menuAbs.X + menuSize.X and mousePos.Y >= menuAbs.Y and mousePos.Y <= menuAbs.Y + menuSize.Y) then
+                        menu.Visible = false
+                        arrow.Rotation = 0
+                    end
+                end
+            end)
+
+            return container
+        end
+
+        function tab:CreateTextbox(options)
+            local text = options.Text or "Texto"
+            local default = options.Default or ""
+            local callback = options.Callback or function() end
+            local tooltip = options.Tooltip
+
+            local box = Instance.new("TextBox")
+            box.Parent = self.Page
+            box.Size = UDim2.new(1, -20, 0, 35)
+            box.PlaceholderText = text
+            box.Text = default
+            box.Font = Enum.Font.Gotham
+            box.TextSize = 14
+            box.TextColor3 = self.Window.Theme.Text
+            box.BackgroundColor3 = self.Window.Theme.Button
+            box.BorderSizePixel = 0
+            Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+            local stroke = Instance.new("UIStroke", box)
+            stroke.Color = self.Window.Theme.Primary
+            stroke.Thickness = 1.5
+            if tooltip then Nexus:AddTooltip(box, tooltip) end
+
+            box.Focused:Connect(function()
+                stroke.Color = self.Window.Theme.Secondary
+                stroke.Thickness = 2
+            end)
+            box.FocusLost:Connect(function(enter)
+                stroke.Color = self.Window.Theme.Primary
+                stroke.Thickness = 1.5
+                if enter then
+                    local s, e = pcall(callback, box.Text)
+                    if not s then Nexus:Notify({Title = "Erro", Content = tostring(e), Duration = 5}) end
+                end
+            end)
+            return box
+        end
+
+        function tab:CreateLabel(text)
+            local label = Instance.new("TextLabel")
+            label.Parent = self.Page
+            label.Size = UDim2.new(1, -20, 0, 20)
+            label.BackgroundTransparency = 1
+            label.Text = text
+            label.Font = Enum.Font.Gotham
+            label.TextSize = 14
+            label.TextColor3 = self.Window.Theme.Text
+            label.TextXAlignment = Enum.TextXAlignment.Left
+            label.PaddingLeft = UDim.new(0, 10)
+            return label
+        end
+
+        function tab:CreateParagraph(text)
+            local para = Instance.new("TextLabel")
+            para.Parent = self.Page
+            para.Size = UDim2.new(1, -20, 0, 50)
+            para.BackgroundTransparency = 1
+            para.Text = text
+            para.Font = Enum.Font.Gotham
+            para.TextSize = 14
+            para.TextColor3 = self.Window.Theme.Text
+            para.TextWrapped = true
+            para.TextYAlignment = Enum.TextYAlignment.Top
+            para.RichText = true
+            para.PaddingLeft = UDim.new(0, 10)
+            para.PaddingRight = UDim.new(0, 10)
+            return para
+        end
+
+        return tab
+    end
+
+    return window
 end
 
 -- ==================================================
@@ -797,292 +1392,289 @@ end
 
 -- Módulo Fly
 function Nexus:CreateFly()
-	local flying = false
-	local bodyVelocity = nil
-	local connection = nil
-	local function start()
-		if flying then return end
-		local char = Player.Character
-		if not char then return end
-		local root = char:FindFirstChild("HumanoidRootPart")
-		local humanoid = char:FindFirstChild("Humanoid")
-		if not root or not humanoid then return end
-		flying = true
-		humanoid.PlatformStand = true
-		bodyVelocity = Instance.new("BodyVelocity")
-		bodyVelocity.MaxForce = Vector3.new(1,1,1)*math.huge
-		bodyVelocity.Velocity = Vector3.new(0,0,0)
-		bodyVelocity.Parent = root
-		connection = Run.Heartbeat:Connect(function()
-			if not flying or not root.Parent then return end
-			local move = Vector3.new()
-			if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + Camera.CFrame.LookVector end
-			if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - Camera.CFrame.LookVector end
-			if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - Camera.CFrame.RightVector end
-			if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + Camera.CFrame.RightVector end
-			if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
-			if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
-			bodyVelocity.Velocity = move * 60
-		end)
-	end
-	local function stop()
-		flying = false
-		if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
-		if connection then connection:Disconnect() connection = nil end
-		local char = Player.Character
-		if char then
-			local humanoid = char:FindFirstChild("Humanoid")
-			if humanoid then humanoid.PlatformStand = false end
-		end
-	end
-	return {
-		Toggle = function()
-			if flying then stop() else start() end
-			return flying
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return flying end
-	}
+    local flying = false
+    local bodyVelocity = nil
+    local connection = nil
+    local function start()
+        if flying then return end
+        local char = Player.Character
+        if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local humanoid = char:FindFirstChild("Humanoid")
+        if not root or not humanoid then return end
+        flying = true
+        humanoid.PlatformStand = true
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(1,1,1)*math.huge
+        bodyVelocity.Velocity = Vector3.new(0,0,0)
+        bodyVelocity.Parent = root
+        connection = Run.Heartbeat:Connect(function()
+            if not flying or not root.Parent then return end
+            local move = Vector3.new()
+            if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + Camera.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - Camera.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - Camera.CFrame.RightVector end
+            if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + Camera.CFrame.RightVector end
+            if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
+            if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
+            bodyVelocity.Velocity = move * 60
+        end)
+    end
+    local function stop()
+        flying = false
+        if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
+        if connection then connection:Disconnect() connection = nil end
+        local char = Player.Character
+        if char then
+            local humanoid = char:FindFirstChild("Humanoid")
+            if humanoid then humanoid.PlatformStand = false end
+        end
+    end
+    return {
+        Toggle = function()
+            if flying then stop() else start() end
+            return flying
+        end,
+        Enable = start,
+        Disable = stop,
+        IsActive = function() return flying end
+    }
 end
 
 -- Módulo ESP (simples com Highlight)
 function Nexus:CreateESP()
-	local espObjects = {}
-	local function addESP(plr)
-		if plr == Player then return end
-		if plr.Character and not plr.Character:FindFirstChild("Nexus_ESP") then
-			local highlight = Instance.new("Highlight")
-			highlight.Name = "Nexus_ESP"
-			highlight.FillColor = Nexus.CurrentTheme.Primary
-			highlight.OutlineColor = Nexus.CurrentTheme.Secondary
-			highlight.FillTransparency = 0.5
-			highlight.Parent = plr.Character
-			table.insert(espObjects, highlight)
-		end
-	end
-	local function removeESP()
-		for _, obj in ipairs(espObjects) do
-			pcall(obj.Destroy, obj)
-		end
-		espObjects = {}
-	end
-	local function enable()
-		removeESP()
-		for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end
-	end
-	local function disable()
-		removeESP()
-	end
-	return {
-		Enable = enable,
-		Disable = disable,
-		Toggle = function()
-			if #espObjects > 0 then disable() else enable() end
-			return #espObjects > 0
-		end
-	}
+    local espObjects = {}
+    local function addESP(plr)
+        if plr == Player then return end
+        if plr.Character and not plr.Character:FindFirstChild("Nexus_ESP") then
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "Nexus_ESP"
+            highlight.FillColor = Nexus.CurrentTheme.Primary
+            highlight.OutlineColor = Nexus.CurrentTheme.Secondary
+            highlight.FillTransparency = 0.5
+            highlight.Parent = plr.Character
+            table.insert(espObjects, highlight)
+        end
+    end
+    local function removeESP()
+        for _, obj in ipairs(espObjects) do
+            pcall(obj.Destroy, obj)
+        end
+        espObjects = {}
+    end
+    local function enable()
+        removeESP()
+        for _, plr in pairs(Players:GetPlayers()) do addESP(plr) end
+    end
+    local function disable()
+        removeESP()
+    end
+    return {
+        Enable = enable,
+        Disable = disable,
+        Toggle = function()
+            if #espObjects > 0 then disable() else enable() end
+            return #espObjects > 0
+        end
+    }
 end
 
 -- Módulo Aimbot simples
 function Nexus:CreateAimbot()
-	local active = false
-	local connection = nil
-	local function start()
-		if active then return end
-		active = true
-		connection = Run.RenderStepped:Connect(function()
-			if not active then return end
-			local target = nil
-			local shortest = Nexus.Settings.Aimbot.FOV
-			local center = Camera.ViewportSize / 2
-			for _, plr in pairs(Players:GetPlayers()) do
-				if plr ~= Player and plr.Character and plr.Character:FindFirstChild(Nexus.Settings.Aimbot.TargetPart) then
-					if Nexus.Settings.Aimbot.TeamCheck and plr.Team == Player.Team then continue end
-					local part = plr.Character[Nexus.Settings.Aimbot.TargetPart]
-					local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
-					if onScreen then
-						local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
-						if dist < shortest then
-							shortest = dist
-							target = part
-						end
-					end
-				end
-			end
-			if target then
-				local look = CFrame.lookAt(Camera.CFrame.Position, target.Position)
-				Camera.CFrame = Camera.CFrame:Lerp(look, Nexus.Settings.Aimbot.Smoothness, Enum.EasingStyle.Sine)
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if connection then connection:Disconnect() connection = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
+    local active = false
+    local connection = nil
+    local function start()
+        if active then return end
+        active = true
+        connection = Run.RenderStepped:Connect(function()
+            if not active then return end
+            local target = nil
+            local shortest = Nexus.Settings.Aimbot.FOV
+            local center = Camera.ViewportSize / 2
+            for _, plr in pairs(Players:GetPlayers()) do
+                if plr ~= Player and plr.Character and plr.Character:FindFirstChild(Nexus.Settings.Aimbot.TargetPart) then
+                    if Nexus.Settings.Aimbot.TeamCheck and plr.Team == Player.Team then continue end
+                    local part = plr.Character[Nexus.Settings.Aimbot.TargetPart]
+                    local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                    if onScreen then
+                        local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+                        if dist < shortest then
+                            shortest = dist
+                            target = part
+                        end
+                    end
+                end
+            end
+            if target then
+                local look = CFrame.lookAt(Camera.CFrame.Position, target.Position)
+                Camera.CFrame = Camera.CFrame:Lerp(look, Nexus.Settings.Aimbot.Smoothness, Enum.EasingStyle.Sine)
+            end
+        end)
+    end
+    local function stop()
+        active = false
+        if connection then connection:Disconnect() connection = nil end
+    end
+    return {
+        Toggle = function()
+            if active then stop() else start() end
+            return active
+        end,
+        Enable = start,
+        Disable = stop,
+        IsActive = function() return active end
+    }
 end
 
 -- Módulo NoClip
 function Nexus:CreateNoClip()
-	local active = false
-	local connection = nil
-	local function start()
-		if active then return end
-		active = true
-		connection = Run.Stepped:Connect(function()
-			if not active then return end
-			local char = Player.Character
-			if char then
-				local root = char:FindFirstChild("HumanoidRootPart")
-				if root then root.CanCollide = false end
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if connection then connection:Disconnect() connection = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
+    local active = false
+    local connection = nil
+    local function start()
+        if active then return end
+        active = true
+        connection = Run.Stepped:Connect(function()
+            if not active then return end
+            local char = Player.Character
+            if char then
+                local root = char:FindFirstChild("HumanoidRootPart")
+                if root then root.CanCollide = false end
+            end
+        end)
+    end
+    local function stop()
+        active = false
+        if connection then connection:Disconnect() connection = nil end
+    end
+    return {
+        Toggle = function()
+            if active then stop() else start() end
+            return active
+        end,
+        Enable = start,
+        Disable = stop,
+        IsActive = function() return active end
+    }
 end
 
 -- Módulo InfiniteJump
 function Nexus:CreateInfiniteJump()
-	local active = false
-	local connection = nil
-	local function start()
-		if active then return end
-		active = true
-		connection = UIS.JumpRequest:Connect(function()
-			if active then
-				local char = Player.Character
-				if char then
-					local humanoid = char:FindFirstChild("Humanoid")
-					if humanoid then
-						humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-					end
-				end
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if connection then connection:Disconnect() connection = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
+    local active = false
+    local connection = nil
+    local function start()
+        if active then return end
+        active = true
+        connection = UIS.JumpRequest:Connect(function()
+            if active then
+                local char = Player.Character
+                if char then
+                    local humanoid = char:FindFirstChild("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
+                end
+            end
+        end)
+    end
+    local function stop()
+        active = false
+        if connection then connection:Disconnect() connection = nil end
+    end
+    return {
+        Toggle = function()
+            if active then stop() else start() end
+            return active
+        end,
+        Enable = start,
+        Disable = stop,
+        IsActive = function() return active end
+    }
 end
 
 -- Módulo Anti-AFK
 function Nexus:CreateAntiAFK()
-	local active = false
-	local thread = nil
-	local function start()
-		if active then return end
-		active = true
-		thread = task.spawn(function()
-			while active do
-				task.wait(60)
-				Virtual:CaptureController()
-				Virtual:Button2Down(Vector2.new(0,0))
-				task.wait(0.1)
-				Virtual:Button2Up(Vector2.new(0,0))
-			end
-		end)
-	end
-	local function stop()
-		active = false
-		if thread then task.cancel(thread) thread = nil end
-	end
-	return {
-		Toggle = function()
-			if active then stop() else start() end
-			return active
-		end,
-		Enable = start,
-		Disable = stop,
-		IsActive = function() return active end
-	}
+    local active = false
+    local thread = nil
+    local function start()
+        if active then return end
+        active = true
+        thread = task.spawn(function()
+            while active do
+                task.wait(60)
+                Virtual:CaptureController()
+                Virtual:Button2Down(Vector2.new(0,0))
+                task.wait(0.1)
+                Virtual:Button2Up(Vector2.new(0,0))
+            end
+        end)
+    end
+    local function stop()
+        active = false
+        if thread then task.cancel(thread) thread = nil end
+    end
+    return {
+        Toggle = function()
+            if active then stop() else start() end
+            return active
+        end,
+        Enable = start,
+        Disable = stop,
+        IsActive = function() return active end
+    }
 end
 
 -- ==================================================
--- KEYBINDS GLOBAIS (com tratamento de nil)
+-- KEYBINDS GLOBAIS
 -- ==================================================
 UIS.InputBegan:Connect(function(input, gp)
-	if gp then return end
-	if input.UserInputType == Enum.UserInputType.Keyboard then
-		if input.KeyCode == Nexus.Settings.Keybinds.ToggleUI then
-			for _, v in pairs(GetSafeParent():GetChildren()) do
-				if v.Name == "Nexus_Window" then
-					v.Visible = not v.Visible
-				end
-			end
-		elseif input.KeyCode == Nexus.Settings.Keybinds.ToggleESP then
-			Nexus.Settings.ESP.Enabled = not Nexus.Settings.ESP.Enabled
-			Nexus:Notify({Title = "ESP", Content = Nexus.Settings.ESP.Enabled and "Ativado" or "Desativado", Duration = 1.5})
-		elseif input.KeyCode == Nexus.Settings.Keybinds.ToggleFly then
-			Nexus.Settings.Character.Fly = not Nexus.Settings.Character.Fly
-			Nexus:Notify({Title = "Fly", Content = Nexus.Settings.Character.Fly and "Ativado" or "Desativado", Duration = 1.5})
-		elseif input.KeyCode == Nexus.Settings.Keybinds.TeleportToMouse then
-			if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-				Player.Character:MoveTo(Mouse.Hit.p)
-			end
-		end
-	end
+    if gp then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == Nexus.Settings.GlobalKeybinds.ToggleUI then
+            for _, v in pairs(GetSafeParent():GetChildren()) do
+                if v.Name == "Nexus_Window" then
+                    v.Visible = not v.Visible
+                end
+            end
+        elseif input.KeyCode == Nexus.Settings.GlobalKeybinds.ToggleESP then
+            Nexus.Settings.ESP.Enabled = not Nexus.Settings.ESP.Enabled
+            Nexus:Notify({Title = "ESP", Content = Nexus.Settings.ESP.Enabled and "Ativado" or "Desativado", Duration = 1.5})
+        elseif input.KeyCode == Nexus.Settings.GlobalKeybinds.ToggleFly then
+            Nexus.Settings.Character.Fly = not Nexus.Settings.Character.Fly
+            Nexus:Notify({Title = "Fly", Content = Nexus.Settings.Character.Fly and "Ativado" or "Desativado", Duration = 1.5})
+        elseif input.KeyCode == Nexus.Settings.GlobalKeybinds.TeleportToMouse then
+            if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                Player.Character:MoveTo(Mouse.Hit.p)
+            end
+        end
+    end
 end)
 
 -- ==================================================
--- FUNÇÃO PARA APLICAR TEMA EM UMA JANELA
+-- APLICAR TEMA EM UMA JANELA
 -- ==================================================
 function Nexus:ApplyTheme(window, themeName)
-	local theme = self.Themes[themeName]
-	if not theme then return end
-	window.Theme = theme
-	window.Main.BackgroundColor3 = theme.BgColor
-	window.Main.UIStroke.Color = theme.Primary
-	-- Atualizar título (pode ter nome diferente, mas assumimos que existe um título)
-	local title = window.Main:FindFirstChildOfClass("TextLabel")
-	if title then
-		title.TextColor3 = theme.Secondary
-		if title.TextStroke then title.TextStroke.Color = theme.Primary end
-	end
-	-- Atualizar botão minimizar
-	local minBtn = window.Main:FindFirstChild("ImageButton")
-	if minBtn then minBtn.ImageColor3 = theme.Primary end
-	-- Atualizar abas
-	for _, btn in pairs(window.TabFrame:GetChildren()) do
-		if btn:IsA("TextButton") then
-			btn.BackgroundColor3 = theme.Button
-			btn.TextColor3 = theme.Text
-			btn.UIStroke.Color = theme.Primary
-			local ic = btn:FindFirstChildOfClass("ImageLabel")
-			if ic then ic.ImageColor3 = theme.Text end
-		end
-	end
-	window:Notify({Title = "Tema", Content = "Tema " .. themeName .. " aplicado!", Duration = 2})
+    local theme = self.Themes[themeName]
+    if not theme then return end
+    window.Theme = theme
+    window.Main.BackgroundColor3 = theme.BgColor
+    window.Main.UIStroke.Color = theme.Primary
+    local title = window.Main:FindFirstChildOfClass("TextLabel")
+    if title then
+        title.TextColor3 = theme.Secondary
+        if title.TextStroke then title.TextStroke.Color = theme.Primary end
+    end
+    local minBtn = window.Main:FindFirstChild("ImageButton")
+    if minBtn then minBtn.ImageColor3 = theme.Primary end
+    for _, btn in pairs(window.TabFrame:GetChildren()) do
+        if btn:IsA("TextButton") then
+            btn.BackgroundColor3 = theme.Button
+            btn.TextColor3 = theme.Text
+            btn.UIStroke.Color = theme.Primary
+            local ic = btn:FindFirstChildOfClass("ImageLabel")
+            if ic then ic.ImageColor3 = theme.Text end
+        end
+    end
+    window:Notify({Title = "Tema", Content = "Tema " .. themeName .. " aplicado!", Duration = 2})
 end
 
 return Nexus
