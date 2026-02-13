@@ -1,6 +1,6 @@
--- Nexus Library v5.0 – Mobile + Animações + UI Refinada
+-- Nexus Library v5.1 – Corrigida e Otimizada
 -- Por: Você 🔥
--- Sintaxe inspirada na Rayfield, com poderes extras
+-- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
 
 local Nexus = {}
 
@@ -39,7 +39,7 @@ Nexus.Settings = {
 	Notifications = true,
 	Tooltips = true,
 	SoundEffects = false,
-	NotificationPosition = "TopRight", -- TopLeft, TopRight, BottomLeft, BottomRight
+	NotificationPosition = "TopRight",
 	Keybinds = {
 		ToggleUI = Enum.KeyCode.RightShift,
 	},
@@ -81,7 +81,7 @@ end
 LoadSettings()
 
 -- ==================================================
--- TEMAS (expandidos com mais cores)
+-- TEMAS
 -- ==================================================
 Nexus.Themes = {
 	Purple = { Name = "Purple", BgColor = Color3.fromRGB(18,0,30), Primary = Color3.fromRGB(170,0,255), Secondary = Color3.fromRGB(200,0,255), Button = Color3.fromRGB(30,0,50), ButtonHover = Color3.fromRGB(60,0,90), Text = Color3.new(1,1,1), ToastColor = Color3.fromRGB(30,0,50), Success = Color3.fromRGB(0,255,0), Error = Color3.fromRGB(255,0,0), Warning = Color3.fromRGB(255,255,0) },
@@ -97,7 +97,7 @@ Nexus.Themes = {
 Nexus.CurrentTheme = Nexus.Themes[Nexus.Settings.Theme] or Nexus.Themes.Purple
 
 -- ==================================================
--- NOTIFICAÇÕES MELHORADAS (4 POSIÇÕES + ANIMAÇÃO)
+-- NOTIFICAÇÕES (4 posições, animadas)
 -- ==================================================
 function Nexus:Notify(notification)
 	if not self.Settings.Notifications then return end
@@ -119,7 +119,6 @@ function Nexus:Notify(notification)
 	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 	Instance.new("UIStroke", frame).Color = Nexus.CurrentTheme.Primary
 
-	-- Posicionamento inicial fora da tela
 	local startPos, endPos
 	if position == "TopLeft" then
 		frame.Position = UDim2.new(0, -320, 0, 20)
@@ -166,11 +165,9 @@ function Nexus:Notify(notification)
 	contentLabel.TextXAlignment = Enum.TextXAlignment.Left
 	contentLabel.TextWrapped = true
 
-	-- Animação de entrada
 	frame:TweenPosition(endPos, Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
 
 	task.wait(duration)
-	-- Animação de saída
 	frame:TweenPosition(startPos, Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.5, true)
 	task.wait(0.5)
 	frame:Destroy()
@@ -196,7 +193,7 @@ function Nexus:CreateWindow(options)
 
 	local main = Instance.new("Frame")
 	main.Parent = screenGui
-	main.Size = UDim2.new(0, 0, 0, 0) -- começa invisível
+	main.Size = UDim2.new(0, 0, 0, 0)
 	main.Position = UDim2.new(0.5, 0, 0.5, 0)
 	main.BackgroundColor3 = themeTable.BgColor
 	main.BorderSizePixel = 0
@@ -230,7 +227,6 @@ function Nexus:CreateWindow(options)
 	closeBtn.Image = "rbxassetid://10747384394"
 	closeBtn.ImageColor3 = Color3.fromRGB(255, 100, 100)
 	closeBtn.MouseButton1Click:Connect(function()
-		-- Animação de saída
 		main:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), Enum.EasingDirection.In, Enum.EasingStyle.Back, 0.4, true)
 		task.wait(0.4)
 		screenGui:Destroy()
@@ -308,7 +304,9 @@ function Nexus:CreateWindow(options)
 	-- Animação de entrada da janela
 	main:TweenSizeAndPosition(size, UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2), Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.5, true)
 
-	-- Método para criar aba
+	-- ==================================================
+	-- CRIAÇÃO DE ABA (CORRIGIDA E ROBUSTA)
+	-- ==================================================
 	function window:CreateTab(name, image)
 		image = image or 4483362458
 		local tab = {}
@@ -354,21 +352,37 @@ function Nexus:CreateWindow(options)
 
 		tab.Page = tabPage
 		tab.Button = tabButton
+		tab.Icon = tabIcon
 
+		-- Evento de clique da aba (agora com verificações)
 		tabButton.MouseButton1Click:Connect(function()
-			for _, otherTab in pairs(self.Tabs) do
-				otherTab.Page.Visible = false
-				otherTab.Button.BackgroundColor3 = self.Theme.Button
-				otherTab.Button.TextColor3 = self.Theme.Text
-				otherTab.Button.UIStroke.Color = self.Theme.Primary
-				if otherTab.Icon then otherTab.Icon.ImageColor3 = self.Theme.Text end
+			local win = tab.Window
+			if not win or not win.Tabs then return end
+			for _, otherTab in ipairs(win.Tabs) do
+				if otherTab and otherTab.Page then
+					otherTab.Page.Visible = false
+					if otherTab.Button then
+						otherTab.Button.BackgroundColor3 = win.Theme.Button
+						otherTab.Button.TextColor3 = win.Theme.Text
+						if otherTab.Button.UIStroke then
+							otherTab.Button.UIStroke.Color = win.Theme.Primary
+						end
+					end
+					if otherTab.Icon then
+						otherTab.Icon.ImageColor3 = win.Theme.Text
+					end
+				end
 			end
 			tabPage.Visible = true
-			tabButton.BackgroundColor3 = self.Theme.Secondary
+			tabButton.BackgroundColor3 = win.Theme.Secondary
 			tabButton.TextColor3 = Color3.new(0,0,0)
-			tabButton.UIStroke.Color = Color3.new(1,1,1)
+			if tabButton.UIStroke then
+				tabButton.UIStroke.Color = Color3.new(1,1,1)
+			end
 			tabIcon.ImageColor3 = Color3.new(0,0,0)
 		end)
+
+		table.insert(self.Tabs, tab)
 
 		-- Métodos da aba
 		function tab:CreateSection(text)
@@ -643,7 +657,6 @@ function Nexus:CreateWindow(options)
 				end
 			end)
 
-			-- Fechar ao clicar fora
 			UIS.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					if menuFrame.Visible then
@@ -726,13 +739,13 @@ function Nexus:CreateWindow(options)
 			return para
 		end
 
-		table.insert(self.Window.Tabs, tab)
 		return tab
 	end
 
-	-- Selecionar primeira aba automaticamente
-	task.defer(function()
-		if window.Tabs[1] then
+	-- Ativar a primeira aba com segurança
+	task.spawn(function()
+		task.wait(0.1)
+		if window.Tabs[1] and window.Tabs[1].Button then
 			window.Tabs[1].Button.MouseButton1Click:Fire()
 		end
 	end)
@@ -741,10 +754,10 @@ function Nexus:CreateWindow(options)
 end
 
 -- ==================================================
--- MÓDULOS DE FUNCIONALIDADE (OPCIONAIS)
+-- MÓDULOS DE FUNCIONALIDADE (Fly, ESP, etc.)
 -- ==================================================
 
--- Módulo Fly (com toque)
+-- Módulo Fly
 function Nexus:CreateFly()
 	local flying = false
 	local bodyVelocity = nil
@@ -771,7 +784,6 @@ function Nexus:CreateFly()
 			if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + Camera.CFrame.RightVector end
 			if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
 			if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
-			-- Suporte a toque: botões virtuais? simplificado, apenas teclado por enquanto
 			bodyVelocity.Velocity = move * 60
 		end)
 	end
@@ -835,7 +847,7 @@ function Nexus:CreateESP()
 end
 
 -- ==================================================
--- KEYBIND GLOBAL (com suporte a toque)
+-- KEYBIND GLOBAL (abrir/fechar UI)
 -- ==================================================
 UIS.InputBegan:Connect(function(input, gp)
 	if gp then return end
