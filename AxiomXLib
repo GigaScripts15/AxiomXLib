@@ -869,7 +869,7 @@ function Nexus:CreateWindow(options)
 
     -- Método para criar aba
     function window:CreateTab(name, iconKey)
-        iconKey = iconKey or "Features" -- pode ser "Features", "Player", etc., ou uma string personalizada
+        iconKey = iconKey or "Features"
         local iconAsset = type(iconKey) == "string" and (Nexus.Assets[iconKey] and Nexus.Assets[iconKey].Features or Nexus.Assets.Features[iconKey] or Nexus.Assets.Misc[iconKey]) or iconKey
         if not iconAsset then iconAsset = Nexus.Assets.Features.Layers end
 
@@ -970,7 +970,7 @@ function Nexus:CreateWindow(options)
             local text = options.Text or "Botão"
             local callback = options.Callback or function() end
             local tooltip = options.Tooltip
-            local iconKey = options.Icon -- pode ser string (ex: "Save") ou asset direto
+            local iconKey = options.Icon
 
             local btn = Instance.new("TextButton")
             btn.Parent = self.Page
@@ -1083,23 +1083,30 @@ function Nexus:CreateWindow(options)
             return btn
         end
 
+        -- ==================================================
+        -- SLIDER CORRIGIDO E MELHORADO
+        -- ==================================================
         function tab:CreateSlider(options)
+            options = options or {}
             local text = options.Text or "Slider"
             local min = options.Min or 0
             local max = options.Max or 100
-            local default = options.Default or 50
+            local default = options.Default or min
             local callback = options.Callback or function() end
             local suffix = options.Suffix or ""
             local tooltip = options.Tooltip
+            local increment = options.Increment or 1
+
+            default = math.clamp(default, min, max)
 
             local container = Instance.new("Frame")
             container.Parent = self.Page
-            container.Size = UDim2.new(1, -20, 0, 60)
+            container.Size = UDim2.new(1, -20, 0, 70)
             container.BackgroundTransparency = 1
 
             local label = Instance.new("TextLabel")
             label.Parent = container
-            label.Size = UDim2.new(1, -80, 0, 20)
+            label.Size = UDim2.new(1, -90, 0, 20)
             label.BackgroundTransparency = 1
             label.Text = text .. ": " .. default .. suffix
             label.Font = Enum.Font.Gotham
@@ -1111,7 +1118,7 @@ function Nexus:CreateWindow(options)
             local inputBox = Instance.new("TextBox")
             inputBox.Parent = container
             inputBox.Size = UDim2.new(0, 70, 0, 25)
-            inputBox.Position = UDim2.new(1, -75, 0, 0)
+            inputBox.Position = UDim2.new(1, -80, 0, 0)
             inputBox.BackgroundColor3 = self.Window.Theme.Button
             inputBox.Text = tostring(default)
             inputBox.Font = Enum.Font.Gotham
@@ -1124,90 +1131,112 @@ function Nexus:CreateWindow(options)
 
             local sliderBg = Instance.new("Frame")
             sliderBg.Parent = container
-            sliderBg.Size = UDim2.new(1, -10, 0, 10)
-            sliderBg.Position = UDim2.new(0, 5, 0, 35)
-            sliderBg.BackgroundColor3 = Color3.fromRGB(50,50,50)
-            Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
+            sliderBg.Size = UDim2.new(1, -20, 0, 8)
+            sliderBg.Position = UDim2.new(0, 10, 0, 40)
+            sliderBg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
 
             local fill = Instance.new("Frame")
             fill.Parent = sliderBg
-            fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
             fill.BackgroundColor3 = self.Window.Theme.Primary
-            Instance.new("UICorner", fill).CornerRadius = UDim.new(1,0)
+            Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
 
-            local drag = Instance.new("TextButton")
-            drag.Parent = sliderBg
-            drag.Size = UDim2.new(0, 20, 0, 20)
-            drag.Position = UDim2.new(fill.Size.X.Scale, -10, 0.5, -10)
-            drag.BackgroundColor3 = Color3.new(1,1,1)
-            drag.Text = ""
-            Instance.new("UICorner", drag).CornerRadius = UDim.new(1,0)
-            Instance.new("UIStroke", drag).Color = self.Window.Theme.Primary
+            local thumb = Instance.new("TextButton")
+            thumb.Parent = sliderBg
+            thumb.Size = UDim2.new(0, 20, 0, 20)
+            thumb.BackgroundColor3 = Color3.new(1, 1, 1)
+            thumb.Text = ""
+            thumb.ZIndex = 5
+            Instance.new("UICorner", thumb).CornerRadius = UDim.new(1, 0)
+            Instance.new("UIStroke", thumb).Color = self.Window.Theme.Primary
 
-            local val = default
-            local dragging = false
+            local currentValue = default
 
-            local function setValue(newVal)
-                newVal = math.clamp(newVal, min, max)
-                val = newVal
-                local percent = (val - min) / (max - min)
+            local function updateVisual(value)
+                value = math.clamp(value, min, max)
+                local percent = (value - min) / (max - min)
                 fill.Size = UDim2.new(percent, 0, 1, 0)
-                drag.Position = UDim2.new(percent, -10, 0.5, -10)
-                label.Text = text .. ": " .. val .. suffix
-                inputBox.Text = tostring(val)
-                pcall(callback, val)
+                thumb.Position = UDim2.new(percent, -10, 0.5, -10)
             end
 
-            drag.MouseButton1Down:Connect(function()
-                dragging = true
-                local move
-                move = Mouse.Move:Connect(function()
-                    if not dragging then return end
-                    local rel = (Mouse.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
-                    rel = math.clamp(rel, 0, 1)
-                    local newVal = math.floor(min + (max - min) * rel + 0.5)
-                    setValue(newVal)
-                end)
-                local release
-                release = Mouse.Button1Up:Connect(function()
-                    dragging = false
-                    move:Disconnect()
-                    release:Disconnect()
-                end)
-            end)
-
-            inputBox.FocusLost:Connect(function(enter)
-                if enter then
-                    local num = tonumber(inputBox.Text)
-                    if num then
-                        setValue(num)
-                    else
-                        inputBox.Text = tostring(val)
+            local function setValue(newValue, triggerCallback)
+                newValue = math.clamp(newValue, min, max)
+                if increment and increment > 0 then
+                    newValue = math.round(newValue / increment) * increment
+                end
+                if currentValue ~= newValue then
+                    currentValue = newValue
+                    updateVisual(currentValue)
+                    label.Text = text .. ": " .. currentValue .. suffix
+                    inputBox.Text = tostring(currentValue)
+                    if triggerCallback ~= false then
+                        pcall(callback, currentValue)
                     end
-                else
-                    inputBox.Text = tostring(val)
+                end
+            end
+
+            setValue(default, false)
+
+            local dragging = false
+            local thumbConnections = {}
+
+            local function startDrag()
+                dragging = true
+                local moveConn = Mouse.Move:Connect(function()
+                    if not dragging then return end
+                    local mouseX = Mouse.X
+                    local bgPos = sliderBg.AbsolutePosition.X
+                    local bgSize = sliderBg.AbsoluteSize.X
+                    local rel = (mouseX - bgPos) / bgSize
+                    rel = math.clamp(rel, 0, 1)
+                    local newVal = min + (max - min) * rel
+                    setValue(newVal, true)
+                end)
+                table.insert(thumbConnections, moveConn)
+
+                local releaseConn = Mouse.Button1Up:Connect(function()
+                    dragging = false
+                    for _, conn in ipairs(thumbConnections) do
+                        conn:Disconnect()
+                    end
+                    thumbConnections = {}
+                end)
+                table.insert(thumbConnections, releaseConn)
+            end
+
+            thumb.MouseButton1Down:Connect(startDrag)
+
+            local touchConnection
+            thumb.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    startDrag()
+                    touchConnection = Run.Heartbeat:Connect(function()
+                        if not dragging then return end
+                        local touchPos = UIS:GetTouchPosition()
+                        if touchPos then
+                            local bgPos = sliderBg.AbsolutePosition.X
+                            local bgSize = sliderBg.AbsoluteSize.X
+                            local rel = (touchPos.X - bgPos) / bgSize
+                            rel = math.clamp(rel, 0, 1)
+                            local newVal = min + (max - min) * rel
+                            setValue(newVal, true)
+                        end
+                    end)
+                    table.insert(thumbConnections, touchConnection)
                 end
             end)
 
-            drag.TouchLongPress:Connect(function()
-                dragging = true
-                local move
-                move = Run.Heartbeat:Connect(function()
-                    if not dragging then return end
-                    local touchPos = UIS:GetTouchPosition()
-                    if touchPos then
-                        local rel = (touchPos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X
-                        rel = math.clamp(rel, 0, 1)
-                        local newVal = math.floor(min + (max - min) * rel + 0.5)
-                        setValue(newVal)
+            inputBox.FocusLost:Connect(function(enterPressed)
+                if enterPressed then
+                    local num = tonumber(inputBox.Text)
+                    if num then
+                        setValue(num, true)
+                    else
+                        inputBox.Text = tostring(currentValue)
                     end
-                end)
-                local release
-                release = UIS.TouchEnded:Connect(function()
-                    dragging = false
-                    move:Disconnect()
-                    release:Disconnect()
-                end)
+                else
+                    inputBox.Text = tostring(currentValue)
+                end
             end)
 
             return container
