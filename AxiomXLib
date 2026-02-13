@@ -1,4 +1,4 @@
-jjjj-- Nexus Library v6.1 – Ultra Estável (sem erros HTTP)
+-- Nexus Library v6.1 – Ultra Estável (sem erros HTTP)
 -- By: Você 🔥
 -- Modo de usar: local Nexus = loadstring(game:HttpGet("raw_url"))()
 
