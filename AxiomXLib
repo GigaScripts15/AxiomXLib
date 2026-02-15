@@ -1,5 +1,5 @@
 -- AxiomXLib.lua
--- Uma biblioteca de interface moderna para Roblox
+-- Biblioteca de interface unificada com as melhores funcionalidades
 
 local AxiomXLib = {}
 local UserInputService = game:GetService("UserInputService")
@@ -19,7 +19,8 @@ local themes = {
         Accent = Color3.fromRGB(0, 160, 255),
         Danger = Color3.fromRGB(255, 70, 70),
         Success = Color3.fromRGB(70, 200, 70),
-        Disabled = Color3.fromRGB(80, 80, 80)
+        Disabled = Color3.fromRGB(80, 80, 80),
+        Hover = Color3.fromRGB(60, 60, 60)
     },
     Light = {
         Main = Color3.fromRGB(240, 240, 240),
@@ -29,10 +30,10 @@ local themes = {
         Accent = Color3.fromRGB(0, 120, 255),
         Danger = Color3.fromRGB(200, 50, 50),
         Success = Color3.fromRGB(50, 150, 50),
-        Disabled = Color3.fromRGB(150, 150, 150)
+        Disabled = Color3.fromRGB(150, 150, 150),
+        Hover = Color3.fromRGB(180, 180, 180)
     }
 }
-
 local currentTheme = themes.Dark
 
 -- Utilitários
@@ -81,7 +82,6 @@ end
 local function ripple(button)
     task.spawn(function()
         local circle = new("ImageLabel", {
-            Name = "Ripple",
             Parent = button,
             BackgroundTransparency = 1,
             Image = "rbxassetid://266543268",
@@ -105,11 +105,111 @@ local function ripple(button)
     end)
 end
 
--- Elemento base: janela principal
+-- Sistema de notificações
+local function createNotificationSystem(parent)
+    local holder = new("Frame", {
+        Parent = parent,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -320, 0, 50),
+        Size = UDim2.new(0, 300, 1, -100),
+        ClipsDescendants = true
+    })
+
+    local function notify(config)
+        config = config or {}
+        local title = config.title or "Notificação"
+        local message = config.message or ""
+        local duration = config.duration or 3
+        local callback = config.callback
+
+        local notif = new("Frame", {
+            Parent = holder,
+            BackgroundColor3 = currentTheme.Second,
+            BorderSizePixel = 0,
+            Position = UDim2.new(0, 300, 0, 0),
+            Size = UDim2.new(1, -10, 0, 80)
+        })
+        local notifCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = notif})
+
+        -- Brilho
+        local glow = new("ImageLabel", {
+            Parent = notif,
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://4996891970",
+            ImageColor3 = Color3.fromRGB(15, 15, 15),
+            ScaleType = Enum.ScaleType.Slice,
+            SliceCenter = Rect.new(20, 20, 280, 280),
+            Position = UDim2.new(0, -15, 0, -15),
+            Size = UDim2.new(1, 30, 1, 30),
+            ZIndex = 0
+        })
+
+        local titleLabel = new("TextLabel", {
+            Parent = notif,
+            BackgroundTransparency = 1,
+            Font = Enum.Font.GothamBold,
+            Text = title,
+            TextColor3 = currentTheme.Text,
+            TextSize = 16,
+            Position = UDim2.new(0, 10, 0, 5),
+            Size = UDim2.new(1, -20, 0, 25),
+            TextXAlignment = Enum.TextXAlignment.Left
+        })
+
+        local messageLabel = new("TextLabel", {
+            Parent = notif,
+            BackgroundTransparency = 1,
+            Font = Enum.Font.Gotham,
+            Text = message,
+            TextColor3 = currentTheme.Text,
+            TextSize = 14,
+            Position = UDim2.new(0, 10, 0, 30),
+            Size = UDim2.new(1, -20, 0, 40),
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Top
+        })
+
+        local closeBtn = new("TextButton", {
+            Parent = notif,
+            BackgroundTransparency = 1,
+            Text = "",
+            Position = UDim2.new(1, -25, 0, 0),
+            Size = UDim2.new(0, 25, 0, 25)
+        })
+        local closeIcon = new("ImageLabel", {
+            Parent = closeBtn,
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://6035047409",
+            ImageColor3 = currentTheme.Text,
+            Size = UDim2.new(0, 16, 0, 16),
+            Position = UDim2.new(0.5, -8, 0.5, -8)
+        })
+
+        notif:TweenPosition(UDim2.new(0, 5, 0, 0), "Out", "Quad", 0.5, true)
+
+        task.delay(duration, function()
+            notif:TweenPosition(UDim2.new(0, 300, 0, 0), "Out", "Quad", 0.5, true)
+            task.wait(0.5)
+            notif:Destroy()
+            safeCallback(callback)
+        end)
+
+        closeBtn.MouseButton1Click:Connect(function()
+            notif:TweenPosition(UDim2.new(0, 300, 0, 0), "Out", "Quad", 0.5, true)
+            task.wait(0.5)
+            notif:Destroy()
+        end)
+    end
+
+    return notify
+end
+
+-- Função principal: criar janela
 function AxiomXLib:CreateWindow(config)
     config = config or {}
     local title = config.title or "AxiomX"
-    local size = config.size or UDim2.new(0, 600, 0, 400)
+    local size = config.size or UDim2.new(0, 700, 0, 500)
     local theme = config.theme or "Dark"
     local closeBind = config.closeBind or Enum.KeyCode.RightControl
     currentTheme = themes[theme] or themes.Dark
@@ -120,118 +220,116 @@ function AxiomXLib:CreateWindow(config)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     })
 
-    local main = new("Frame", {
+    local main = new("ImageButton", {  -- Usando ImageButton para o efeito de fundo com slice
         Name = "Main",
         Parent = gui,
         BackgroundColor3 = currentTheme.Main,
-        BorderSizePixel = 0,
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://2790389767",
+        ImageColor3 = currentTheme.Main,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(8, 8, 248, 248),
         Position = UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2),
         Size = size,
         ClipsDescendants = true
     })
-    local mainCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = main})
 
-    local topbar = new("Frame", {
-        Name = "TopBar",
+    -- Brilho externo
+    local glow = new("ImageLabel", {
         Parent = main,
-        BackgroundColor3 = currentTheme.Second,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 30)
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://4996891970",
+        ImageColor3 = Color3.fromRGB(15, 15, 15),
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(20, 20, 280, 280),
+        Position = UDim2.new(0, -15, 0, -15),
+        Size = UDim2.new(1, 30, 1, 30),
+        ZIndex = 0
     })
-    local topCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = topbar})
-    -- O canto superior esquerdo arredondado, mas não o inferior
-    local topMask = new("Frame", {
-        Parent = topbar,
-        BackgroundColor3 = currentTheme.Second,
-        BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 1, -6),
-        Size = UDim2.new(1, 0, 0, 6)
+
+    local top = new("Frame", {
+        Parent = main,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -40, 0, 30),
+        Position = UDim2.new(0.5, 0, 0, 10),
+        AnchorPoint = Vector2.new(0.5, 0)
     })
 
     local titleLabel = new("TextLabel", {
-        Parent = topbar,
+        Parent = top,
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamSemibold,
         Text = title,
         TextColor3 = currentTheme.Text,
-        TextSize = 16,
-        Position = UDim2.new(0, 10, 0, 0),
+        TextSize = 18,
         Size = UDim2.new(0, 200, 1, 0),
         TextXAlignment = Enum.TextXAlignment.Left
     })
 
+    -- Botões de janela
     local closeBtn = new("TextButton", {
-        Parent = topbar,
-        BackgroundColor3 = currentTheme.Danger,
+        Parent = top,
         BackgroundTransparency = 1,
         Text = "",
-        Position = UDim2.new(1, -30, 0, 0),
-        Size = UDim2.new(0, 30, 1, 0)
+        Position = UDim2.new(1, -25, 0.5, -12),
+        Size = UDim2.new(0, 24, 0, 24)
     })
     local closeIcon = new("ImageLabel", {
         Parent = closeBtn,
         BackgroundTransparency = 1,
         Image = "rbxassetid://6035047409",
         ImageColor3 = currentTheme.Text,
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(0.5, -8, 0.5, -8)
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(0.5, -10, 0.5, -10)
     })
-    closeBtn.MouseEnter:Connect(function() closeBtn.BackgroundTransparency = 0 end)
-    closeBtn.MouseLeave:Connect(function() closeBtn.BackgroundTransparency = 1 end)
-    closeBtn.MouseButton1Click:Connect(function() main:TweenSize(UDim2.new(0,0,0,0), "Out", "Quad", 0.3, true, function() gui:Destroy() end) end)
+    closeBtn.MouseEnter:Connect(function() closeIcon.ImageColor3 = currentTheme.Danger end)
+    closeBtn.MouseLeave:Connect(function() closeIcon.ImageColor3 = currentTheme.Text end)
+    closeBtn.MouseButton1Click:Connect(function()
+        main:TweenSize(UDim2.new(0,0,0,0), "Out", "Quad", 0.3, true, function() gui:Destroy() end)
+    end)
 
     local minimizeBtn = new("TextButton", {
-        Parent = topbar,
-        BackgroundColor3 = currentTheme.Disabled,
+        Parent = top,
         BackgroundTransparency = 1,
         Text = "",
-        Position = UDim2.new(1, -60, 0, 0),
-        Size = UDim2.new(0, 30, 1, 0)
+        Position = UDim2.new(1, -55, 0.5, -12),
+        Size = UDim2.new(0, 24, 0, 24)
     })
     local minimizeIcon = new("ImageLabel", {
         Parent = minimizeBtn,
         BackgroundTransparency = 1,
         Image = "rbxassetid://6035067836",
         ImageColor3 = currentTheme.Text,
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(0.5, -8, 0.5, -8)
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(0.5, -10, 0.5, -10)
     })
     local minimized = false
-    minimizeBtn.MouseEnter:Connect(function() minimizeBtn.BackgroundTransparency = 0 end)
-    minimizeBtn.MouseLeave:Connect(function() minimizeBtn.BackgroundTransparency = 1 end)
     minimizeBtn.MouseButton1Click:Connect(function()
         minimized = not minimized
         local newSize = minimized and UDim2.new(size.X.Scale, size.X.Offset, 0, 30) or size
         main:TweenSize(newSize, "Out", "Quad", 0.25)
     end)
 
-    makeDraggable(topbar, main)
+    makeDraggable(top, main)
 
+    -- Container principal (abaixo do topo)
     local container = new("Frame", {
-        Name = "Container",
         Parent = main,
         BackgroundColor3 = currentTheme.Background,
         BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 0, 30),
-        Size = UDim2.new(1, 0, 1, -30)
+        Position = UDim2.new(0, 10, 0, 45),
+        Size = UDim2.new(1, -20, 1, -55)
     })
     local containerCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = container})
-    -- Esconde o arredondamento superior
-    local containerMask = new("Frame", {
-        Parent = container,
-        BackgroundColor3 = currentTheme.Background,
-        BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 0, -6),
-        Size = UDim2.new(1, 0, 0, 6)
-    })
 
-    -- Tabs
+    -- Abas (lado esquerdo)
     local tabHolder = new("Frame", {
         Parent = container,
         BackgroundColor3 = currentTheme.Second,
         BorderSizePixel = 0,
         Size = UDim2.new(0, 150, 1, 0)
     })
+    local tabCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = tabHolder})
     local tabList = new("UIListLayout", {
         Parent = tabHolder,
         FillDirection = Enum.FillDirection.Vertical,
@@ -241,6 +339,7 @@ function AxiomXLib:CreateWindow(config)
     })
     local tabPadding = new("UIPadding", {Parent = tabHolder, PaddingTop = UDim.new(0, 10)})
 
+    -- Páginas (lado direito)
     local pageHolder = new("Frame", {
         Parent = container,
         BackgroundColor3 = currentTheme.Background,
@@ -248,11 +347,15 @@ function AxiomXLib:CreateWindow(config)
         Position = UDim2.new(0, 150, 0, 0),
         Size = UDim2.new(1, -150, 1, 0)
     })
+    local pageCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = pageHolder})
 
     local pages = {}
     local currentPage
 
-    -- Sistema de abas
+    -- Sistema de notificações da janela
+    local notify = createNotificationSystem(gui)
+
+    -- Tabs
     local tabs = {}
 
     function tabs:AddTab(name)
@@ -285,9 +388,8 @@ function AxiomXLib:CreateWindow(config)
             SortOrder = Enum.SortOrder.LayoutOrder,
             Padding = UDim.new(0, 8)
         })
-        local pagePadding = new("UIPadding", {Parent = page, PaddingTop = UDim.new(0, 10)})
+        local pagePadding = new("UIPadding", {Parent = page, PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10)})
 
-        -- Atualizar CanvasSize quando o layout mudar
         local function updateCanvas()
             page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 20)
         end
@@ -328,7 +430,7 @@ function AxiomXLib:CreateWindow(config)
             local btnCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn})
 
             btn.MouseEnter:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentTheme.Accent}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentTheme.Hover}):Play()
             end)
             btn.MouseLeave:Connect(function()
                 TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentTheme.Second}):Play()
@@ -368,7 +470,7 @@ function AxiomXLib:CreateWindow(config)
                 BackgroundColor3 = toggled and currentTheme.Success or currentTheme.Disabled,
                 AutoButtonColor = false,
                 Text = "",
-                Position = UDim2.new(1, -40, 0.5, -12),
+                Position = UDim2.new(1, -45, 0.5, -12),
                 Size = UDim2.new(0, 40, 0, 24)
             })
             local toggleCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = toggleBtn})
@@ -392,11 +494,12 @@ function AxiomXLib:CreateWindow(config)
 
         function pageElements:AddSlider(text, min, max, default, callback)
             local value = default or min
+            local dragging = false
             local frame = new("Frame", {
                 Parent = page,
                 BackgroundColor3 = currentTheme.Second,
                 BorderSizePixel = 0,
-                Size = UDim2.new(0, page.AbsoluteSize.X - 20, 0, 50)
+                Size = UDim2.new(0, page.AbsoluteSize.X - 20, 0, 55)
             })
             local frameCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = frame})
 
@@ -407,8 +510,8 @@ function AxiomXLib:CreateWindow(config)
                 Text = text,
                 TextColor3 = currentTheme.Text,
                 TextSize = 14,
-                Position = UDim2.new(0, 10, 0, 0),
-                Size = UDim2.new(0, 200, 0, 25),
+                Position = UDim2.new(0, 10, 0, 5),
+                Size = UDim2.new(0, 200, 0, 20),
                 TextXAlignment = Enum.TextXAlignment.Left
             })
 
@@ -419,8 +522,8 @@ function AxiomXLib:CreateWindow(config)
                 Text = tostring(value),
                 TextColor3 = currentTheme.Text,
                 TextSize = 14,
-                Position = UDim2.new(1, -50, 0, 0),
-                Size = UDim2.new(0, 40, 0, 25),
+                Position = UDim2.new(1, -50, 0, 5),
+                Size = UDim2.new(0, 40, 0, 20),
                 TextXAlignment = Enum.TextXAlignment.Right
             })
 
@@ -429,7 +532,7 @@ function AxiomXLib:CreateWindow(config)
                 BackgroundColor3 = currentTheme.Background,
                 BorderSizePixel = 0,
                 Position = UDim2.new(0, 10, 0, 30),
-                Size = UDim2.new(1, -20, 0, 10)
+                Size = UDim2.new(1, -20, 0, 8)
             })
             local sliderBgCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = sliderBg})
 
@@ -441,22 +544,21 @@ function AxiomXLib:CreateWindow(config)
             })
             local fillCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = fill})
 
-            local button = new("TextButton", {
+            local knob = new("TextButton", {
                 Parent = sliderBg,
                 BackgroundColor3 = currentTheme.Text,
                 Text = "",
                 Position = UDim2.new((value - min) / (max - min), -8, 0.5, -8),
                 Size = UDim2.new(0, 16, 0, 16)
             })
-            local buttonCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = button})
+            local knobCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = knob})
 
-            local dragging = false
-            button.InputBegan:Connect(function(input)
+            knob.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragging = true
                 end
             end)
-            button.InputEnded:Connect(function(input)
+            knob.InputEnded:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragging = false
                 end
@@ -466,7 +568,7 @@ function AxiomXLib:CreateWindow(config)
                 local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
                 value = math.floor(min + (max - min) * pos)
                 fill:TweenSize(UDim2.new(pos, 0, 1, 0), "Out", "Quad", 0.1, true)
-                button:TweenPosition(UDim2.new(pos, -8, 0.5, -8), "Out", "Quad", 0.1, true)
+                knob:TweenPosition(UDim2.new(pos, -8, 0.5, -8), "Out", "Quad", 0.1, true)
                 valueLabel.Text = tostring(value)
                 safeCallback(callback, value)
             end
@@ -578,9 +680,10 @@ function AxiomXLib:CreateWindow(config)
         end
 
         function pageElements:AddColorPicker(text, default, callback)
+            -- Implementação completa de colorpicker com gradiente e seletor de matiz
             local color = default or currentTheme.Accent
             local expanded = false
-            local hue, sat, val = 1, 1, 1
+            local hue, sat, val = Color3.toHSV(color)
             local rainbow = false
 
             local frame = new("Frame", {
@@ -607,7 +710,7 @@ function AxiomXLib:CreateWindow(config)
                 Parent = frame,
                 BackgroundColor3 = color,
                 BorderSizePixel = 0,
-                Position = UDim2.new(1, -40, 0.5, -12),
+                Position = UDim2.new(1, -45, 0.5, -12),
                 Size = UDim2.new(0, 30, 0, 24)
             })
             local boxCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = colorBox})
@@ -618,7 +721,7 @@ function AxiomXLib:CreateWindow(config)
                 Image = "rbxassetid://6034818372",
                 ImageColor3 = currentTheme.Text,
                 Size = UDim2.new(0, 20, 0, 20),
-                Position = UDim2.new(1, -10, 0.5, -10)
+                Position = UDim2.new(1, -15, 0.5, -10)
             })
 
             local pickerBtn = new("TextButton", {
@@ -628,6 +731,7 @@ function AxiomXLib:CreateWindow(config)
                 Size = UDim2.new(1, 0, 1, 0)
             })
 
+            -- Container do colorpicker
             local pickerContainer = new("Frame", {
                 Parent = page,
                 BackgroundColor3 = currentTheme.Background,
@@ -640,37 +744,185 @@ function AxiomXLib:CreateWindow(config)
             })
             local containerCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = pickerContainer})
 
-            -- Implementação simplificada do color picker (apenas seleção de cor sólida, sem gradiente)
-            -- Para um picker completo, seria muito extenso; aqui deixamos apenas um exemplo funcional
-            local colorGrid = new("Frame", {
+            -- Área de seleção de cor (gradiente)
+            local colorArea = new("ImageLabel", {
+                Parent = pickerContainer,
+                BackgroundColor3 = Color3.fromHSV(hue, 1, 1),
+                Image = "rbxassetid://4155801252",
+                Position = UDim2.new(0, 10, 0, 10),
+                Size = UDim2.new(0, 200, 0, 150),
+                ZIndex = 10
+            })
+            local colorCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = colorArea})
+
+            local selector = new("ImageLabel", {
+                Parent = colorArea,
+                BackgroundTransparency = 1,
+                Image = "http://www.roblox.com/asset/?id=4805639000",
+                Size = UDim2.new(0, 18, 0, 18),
+                Position = UDim2.new(sat, -9, 1-val, -9),
+                ZIndex = 11
+            })
+
+            -- Barra de matiz
+            local hueBar = new("ImageLabel", {
+                Parent = pickerContainer,
+                BackgroundColor3 = Color3.fromRGB(255,255,255),
+                Image = "rbxassetid://3679663627", -- Gradiente vertical
+                Position = UDim2.new(0, 220, 0, 10),
+                Size = UDim2.new(0, 20, 0, 150),
+                ZIndex = 10
+            })
+            local hueCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = hueBar})
+            local hueSelector = new("ImageLabel", {
+                Parent = hueBar,
+                BackgroundTransparency = 1,
+                Image = "http://www.roblox.com/asset/?id=4805639000",
+                Size = UDim2.new(0, 18, 0, 18),
+                Position = UDim2.new(0.5, -9, 1-hue, -9),
+                ZIndex = 11
+            })
+
+            -- Botão Rainbow
+            local rainbowToggle = new("Frame", {
                 Parent = pickerContainer,
                 BackgroundColor3 = currentTheme.Second,
-                Size = UDim2.new(1, -10, 0, 120),
-                Position = UDim2.new(0, 5, 0, 5)
+                Position = UDim2.new(0, 250, 0, 10),
+                Size = UDim2.new(0, 100, 0, 30)
             })
-            local gridCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = colorGrid})
-            -- Simulação: adicionar alguns botões de cores pré-definidas
-            local colors = {Color3.fromRGB(255,0,0), Color3.fromRGB(0,255,0), Color3.fromRGB(0,0,255), Color3.fromRGB(255,255,0), Color3.fromRGB(255,0,255), Color3.fromRGB(0,255,255), currentTheme.Accent}
-            for i, col in ipairs(colors) do
-                local colBtn = new("TextButton", {
-                    Parent = colorGrid,
-                    BackgroundColor3 = col,
-                    Text = "",
-                    Size = UDim2.new(0, 30, 0, 30),
-                    Position = UDim2.new(0, (i-1)*35, 0, 5)
-                })
-                colBtn.MouseButton1Click:Connect(function()
-                    color = col
+            local rainbowCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = rainbowToggle})
+            local rainbowLabel = new("TextLabel", {
+                Parent = rainbowToggle,
+                BackgroundTransparency = 1,
+                Font = Enum.Font.Gotham,
+                Text = "Rainbow",
+                TextColor3 = currentTheme.Text,
+                TextSize = 14,
+                Position = UDim2.new(0, 5, 0, 0),
+                Size = UDim2.new(0, 60, 1, 0),
+                TextXAlignment = Enum.TextXAlignment.Left
+            })
+            local rainbowBox = new("Frame", {
+                Parent = rainbowToggle,
+                BackgroundColor3 = currentTheme.Disabled,
+                Position = UDim2.new(1, -30, 0.5, -8),
+                Size = UDim2.new(0, 25, 0, 16)
+            })
+            local rainbowBoxCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = rainbowBox})
+            local rainbowCircle = new("Frame", {
+                Parent = rainbowBox,
+                BackgroundColor3 = currentTheme.Text,
+                Position = UDim2.new(0, 2, 0.5, -6),
+                Size = UDim2.new(0, 12, 0, 12)
+            })
+            local rainbowCircleCorner = new("UICorner", {CornerRadius = UDim.new(1, 0), Parent = rainbowCircle})
+            local rainbowBtn = new("TextButton", {
+                Parent = rainbowToggle,
+                BackgroundTransparency = 1,
+                Text = "",
+                Size = UDim2.new(1, 0, 1, 0)
+            })
+
+            -- Botão Confirmar
+            local confirmBtn = new("TextButton", {
+                Parent = pickerContainer,
+                BackgroundColor3 = currentTheme.Accent,
+                Text = "Confirmar",
+                Font = Enum.Font.Gotham,
+                TextColor3 = currentTheme.Text,
+                TextSize = 14,
+                Position = UDim2.new(0, 250, 0, 50),
+                Size = UDim2.new(0, 100, 0, 30)
+            })
+            local confirmCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = confirmBtn})
+
+            -- Lógica de arrasto para seletores
+            local colorDragging = false
+            local hueDragging = false
+
+            colorArea.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    colorDragging = true
+                end
+            end)
+            colorArea.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    colorDragging = false
+                end
+            end)
+
+            hueBar.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    hueDragging = true
+                end
+            end)
+            hueBar.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    hueDragging = false
+                end
+            end)
+
+            local function updateColorFromInput(input)
+                if colorDragging then
+                    local x = math.clamp((input.Position.X - colorArea.AbsolutePosition.X) / colorArea.AbsoluteSize.X, 0, 1)
+                    local y = math.clamp((input.Position.Y - colorArea.AbsolutePosition.Y) / colorArea.AbsoluteSize.Y, 0, 1)
+                    sat = x
+                    val = 1 - y
+                    selector.Position = UDim2.new(sat, -9, val, -9)
+                    color = Color3.fromHSV(hue, sat, val)
+                    colorBox.BackgroundColor3 = color
+                elseif hueDragging then
+                    local y = math.clamp((input.Position.Y - hueBar.AbsolutePosition.Y) / hueBar.AbsoluteSize.Y, 0, 1)
+                    hue = 1 - y
+                    hueSelector.Position = UDim2.new(0.5, -9, y, -9)
+                    colorArea.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+                    color = Color3.fromHSV(hue, sat, val)
+                    colorBox.BackgroundColor3 = color
+                end
+            end
+
+            UserInputService.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    updateColorFromInput(input)
+                end
+            end)
+
+            -- Rainbow toggle
+            rainbowBtn.MouseButton1Click:Connect(function()
+                rainbow = not rainbow
+                local targetPos = rainbow and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+                TweenService:Create(rainbowCircle, TweenInfo.new(0.2), {Position = targetPos}):Play()
+                if rainbow then
+                    -- Inicia loop rainbow
+                    task.spawn(function()
+                        while rainbow do
+                            color = Color3.fromHSV((tick() % 5) / 5, 1, 1)
+                            colorBox.BackgroundColor3 = color
+                            safeCallback(callback, color)
+                            task.wait(0.05)
+                        end
+                    end)
+                else
+                    -- Restaura cor atual
                     colorBox.BackgroundColor3 = color
                     safeCallback(callback, color)
-                end)
-            end
+                end
+            end)
+
+            confirmBtn.MouseButton1Click:Connect(function()
+                expanded = false
+                pickerContainer.Visible = false
+                frame.Size = UDim2.new(0, page.AbsoluteSize.X - 20, 0, 35)
+                arrow.Rotation = 0
+                updateCanvas()
+                safeCallback(callback, color)
+            end)
 
             pickerBtn.MouseButton1Click:Connect(function()
                 expanded = not expanded
                 if expanded then
-                    frame.Size = UDim2.new(0, page.AbsoluteSize.X - 20, 0, 35 + 130)
-                    pickerContainer.Size = UDim2.new(1, -20, 0, 130)
+                    frame.Size = UDim2.new(0, page.AbsoluteSize.X - 20, 0, 35 + 180)
+                    pickerContainer.Size = UDim2.new(1, -20, 0, 180)
                     pickerContainer.Visible = true
                     arrow.Rotation = 180
                 else
@@ -679,6 +931,57 @@ function AxiomXLib:CreateWindow(config)
                     arrow.Rotation = 0
                 end
                 updateCanvas()
+            end)
+
+            updateCanvas()
+        end
+
+        function pageElements:AddTextbox(text, placeholder, callback, multiline)
+            local frame = new("Frame", {
+                Parent = page,
+                BackgroundColor3 = currentTheme.Second,
+                BorderSizePixel = 0,
+                Size = UDim2.new(0, page.AbsoluteSize.X - 20, 0, 50)
+            })
+            local frameCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = frame})
+
+            local label = new("TextLabel", {
+                Parent = frame,
+                BackgroundTransparency = 1,
+                Font = Enum.Font.Gotham,
+                Text = text,
+                TextColor3 = currentTheme.Text,
+                TextSize = 14,
+                Position = UDim2.new(0, 10, 0, 5),
+                Size = UDim2.new(0, 200, 0, 20),
+                TextXAlignment = Enum.TextXAlignment.Left
+            })
+
+            local boxFrame = new("Frame", {
+                Parent = frame,
+                BackgroundColor3 = currentTheme.Background,
+                Position = UDim2.new(0, 10, 0, 30),
+                Size = UDim2.new(1, -20, 0, 25)
+            })
+            local boxCorner = new("UICorner", {CornerRadius = UDim.new(0, 4), Parent = boxFrame})
+
+            local textBox = new("TextBox", {
+                Parent = boxFrame,
+                BackgroundTransparency = 1,
+                Font = Enum.Font.Gotham,
+                PlaceholderText = placeholder,
+                Text = "",
+                TextColor3 = currentTheme.Text,
+                TextSize = 14,
+                Size = UDim2.new(1, -10, 1, 0),
+                Position = UDim2.new(0, 5, 0, 0),
+                ClearTextOnFocus = false
+            })
+
+            textBox.FocusLost:Connect(function(enterPressed)
+                if enterPressed then
+                    safeCallback(callback, textBox.Text)
+                end
             end)
 
             updateCanvas()
@@ -701,92 +1004,9 @@ function AxiomXLib:CreateWindow(config)
         return pageElements
     end
 
-    -- Notificações
-    local notificationHolder = new("Frame", {
-        Parent = gui,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(1, -300, 0, 50),
-        Size = UDim2.new(0, 280, 1, -100),
-        ClipsDescendants = true
-    })
-
-    function AxiomXLib:Notify(config)
-        config = config or {}
-        local title = config.title or "Notificação"
-        local message = config.message or ""
-        local duration = config.duration or 3
-        local callback = config.callback
-
-        local notif = new("Frame", {
-            Parent = notificationHolder,
-            BackgroundColor3 = currentTheme.Second,
-            BorderSizePixel = 0,
-            Position = UDim2.new(0, 300, 0, 0),
-            Size = UDim2.new(1, -10, 0, 80)
-        })
-        local notifCorner = new("UICorner", {CornerRadius = UDim.new(0, 6), Parent = notif})
-
-        local titleLabel = new("TextLabel", {
-            Parent = notif,
-            BackgroundTransparency = 1,
-            Font = Enum.Font.GothamBold,
-            Text = title,
-            TextColor3 = currentTheme.Text,
-            TextSize = 16,
-            Position = UDim2.new(0, 10, 0, 5),
-            Size = UDim2.new(1, -20, 0, 25),
-            TextXAlignment = Enum.TextXAlignment.Left
-        })
-
-        local messageLabel = new("TextLabel", {
-            Parent = notif,
-            BackgroundTransparency = 1,
-            Font = Enum.Font.Gotham,
-            Text = message,
-            TextColor3 = currentTheme.Text,
-            TextSize = 14,
-            Position = UDim2.new(0, 10, 0, 30),
-            Size = UDim2.new(1, -20, 0, 40),
-            TextWrapped = true,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextYAlignment = Enum.TextYAlignment.Top
-        })
-
-        local closeBtn = new("TextButton", {
-            Parent = notif,
-            BackgroundTransparency = 1,
-            Text = "",
-            Position = UDim2.new(1, -25, 0, 0),
-            Size = UDim2.new(0, 25, 0, 25)
-        })
-        local closeIcon = new("ImageLabel", {
-            Parent = closeBtn,
-            BackgroundTransparency = 1,
-            Image = "rbxassetid://6035047409",
-            ImageColor3 = currentTheme.Text,
-            Size = UDim2.new(0, 16, 0, 16),
-            Position = UDim2.new(0.5, -8, 0.5, -8)
-        })
-
-        notif:TweenPosition(UDim2.new(0, 5, 0, 0), "Out", "Quad", 0.5, true)
-
-        task.delay(duration, function()
-            notif:TweenPosition(UDim2.new(0, 300, 0, 0), "Out", "Quad", 0.5, true)
-            task.wait(0.5)
-            notif:Destroy()
-            safeCallback(callback)
-        end)
-
-        closeBtn.MouseButton1Click:Connect(function()
-            notif:TweenPosition(UDim2.new(0, 300, 0, 0), "Out", "Quad", 0.5, true)
-            task.wait(0.5)
-            notif:Destroy()
-        end)
-    end
-
     return {
         AddTab = tabs.AddTab,
-        Notify = AxiomXLib.Notify
+        Notify = notify
     }
 end
 
