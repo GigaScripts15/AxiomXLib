@@ -11,7 +11,6 @@ AxiomX["2"]["Draggable"] = true
 AxiomX["2"]["Position"] = UDim2.new(0.20, 0, -0.1, 0);
 AxiomX["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 
-
 AxiomX["3"] = Instance.new("UICorner", AxiomX["2"]);
 AxiomX["3"]["CornerRadius"] = UDim.new(1, 0);
 
@@ -31,7 +30,7 @@ AxiomX["5"] = Instance.new("UIStroke", AxiomX["4"]);
 AxiomX["5"]["Color"] = Color3.fromRGB(255, 0, 0);
 
 AxiomX["6"] = Instance.new("UIStroke", AxiomX["2"]);
-AxiomX["6"]["Color"] = Color3.fromRGB(169, 238, 8);
+AxiomX["6"]["Color"] = Color3.fromRGB(255, 0, 0);
 
 local function StopTween()
     if _G.StopTween then
@@ -3067,11 +3066,11 @@ end
 
 local library = {}
 
-_G.Color = Color3.fromRGB(154, 240, 17) 
+_G.Color = Color3.fromRGB(255, 0, 0) 
 _G.imageLogo = "rbxassetid://12940626152"
 _G.Logo = "rbxassetid://12940626152"
 _G.NameHub = "Made By Dragon Toro" -- ชื่อ Hub
-_G.Title = "Matsune Hub Script blox fruits" -- คำอธิบาย
+_G.Title = "AxiomX Hub Script blox fruits" -- คำอธิบาย
 -----------------------------------------------------------------
 
 local isUIEnabled = true 
@@ -3260,6 +3259,51 @@ end
 function library:Destroy()
 	library:Destroy()
 	game:GetService("CoreGui").ScreenGui:Destroy()
+end
+
+function library:Notify(message, duration)
+    duration = duration or 3
+    local notif = Instance.new("Frame")
+    local corner = Instance.new("UICorner")
+    local text = Instance.new("TextLabel")
+    local close = Instance.new("TextButton")
+
+    notif.Parent = UI
+    notif.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    notif.BackgroundTransparency = 0.2
+    notif.BorderSizePixel = 0
+    notif.Position = UDim2.new(0.7, 0, 0.8, 0)
+    notif.Size = UDim2.new(0, 250, 0, 50)
+    notif.ZIndex = 100
+
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = notif
+
+    text.Parent = notif
+    text.BackgroundTransparency = 1
+    text.Size = UDim2.new(1, -30, 1, 0)
+    text.Position = UDim2.new(0, 5, 0, 0)
+    text.Font = Enum.Font.GothamSemibold
+    text.Text = message
+    text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    text.TextSize = 14
+    text.TextXAlignment = Enum.TextXAlignment.Left
+
+    close.Parent = notif
+    close.BackgroundTransparency = 1
+    close.Size = UDim2.new(0, 25, 0, 25)
+    close.Position = UDim2.new(1, -25, 0, 12.5)
+    close.Font = Enum.Font.GothamBold
+    close.Text = "X"
+    close.TextColor3 = Color3.fromRGB(255, 0, 0)
+    close.TextSize = 16
+    close.MouseButton1Click:Connect(function()
+        notif:Destroy()
+    end)
+
+    task.delay(duration, function()
+        if notif then notif:Destroy() end
+    end)
 end
 
 function library:NaJa()
@@ -3705,7 +3749,7 @@ UICorner.Parent = ImageButton
 			            -- Set the color to a single color (e.g., green)
 			            game:GetService('TweenService'):Create(
     			            Line, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
- 			               {BackgroundColor3 = Color3.fromRGB(0, 255, 0)} -- green color
+ 			               {BackgroundColor3 = Color3.fromRGB(255, 0, 0)} -- red color
 			            ):Play() 
 			            wait(0.5)            
 			        end)
@@ -4562,24 +4606,16 @@ UICorner.Parent = ImageButton
     local ShowValueFrameUICorner = Instance.new("UICorner")
     local ValueFrame = Instance.new("Frame")
     local ValueFrameUICorner = Instance.new("UICorner")
-    local PartValue = Instance.new("Frame")
-    local PartValueUICorner = Instance.new("UICorner")
     local MainValue = Instance.new("Frame")
     local MainValueUICorner = Instance.new("UICorner")
     local sliderfunc = {}
+    local dragging = false
 
     SliderFrame.Name = "SliderFrame"
     SliderFrame.Parent = SectionContainer
     SliderFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-    SliderFrame.Position = UDim2.new(0.109489053, 0, 0.708609283, 0)
     SliderFrame.Size = UDim2.new(0.975000024, 0, 0, 45)
-    SliderFrame.BackgroundTransparency = 0.8  -- Adjusted transparency
-
-    local UiToggle_UiStroke28 = Instance.new("UIStroke")
-    UiToggle_UiStroke28.Color = Color3.fromRGB(60, 60, 60)
-    UiToggle_UiStroke28.Thickness = 1
-    UiToggle_UiStroke28.Name = "UiToggle_UiStroke1"
-    UiToggle_UiStroke28.Parent = SliderFrame
+    SliderFrame.BackgroundTransparency = 0.8
 
     local UICorner_7 = Instance.new("UICorner")
     UICorner_7.CornerRadius = UDim.new(0, 4)
@@ -4592,7 +4628,7 @@ UICorner.Parent = ImageButton
     LabelNameSlider.Position = UDim2.new(0.0729926974, 0, 0.0396823473, 0)
     LabelNameSlider.Size = UDim2.new(0, 182, 0, 25)
     LabelNameSlider.Font = Enum.Font.GothamBold
-    LabelNameSlider.Text = tostring(text)
+    LabelNameSlider.Text = text
     LabelNameSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
     LabelNameSlider.TextSize = 11.000
     LabelNameSlider.TextXAlignment = Enum.TextXAlignment.Left
@@ -4600,147 +4636,98 @@ UICorner.Parent = ImageButton
     ShowValueFrame.Name = "ShowValueFrame"
     ShowValueFrame.Parent = SliderFrame
     ShowValueFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-    ShowValueFrame.BackgroundTransparency = 0.8  -- Adjusted transparency
+    ShowValueFrame.BackgroundTransparency = 0.8
     ShowValueFrame.Position = UDim2.new(0.733576655, 0, 0.0656082779, 0)
     ShowValueFrame.Size = UDim2.new(0, 58, 0, 21)
 
     CustomValue.Name = "CustomValue"
     CustomValue.Parent = ShowValueFrame
-    CustomValue.AnchorPoint = Vector2.new(0.5, 0.5)
     CustomValue.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    CustomValue.BackgroundTransparency = 0.9  -- Adjusted transparency for the text box
-    CustomValue.Position = UDim2.new(0.5, 0, 0.5, 0)
+    CustomValue.BackgroundTransparency = 0.9
     CustomValue.Size = UDim2.new(0, 55, 0, 21)
     CustomValue.Font = Enum.Font.GothamBold
-    CustomValue.Text = "50"
     CustomValue.TextColor3 = Color3.fromRGB(255, 255, 255)
     CustomValue.TextSize = 11.000
 
     ShowValueFrameUICorner.CornerRadius = UDim.new(0, 4)
-    ShowValueFrameUICorner.Name = "ShowValueFrameUICorner"
     ShowValueFrameUICorner.Parent = CustomValue
 
     ValueFrame.Name = "ValueFrame"
     ValueFrame.Parent = SliderFrame
-    ValueFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     ValueFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    ValueFrame.BackgroundTransparency = 0.9  -- Adjusted transparency
-    ValueFrame.Position = UDim2.new(0.5, 0, 0.8, 0)
+    ValueFrame.BackgroundTransparency = 0.9
+    ValueFrame.Position = UDim2.new(0.5, -100, 0.8, 0)
     ValueFrame.Size = UDim2.new(0, 200, 0, 5)
 
     ValueFrameUICorner.CornerRadius = UDim.new(0, 30)
-    ValueFrameUICorner.Name = "ValueFrameUICorner"
     ValueFrameUICorner.Parent = ValueFrame
-
-    PartValue.Name = "PartValue"
-    PartValue.Parent = ValueFrame
-    PartValue.AnchorPoint = Vector2.new(0.5, 0.5)
-    PartValue.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    PartValue.BackgroundTransparency = 1.0  -- Full transparency
-    PartValue.Position = UDim2.new(0.5, 0, 0.8, 0)
-    PartValue.Size = UDim2.new(0, 200, 0, 5)
-
-    PartValueUICorner.CornerRadius = UDim.new(0, 30)
-    PartValueUICorner.Name = "PartValueUICorner"
-    PartValueUICorner.Parent = PartValue
 
     MainValue.Name = "MainValue"
     MainValue.Parent = ValueFrame
     MainValue.BackgroundColor3 = _G.Color
-    MainValue.Size = UDim2.new((de or 0) / max, 0, 0, 5)
+    MainValue.Size = UDim2.new(0, 0, 0, 5)
     MainValue.BorderSizePixel = 0
-    MainValue.BackgroundTransparency = 0.9  -- Transparency for main value
 
     MainValueUICorner.CornerRadius = UDim.new(0, 30)
-    MainValueUICorner.Name = "MainValueUICorner"
     MainValueUICorner.Parent = MainValue
 
-    local ConneValue = Instance.new("Frame")
-    ConneValue.Name = "ConneValue"
-    ConneValue.Parent = PartValue
-    ConneValue.AnchorPoint = Vector2.new(0.7, 0.7)
-    ConneValue.BackgroundColor3 = _G.Color
-    ConneValue.Position = UDim2.new((de or 0) / max, 0.5, 0.5, 0)
-    ConneValue.Size = UDim2.new(0, 10, 0, 10)
-    ConneValue.BorderSizePixel = 0
+    local Handle = Instance.new("Frame")
+    Handle.Name = "Handle"
+    Handle.Parent = ValueFrame
+    Handle.BackgroundColor3 = _G.Color
+    Handle.Size = UDim2.new(0, 10, 0, 10)
+    Handle.Position = UDim2.new(0, -5, 0, -2.5)
+    local HandleCorner = Instance.new("UICorner")
+    HandleCorner.CornerRadius = UDim.new(1, 0)
+    HandleCorner.Parent = Handle
 
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 10)
-    UICorner.Parent = ConneValue
-
-    -- Hiển thị giá trị mặc định
-    if floor == true then
-        CustomValue.Text = tostring(de and string.format("%.0f", (de / max) * (max - min) + min) or 0)
-    else
-        CustomValue.Text = tostring(de and math.floor((de / max) * (max - min) + min) or 0)
-    end
-
-    -- Tính toán giá trị khi kéo slider
-    local function move(input)
-        local pos = UDim2.new(
-            math.clamp((input.Position.X - ValueFrame.AbsolutePosition.X) / ValueFrame.AbsoluteSize.X, 0, 1),
-            0,
-            0.5,
-            0
-        )
-        local pos1 = UDim2.new(
-            math.clamp((input.Position.X - ValueFrame.AbsolutePosition.X) / ValueFrame.AbsoluteSize.X, 0, 1),
-            0,
-            0,
-            5
-        )
-        MainValue:TweenSize(pos1, "Out", "Sine", 0.2, true)
-        ConneValue:TweenPosition(pos, "Out", "Sine", 0.2, true)
-
-        local value
-        if floor == true then
-            value = string.format("%.0f", ((pos.X.Scale * max) / max) * (max - min) + min)
+    local function updateFromRatio(ratio)
+        ratio = math.clamp(ratio, 0, 1)
+        local val = min + (max - min) * ratio
+        if floor then
+            val = math.floor(val + 0.5)
         else
-            value = math.floor(((pos.X.Scale * max) / max) * (max - min) + min)
+            val = tonumber(string.format("%.1f", val))
         end
-
-        CustomValue.Text = tostring(value)
-        callback(value)
+        CustomValue.Text = tostring(val)
+        MainValue.Size = UDim2.new(ratio, 0, 0, 5)
+        Handle.Position = UDim2.new(ratio, -5, 0, -2.5)
+        callback(val)
     end
 
-    -- Cài đặt sự kiện khi kéo
-    local dragging = false
-    ConneValue.InputBegan:Connect(function(input)
+    -- initial value
+    local initRatio = (de - min) / (max - min)
+    updateFromRatio(initRatio)
+
+    -- mouse drag
+    Handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
         end
     end)
-    ConneValue.InputEnded:Connect(function(input)
+    Handle.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = false
         end
     end)
-
-    -- Cập nhật khi kéo slider
     game:GetService("UserInputService").InputChanged:Connect(function(input)
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            move(input)
+            local pos = input.Position.X - ValueFrame.AbsolutePosition.X
+            local ratio = pos / ValueFrame.AbsoluteSize.X
+            updateFromRatio(ratio)
         end
     end)
 
-    -- Cập nhật giá trị khi thay đổi CustomValue
+    -- textbox input
     CustomValue.FocusLost:Connect(function()
-        if CustomValue.Text == "" then
-            CustomValue.Text = de
-        end
-        if tonumber(CustomValue.Text) > max then
-            CustomValue.Text = max
-        end
-        MainValue:TweenSize(UDim2.new((CustomValue.Text or 0) / max, 0, 0, 5), "Out", "Sine", 0.2, true)
-        ConneValue:TweenPosition(UDim2.new((CustomValue.Text or 0) / max, 0, 0.6, 0), "Out", "Sine", 0.2, true)
-
-        if floor == true then
-            CustomValue.Text = tostring(string.format("%.0f", (CustomValue.Text / max) * (max - min) + min))
+        local newVal = tonumber(CustomValue.Text)
+        if newVal then
+            newVal = math.clamp(newVal, min, max)
+            local ratio = (newVal - min) / (max - min)
+            updateFromRatio(ratio)
         else
-            CustomValue.Text = tostring(math.floor((CustomValue.Text / max) * (max - min) + min))
+            CustomValue.Text = tostring(de)
         end
-
-        pcall(callback, CustomValue.Text)
     end)
 
     return sliderfunc
@@ -5930,8 +5917,7 @@ end)
                                         EquipWeapon(_G.SelectWeapon)
                                         v.HumanoidRootPart.CanCollide = false
                                         v.Humanoid.WalkSpeed = 0
-                                        v.HumanoidRootPart.Size = Vector3.new(80,80,80)                             
-                                        topos(v.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                        v.HumanoidRootPart.Size = Vector3.new(80,80,80)                                                  topos(v.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer,"SimulationRadius",math.huge)
                                     until not _G.AutoBoss or not v.Parent or v.Humanoid.Health <= 0
                                 end
@@ -6971,7 +6957,7 @@ task.spawn(function()
         end)
     end
 end)
-PosY = 35            
+PosY = 33            
 
   Settings:Toggle("Auto Walk Water", true,function(value)      
       _G.WalkWater = value
@@ -7069,7 +7055,7 @@ end)
       _G.SpinPos = Value 
      end)
      
-PosY = 35
+PosY = 33
   Settings:Dropdown("Farm Distnace",{"20","25","30","35","40","45","50","55","60","65","70","75","80"},{"50"},function(Value)
         PosY = value
       end)
@@ -8424,9 +8410,7 @@ spawn(function()
     pcall(function()
         while wait() do
             local Check = {
-                [1] = {
-                    Context = "Check"
-                }
+                [1] = "Check"
             };
             local Pl = game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/DragonHunter"):InvokeServer(unpack(Check));
             if (typeof(Pl) == "table") then
@@ -11639,5 +11623,4 @@ end)
             end
             end
          end)
-     end)
-     
+     end)                   
