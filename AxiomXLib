@@ -1,114 +1,180 @@
--- 🔥 AxiomX Library
--- By: Gabryel Blox 😎🔥
+-- 🔥 AxiomX Library V2
+-- By: Gabryel Blox 😎
 
 local AxiomX = {}
 AxiomX.__index = AxiomX
 
--- Services
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Criar Window
-function AxiomX:CreateWindow(title)
+function AxiomX:CreateWindow(settings)
 
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "AxiomX_Lib"
+    settings = settings or {}
+    local Title = settings.Title or "AxiomX Hub"
+    local KeySystem = settings.KeySystem or false
+    local Key = settings.Key or "AxiomX"
+
+    -- GUI
+    local ScreenGui = Instance.new("ScreenGui", playerGui)
+    ScreenGui.Name = "AxiomX_V2"
     ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = playerGui
 
+    -- KEY SYSTEM
+    if KeySystem then
+        local KeyFrame = Instance.new("Frame", ScreenGui)
+        KeyFrame.Size = UDim2.new(0,300,0,150)
+        KeyFrame.Position = UDim2.new(0.5,-150,0.5,-75)
+        KeyFrame.BackgroundColor3 = Color3.fromRGB(20,20,25)
+        Instance.new("UICorner",KeyFrame).CornerRadius = UDim.new(0,12)
+
+        local Box = Instance.new("TextBox", KeyFrame)
+        Box.Size = UDim2.new(0.8,0,0,35)
+        Box.Position = UDim2.new(0.1,0,0.3,0)
+        Box.PlaceholderText = "Enter Key..."
+        Box.Text = ""
+        Box.TextColor3 = Color3.new(1,1,1)
+        Box.BackgroundColor3 = Color3.fromRGB(35,35,45)
+        Instance.new("UICorner",Box).CornerRadius = UDim.new(0,8)
+
+        local Check = Instance.new("TextButton", KeyFrame)
+        Check.Size = UDim2.new(0.8,0,0,35)
+        Check.Position = UDim2.new(0.1,0,0.65,0)
+        Check.Text = "Confirm"
+        Check.BackgroundColor3 = Color3.fromRGB(255,0,80)
+        Check.TextColor3 = Color3.new(1,1,1)
+        Instance.new("UICorner",Check).CornerRadius = UDim.new(0,8)
+
+        local Passed = false
+
+        Check.MouseButton1Click:Connect(function()
+            if Box.Text == Key then
+                Passed = true
+                KeyFrame:Destroy()
+            else
+                Box.Text = "Wrong Key"
+            end
+        end)
+
+        repeat task.wait() until Passed
+    end
+
+    -- MAIN
     local Main = Instance.new("Frame", ScreenGui)
-    Main.Size = UDim2.new(0, 500, 0, 350)
-    Main.Position = UDim2.new(0.5, -250, 0.5, -175)
-    Main.BackgroundColor3 = Color3.fromRGB(20,20,25)
-    Main.BorderSizePixel = 0
+    Main.Size = UDim2.new(0,600,0,400)
+    Main.Position = UDim2.new(0.5,-300,0.5,-200)
+    Main.BackgroundColor3 = Color3.fromRGB(15,15,20)
     Main.Active = true
     Main.Draggable = true
+    Instance.new("UICorner",Main).CornerRadius = UDim.new(0,15)
 
-    Instance.new("UICorner", Main).CornerRadius = UDim.new(0,15)
+    -- Top Bar
+    local Top = Instance.new("Frame", Main)
+    Top.Size = UDim2.new(1,0,0,40)
+    Top.BackgroundColor3 = Color3.fromRGB(255,0,80)
+    Instance.new("UICorner",Top).CornerRadius = UDim.new(0,15)
 
-    -- Title
-    local Title = Instance.new("TextLabel", Main)
-    Title.Size = UDim2.new(1,0,0,40)
-    Title.BackgroundTransparency = 1
-    Title.Text = title or "AxiomX Window"
-    Title.TextColor3 = Color3.fromRGB(255,0,100)
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 20
+    local TitleLabel = Instance.new("TextLabel", Top)
+    TitleLabel.Size = UDim2.new(1,-50,1,0)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = Title
+    TitleLabel.TextColor3 = Color3.new(1,1,1)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 18
 
-    -- Container
-    local Container = Instance.new("Frame", Main)
-    Container.Size = UDim2.new(1,-20,1,-60)
-    Container.Position = UDim2.new(0,10,0,50)
-    Container.BackgroundTransparency = 1
+    -- Minimize
+    local MinBtn = Instance.new("TextButton", Top)
+    MinBtn.Size = UDim2.new(0,40,0,40)
+    MinBtn.Position = UDim2.new(1,-40,0,0)
+    MinBtn.Text = "-"
+    MinBtn.BackgroundTransparency = 1
+    MinBtn.TextColor3 = Color3.new(1,1,1)
 
-    local UIList = Instance.new("UIListLayout", Container)
-    UIList.Padding = UDim.new(0,8)
+    local Minimized = false
+    MinBtn.MouseButton1Click:Connect(function()
+        Minimized = not Minimized
+        if Minimized then
+            Main.Size = UDim2.new(0,600,0,40)
+        else
+            Main.Size = UDim2.new(0,600,0,400)
+        end
+    end)
+
+    -- Tabs
+    local TabsFrame = Instance.new("Frame", Main)
+    TabsFrame.Size = UDim2.new(0,150,1,-40)
+    TabsFrame.Position = UDim2.new(0,0,0,40)
+    TabsFrame.BackgroundColor3 = Color3.fromRGB(25,25,35)
+
+    local Pages = Instance.new("Frame", Main)
+    Pages.Size = UDim2.new(1,-150,1,-40)
+    Pages.Position = UDim2.new(0,150,0,40)
+    Pages.BackgroundTransparency = 1
+
+    local TabList = Instance.new("UIListLayout", TabsFrame)
+    TabList.Padding = UDim.new(0,5)
 
     local WindowFunctions = {}
 
-    -- Criar Botão
-    function WindowFunctions:CreateButton(text, callback)
-        local Button = Instance.new("TextButton", Container)
-        Button.Size = UDim2.new(1,0,0,40)
-        Button.Text = text
-        Button.BackgroundColor3 = Color3.fromRGB(35,35,45)
-        Button.TextColor3 = Color3.fromRGB(255,255,255)
-        Button.Font = Enum.Font.Gotham
-        Button.TextSize = 14
-        Button.BorderSizePixel = 0
+    function WindowFunctions:CreateTab(name)
+        local TabButton = Instance.new("TextButton", TabsFrame)
+        TabButton.Size = UDim2.new(1,0,0,35)
+        TabButton.Text = name
+        TabButton.BackgroundColor3 = Color3.fromRGB(35,35,45)
+        TabButton.TextColor3 = Color3.new(1,1,1)
 
-        Instance.new("UICorner", Button).CornerRadius = UDim.new(0,10)
+        local Page = Instance.new("ScrollingFrame", Pages)
+        Page.Size = UDim2.new(1,0,1,0)
+        Page.CanvasSize = UDim2.new(0,0,0,0)
+        Page.ScrollBarThickness = 4
+        Page.Visible = false
 
-        Button.MouseButton1Click:Connect(function()
-            TweenService:Create(Button,TweenInfo.new(0.1),{
-                BackgroundColor3 = Color3.fromRGB(255,0,100)
-            }):Play()
+        local Layout = Instance.new("UIListLayout", Page)
+        Layout.Padding = UDim.new(0,6)
 
-            wait(0.1)
-
-            TweenService:Create(Button,TweenInfo.new(0.1),{
-                BackgroundColor3 = Color3.fromRGB(35,35,45)
-            }):Play()
-
-            if callback then
-                callback()
+        TabButton.MouseButton1Click:Connect(function()
+            for _,v in pairs(Pages:GetChildren()) do
+                if v:IsA("ScrollingFrame") then
+                    v.Visible = false
+                end
             end
+            Page.Visible = true
         end)
-    end
 
-    -- Criar Toggle
-    function WindowFunctions:CreateToggle(text, callback)
-        local Toggled = false
+        local TabFunctions = {}
 
-        local Toggle = Instance.new("TextButton", Container)
-        Toggle.Size = UDim2.new(1,0,0,40)
-        Toggle.Text = text .. " : OFF"
-        Toggle.BackgroundColor3 = Color3.fromRGB(35,35,45)
-        Toggle.TextColor3 = Color3.fromRGB(255,255,255)
-        Toggle.Font = Enum.Font.Gotham
-        Toggle.TextSize = 14
-        Toggle.BorderSizePixel = 0
+        function TabFunctions:CreateButton(text, callback)
+            local Btn = Instance.new("TextButton", Page)
+            Btn.Size = UDim2.new(1,-10,0,35)
+            Btn.Text = text
+            Btn.BackgroundColor3 = Color3.fromRGB(40,40,55)
+            Btn.TextColor3 = Color3.new(1,1,1)
 
-        Instance.new("UICorner", Toggle).CornerRadius = UDim.new(0,10)
+            Btn.MouseButton1Click:Connect(function()
+                if callback then callback() end
+            end)
+        end
 
-        Toggle.MouseButton1Click:Connect(function()
-            Toggled = not Toggled
+        function TabFunctions:CreateSlider(text, min, max, callback)
+            local SliderBtn = Instance.new("TextButton", Page)
+            SliderBtn.Size = UDim2.new(1,-10,0,35)
+            SliderBtn.Text = text .. " : "..min
+            SliderBtn.BackgroundColor3 = Color3.fromRGB(40,40,55)
+            SliderBtn.TextColor3 = Color3.new(1,1,1)
 
-            if Toggled then
-                Toggle.Text = text .. " : ON"
-                Toggle.BackgroundColor3 = Color3.fromRGB(255,0,100)
-            else
-                Toggle.Text = text .. " : OFF"
-                Toggle.BackgroundColor3 = Color3.fromRGB(35,35,45)
-            end
+            local value = min
 
-            if callback then
-                callback(Toggled)
-            end
-        end)
+            SliderBtn.MouseButton1Click:Connect(function()
+                value = value + 1
+                if value > max then value = min end
+                SliderBtn.Text = text .. " : "..value
+                if callback then callback(value) end
+            end)
+        end
+
+        return TabFunctions
     end
 
     return WindowFunctions
