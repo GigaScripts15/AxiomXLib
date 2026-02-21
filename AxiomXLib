@@ -1,183 +1,1855 @@
--- 🔥 AxiomX Library V2
--- By: Gabryel Blox 😎
+--[[
+    AxiomX - Biblioteca de Interface Moderna para Roblox
+    Versão: 2.0.0
+    Autor: Assistente
+    Estilo: Similar ao redzlib
+]]
 
-local AxiomX = {}
-AxiomX.__index = AxiomX
-
-local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerMouse = Player:GetMouse()
 
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local AxiomX = {
+	Themes = {
+		Default = {
+			["Color Main 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 20, 35)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(45, 35, 55)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 20, 35))
+			}),
+			["Color Main 2"] = Color3.fromRGB(35, 30, 45),
+			["Color Stroke"] = Color3.fromRGB(20, 15, 25),
+			["Color Accent"] = Color3.fromRGB(100, 80, 255),
+			["Color Text"] = Color3.fromRGB(255, 255, 255),
+			["Color Dark Text"] = Color3.fromRGB(180, 180, 180),
+			["Color Success"] = Color3.fromRGB(50, 200, 100),
+			["Color Error"] = Color3.fromRGB(255, 80, 80),
+			["Color Warning"] = Color3.fromRGB(255, 180, 50)
+		},
+		Dark = {
+			["Color Main 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(30, 30, 30)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
+			}),
+			["Color Main 2"] = Color3.fromRGB(25, 25, 25),
+			["Color Stroke"] = Color3.fromRGB(10, 10, 10),
+			["Color Accent"] = Color3.fromRGB(0, 160, 255),
+			["Color Text"] = Color3.fromRGB(255, 255, 255),
+			["Color Dark Text"] = Color3.fromRGB(160, 160, 160),
+			["Color Success"] = Color3.fromRGB(0, 200, 0),
+			["Color Error"] = Color3.fromRGB(255, 50, 50),
+			["Color Warning"] = Color3.fromRGB(255, 165, 0)
+		},
+		Light = {
+			["Color Main 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(240, 240, 240)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 255, 255)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(240, 240, 240))
+			}),
+			["Color Main 2"] = Color3.fromRGB(230, 230, 230),
+			["Color Stroke"] = Color3.fromRGB(200, 200, 200),
+			["Color Accent"] = Color3.fromRGB(0, 120, 255),
+			["Color Text"] = Color3.fromRGB(20, 20, 20),
+			["Color Dark Text"] = Color3.fromRGB(80, 80, 80),
+			["Color Success"] = Color3.fromRGB(0, 150, 0),
+			["Color Error"] = Color3.fromRGB(200, 0, 0),
+			["Color Warning"] = Color3.fromRGB(200, 120, 0)
+		},
+		Midnight = {
+			["Color Main 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 5, 20)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(25, 15, 35)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 5, 20))
+			}),
+			["Color Main 2"] = Color3.fromRGB(20, 10, 30),
+			["Color Stroke"] = Color3.fromRGB(5, 0, 10),
+			["Color Accent"] = Color3.fromRGB(150, 50, 255),
+			["Color Text"] = Color3.fromRGB(255, 255, 255),
+			["Color Dark Text"] = Color3.fromRGB(200, 200, 255),
+			["Color Success"] = Color3.fromRGB(100, 255, 150),
+			["Color Error"] = Color3.fromRGB(255, 100, 100),
+			["Color Warning"] = Color3.fromRGB(255, 200, 100)
+		}
+	},
+	Info = {
+		Version = "2.0.0",
+		Name = "AxiomX Library"
+	},
+	Save = {
+		WindowSize = {600, 400},
+		SidebarSize = 180,
+		Theme = "Default",
+		AutoSave = true
+	},
+	Settings = {},
+	Connections = {},
+	Instances = {},
+	Elements = {},
+	Options = {},
+	Flags = {},
+	Tabs = {},
+	Icons = (function()
+		return {
+			["home"] = "rbxassetid://10709782497",
+			["settings"] = "rbxassetid://10734950309",
+			["user"] = "rbxassetid://10747373176",
+			["users"] = "rbxassetid://10747373426",
+			["gamepad"] = "rbxassetid://10723395457",
+			["award"] = "rbxassetid://10709769406",
+			["backpack"] = "rbxassetid://10709769841",
+			["book"] = "rbxassetid://10709781824",
+			["box"] = "rbxassetid://10709782497",
+			["briefcase"] = "rbxassetid://10709782662",
+			["calendar"] = "rbxassetid://10709789505",
+			["camera"] = "rbxassetid://10709789686",
+			["clock"] = "rbxassetid://10709805144",
+			["cloud"] = "rbxassetid://10709806740",
+			["code"] = "rbxassetid://10709810463",
+			["cog"] = "rbxassetid://10709810948",
+			["coins"] = "rbxassetid://10709811110",
+			["compass"] = "rbxassetid://10709811445",
+			["credit"] = "rbxassetid://10723343958",
+			["database"] = "rbxassetid://10709818996",
+			["delete"] = "rbxassetid://10709819059",
+			["download"] = "rbxassetid://10723344270",
+			["edit"] = "rbxassetid://10734883598",
+			["eye"] = "rbxassetid://10723346959",
+			["file"] = "rbxassetid://10723374641",
+			["filter"] = "rbxassetid://10723375128",
+			["flag"] = "rbxassetid://10723375890",
+			["folder"] = "rbxassetid://10723387563",
+			["gift"] = "rbxassetid://10723396402",
+			["globe"] = "rbxassetid://10723404337",
+			["heart"] = "rbxassetid://10723406885",
+			["image"] = "rbxassetid://10723415040",
+			["info"] = "rbxassetid://10723415903",
+			["key"] = "rbxassetid://10723416652",
+			["laptop"] = "rbxassetid://10723423881",
+			["layers"] = "rbxassetid://10723424505",
+			["layout"] = "rbxassetid://10723425376",
+			["link"] = "rbxassetid://10723426722",
+			["list"] = "rbxassetid://10723433811",
+			["lock"] = "rbxassetid://10723434711",
+			["mail"] = "rbxassetid://10734885430",
+			["map"] = "rbxassetid://10734886202",
+			["menu"] = "rbxassetid://10734887784",
+			["mic"] = "rbxassetid://10734888864",
+			["moon"] = "rbxassetid://10734897102",
+			["music"] = "rbxassetid://10734905958",
+			["package"] = "rbxassetid://10734909540",
+			["palette"] = "rbxassetid://10734910430",
+			["pause"] = "rbxassetid://10734919336",
+			["pencil"] = "rbxassetid://10734919691",
+			["phone"] = "rbxassetid://10734921524",
+			["play"] = "rbxassetid://10734923549",
+			["plus"] = "rbxassetid://10734924532",
+			["power"] = "rbxassetid://10734930466",
+			["printer"] = "rbxassetid://10734930632",
+			["puzzle"] = "rbxassetid://10734930886",
+			["radio"] = "rbxassetid://10734931596",
+			["repeat"] = "rbxassetid://10734933966",
+			["rocket"] = "rbxassetid://10734934585",
+			["rss"] = "rbxassetid://10734940825",
+			["save"] = "rbxassetid://10734941499",
+			["search"] = "rbxassetid://10734943674",
+			["send"] = "rbxassetid://10734943902",
+			["server"] = "rbxassetid://10734949856",
+			["settings"] = "rbxassetid://10734950309",
+			["share"] = "rbxassetid://10734950813",
+			["shield"] = "rbxassetid://10734951847",
+			["shopping"] = "rbxassetid://10734952479",
+			["signal"] = "rbxassetid://10734961133",
+			["skull"] = "rbxassetid://10734962068",
+			["sliders"] = "rbxassetid://10734963400",
+			["smartphone"] = "rbxassetid://10734963940",
+			["smile"] = "rbxassetid://10734964441",
+			["snow"] = "rbxassetid://10734964600",
+			["speaker"] = "rbxassetid://10734965419",
+			["star"] = "rbxassetid://10734966248",
+			["sun"] = "rbxassetid://10734974297",
+			["table"] = "rbxassetid://10734976230",
+			["tag"] = "rbxassetid://10734976528",
+			["target"] = "rbxassetid://10734977012",
+			["terminal"] = "rbxassetid://10734982144",
+			["thermometer"] = "rbxassetid://10734983134",
+			["thumbsdown"] = "rbxassetid://10734983359",
+			["thumbsup"] = "rbxassetid://10734983629",
+			["ticket"] = "rbxassetid://10734983868",
+			["timer"] = "rbxassetid://10734984606",
+			["trash"] = "rbxassetid://10747362393",
+			["trophy"] = "rbxassetid://10747363809",
+			["truck"] = "rbxassetid://10747364031",
+			["tv"] = "rbxassetid://10747364593",
+			["umbrella"] = "rbxassetid://10747364971",
+			["unlock"] = "rbxassetid://10747366027",
+			["upload"] = "rbxassetid://10747366434",
+			["usb"] = "rbxassetid://10747366606",
+			["user"] = "rbxassetid://10747373176",
+			["users"] = "rbxassetid://10747373426",
+			["video"] = "rbxassetid://10747374938",
+			["volume"] = "rbxassetid://10747376008",
+			["wallet"] = "rbxassetid://10747376205",
+			["wand"] = "rbxassetid://10747376565",
+			["watch"] = "rbxassetid://10747376722",
+			["wifi"] = "rbxassetid://10747382504",
+			["wrench"] = "rbxassetid://10747383470",
+			["x"] = "rbxassetid://10747384394",
+			["zoomin"] = "rbxassetid://10747384552",
+			["zoomout"] = "rbxassetid://10747384679",
+			["activity"] = "rbxassetid://10709752035",
+			["alert"] = "rbxassetid://10709752996",
+			["archive"] = "rbxassetid://10709762233",
+			["arrowdown"] = "rbxassetid://10709767827",
+			["arrowleft"] = "rbxassetid://10709768114",
+			["arrowright"] = "rbxassetid://10709768347",
+			["arrowup"] = "rbxassetid://10709768939",
+			["battery"] = "rbxassetid://10709774640",
+			["bell"] = "rbxassetid://10709775704",
+			["bluetooth"] = "rbxassetid://10709776655",
+			["bold"] = "rbxassetid://10747813908",
+			["bookmark"] = "rbxassetid://10709782154",
+			["brush"] = "rbxassetid://10709782758",
+			["bug"] = "rbxassetid://10709782845",
+			["building"] = "rbxassetid://10709783051",
+			["bus"] = "rbxassetid://10709783137",
+			["cake"] = "rbxassetid://10709783217",
+			["calculator"] = "rbxassetid://10709783311",
+			["check"] = "rbxassetid://10709790644",
+			["chevron"] = "rbxassetid://10709790948",
+			["circle"] = "rbxassetid://10709798174",
+			["clipboard"] = "rbxassetid://10709799288"
+		}
+	end)()
+}
 
-function AxiomX:CreateWindow(settings)
+local ViewportSize = workspace.CurrentCamera.ViewportSize
+local UIScale = ViewportSize.Y / 500
 
-    settings = settings or {}
-    local Title = settings.Title or "AxiomX Hub"
-    local KeySystem = settings.KeySystem or false
-    local Key = settings.Key or "AxiomX"
+local Settings = AxiomX.Settings
+local Flags = AxiomX.Flags
 
-    -- GUI
-    local ScreenGui = Instance.new("ScreenGui", playerGui)
-    ScreenGui.Name = "AxiomX_V2"
-    ScreenGui.ResetOnSpawn = false
+local SetProps, SetChildren, InsertTheme, Create do
+	InsertTheme = function(Instance, Type)
+		table.insert(AxiomX.Instances, {
+			Instance = Instance,
+			Type = Type
+		})
+		return Instance
+	end
+	
+	SetChildren = function(Instance, Children)
+		if Children then
+			for _, Child in pairs(Children) do
+				if Child then
+					Child.Parent = Instance
+				end
+			end
+		end
+		return Instance
+	end
+	
+	SetProps = function(Instance, Props)
+		if Props then
+			for prop, value in pairs(Props) do
+				Instance[prop] = value
+			end
+		end
+		return Instance
+	end
+	
+	Create = function(...)
+		local args = {...}
+		if type(args[1]) ~= "string" then return end
+		
+		local new = Instance.new(args[1])
+		local parent = nil
+		local props = {}
+		local children = {}
+		
+		if typeof(args[2]) == "Instance" then
+			parent = args[2]
+			props = args[3] or {}
+			children = args[4] or {}
+		else
+			props = args[2] or {}
+			children = args[3] or {}
+		end
+		
+		SetProps(new, props)
+		SetChildren(new, children)
+		
+		if parent then
+			new.Parent = parent
+		end
+		
+		return new
+	end
+	
+	local function LoadSave(file)
+		if readfile and isfile and isfile(file) then
+			local success, decode = pcall(function()
+				return HttpService:JSONDecode(readfile(file))
+			end)
+			
+			if success and type(decode) == "table" then
+				if decode.WindowSize then AxiomX.Save.WindowSize = decode.WindowSize end
+				if decode.SidebarSize then AxiomX.Save.SidebarSize = decode.SidebarSize end
+				if decode.Theme and AxiomX.Themes[decode.Theme] then 
+					AxiomX.Save.Theme = decode.Theme 
+				end
+				if decode.AutoSave ~= nil then AxiomX.Save.AutoSave = decode.AutoSave end
+			end
+		end
+	end
+	
+	pcall(LoadSave, "axiomx_config.json")
+end
 
-    -- KEY SYSTEM
-    if KeySystem then
-        local KeyFrame = Instance.new("Frame", ScreenGui)
-        KeyFrame.Size = UDim2.new(0,300,0,150)
-        KeyFrame.Position = UDim2.new(0.5,-150,0.5,-75)
-        KeyFrame.BackgroundColor3 = Color3.fromRGB(20,20,25)
-        Instance.new("UICorner",KeyFrame).CornerRadius = UDim.new(0,12)
+local Functions = {} do
+	function Functions:AddCallback(list, func)
+		if type(func) == "function" then
+			table.insert(list, func)
+		end
+		return func
+	end
+	
+	function Functions:FireCallback(list, ...)
+		for _, func in ipairs(list) do
+			if type(func) == "function" then
+				task.spawn(func, ...)
+			end
+		end
+	end
+	
+	function Functions:ToggleVisible(obj, state)
+		if state == nil then
+			obj.Visible = not obj.Visible
+		else
+			obj.Visible = state
+		end
+	end
+	
+	function Functions:GetCallback(configs, index)
+		local func = configs[index] or configs.Callback or function() end
+		
+		if type(func) == "table" then
+			return {function(value) func[1][func[2]] = value end}
+		end
+		return {func}
+	end
+	
+	function Functions:CreateConnection(connectedFuncs, callback)
+		local connection = { Callback = callback, Connected = true }
+		
+		function connection:Disconnect()
+			if self.Connected then
+				for i, func in ipairs(connectedFuncs) do
+					if func == self.Callback then
+						table.remove(connectedFuncs, i)
+						break
+					end
+				end
+				self.Connected = false
+			end
+		end
+		
+		function connection:Fire(...)
+			if self.Connected then
+				task.spawn(self.Callback, ...)
+			end
+		end
+		
+		return connection
+	end
+end
 
-        local Box = Instance.new("TextBox", KeyFrame)
-        Box.Size = UDim2.new(0.8,0,0,35)
-        Box.Position = UDim2.new(0.1,0,0.3,0)
-        Box.PlaceholderText = "Enter Key..."
-        Box.Text = ""
-        Box.TextColor3 = Color3.new(1,1,1)
-        Box.BackgroundColor3 = Color3.fromRGB(35,35,45)
-        Instance.new("UICorner",Box).CornerRadius = UDim.new(0,8)
+local Connections = {} do
+	function AxiomX:CreateConnection(name)
+		local connectedFuncs = {}
+		local connection = {}
+		
+		Connections[name] = connectedFuncs
+		
+		function connection:Connect(callback)
+			if type(callback) == "function" then
+				table.insert(connectedFuncs, callback)
+				return Functions:CreateConnection(connectedFuncs, callback)
+			end
+		end
+		
+		function connection:Once(callback)
+			if type(callback) == "function" then
+				local once
+				once = function(...)
+					task.spawn(callback, ...)
+					once:Disconnect()
+				end
+				table.insert(connectedFuncs, once)
+				return Functions:CreateConnection(connectedFuncs, once)
+			end
+		end
+		
+		AxiomX.Connections[name] = connection
+		return connection
+	end
+	
+	function AxiomX:FireConnection(name, ...)
+		local funcs = Connections[name]
+		if funcs then
+			for _, func in ipairs(funcs) do
+				task.spawn(func, ...)
+			end
+		end
+	end
+end
 
-        local Check = Instance.new("TextButton", KeyFrame)
-        Check.Size = UDim2.new(0.8,0,0,35)
-        Check.Position = UDim2.new(0.1,0,0.65,0)
-        Check.Text = "Confirm"
-        Check.BackgroundColor3 = Color3.fromRGB(255,0,80)
-        Check.TextColor3 = Color3.new(1,1,1)
-        Instance.new("UICorner",Check).CornerRadius = UDim.new(0,8)
+AxiomX:CreateConnection("FlagChanged")
+AxiomX:CreateConnection("ThemeChanged")
+AxiomX:CreateConnection("WindowResized")
 
-        local Passed = false
+local function GetFlag(name)
+	return name and Flags[name]
+end
 
-        Check.MouseButton1Click:Connect(function()
-            if Box.Text == Key then
-                Passed = true
-                KeyFrame:Destroy()
-            else
-                Box.Text = "Wrong Key"
-            end
-        end)
+local function SetFlag(name, value)
+	if name and Flags[name] ~= value then
+		Flags[name] = value
+		AxiomX:FireConnection("FlagChanged", name, value)
+		
+		if AxiomX.Save.AutoSave and writefile then
+			local success, encoded = pcall(function()
+				return HttpService:JSONEncode(Flags)
+			end)
+			if success then
+				pcall(writefile, "axiomx_flags.json", encoded)
+			end
+		end
+	end
+end
 
-        repeat task.wait() until Passed
-    end
+local ScreenGui = Create("ScreenGui", CoreGui, {
+	Name = "AxiomX_Library",
+	DisplayOrder = 10
+}, {
+	Create("UIScale", {
+		Scale = UIScale,
+		Name = "UIScale"
+	})
+})
 
-    -- MAIN
-    local Main = Instance.new("Frame", ScreenGui)
-    Main.Size = UDim2.new(0,600,0,400)
-    Main.Position = UDim2.new(0.5,-300,0.5,-200)
-    Main.BackgroundColor3 = Color3.fromRGB(15,15,20)
-    Main.Active = true
-    Main.Draggable = true
-    Instance.new("UICorner",Main).CornerRadius = UDim.new(0,15)
+local Existing = CoreGui:FindFirstChild(ScreenGui.Name)
+if Existing and Existing ~= ScreenGui then
+	Existing:Destroy()
+end
 
-    -- Top Bar
-    local Top = Instance.new("Frame", Main)
-    Top.Size = UDim2.new(1,0,0,40)
-    Top.BackgroundColor3 = Color3.fromRGB(255,0,80)
-    Instance.new("UICorner",Top).CornerRadius = UDim.new(0,15)
+local function GetString(value)
+	if type(value) == "function" then
+		return value()
+	end
+	return value
+end
 
-    local TitleLabel = Instance.new("TextLabel", Top)
-    TitleLabel.Size = UDim2.new(1,-50,1,0)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = Title
-    TitleLabel.TextColor3 = Color3.new(1,1,1)
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextSize = 18
+local function CreateTween(config)
+	local instance = config[1] or config.Instance
+	local property = config[2] or config.Property
+	local goal = config[3] or config.Goal
+	local duration = config[4] or config.Duration or 0.3
+	local wait = config[5] or config.Wait or false
+	local easingStyle = config[6] or config.Easing or Enum.EasingStyle.Quint
+	
+	local tweenInfo = TweenInfo.new(duration, easingStyle)
+	local tween = TweenService:Create(instance, tweenInfo, {[property] = goal})
+	tween:Play()
+	
+	if wait then
+		tween.Completed:Wait()
+	end
+	
+	return tween
+end
 
-    -- Minimize
-    local MinBtn = Instance.new("TextButton", Top)
-    MinBtn.Size = UDim2.new(0,40,0,40)
-    MinBtn.Position = UDim2.new(1,-40,0,0)
-    MinBtn.Text = "-"
-    MinBtn.BackgroundTransparency = 1
-    MinBtn.TextColor3 = Color3.new(1,1,1)
+local function MakeDraggable(frame)
+	task.spawn(function()
+		SetProps(frame, {
+			Active = true,
+			AutoButtonColor = false
+		})
+		
+		local dragging = false
+		local dragStart = nil
+		local startPos = nil
+		
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = true
+				startPos = frame.Position
+				dragStart = input.Position
+				
+				while dragging and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+					RunService.Heartbeat:Wait()
+					local delta = input.Position - dragStart
+					local newPos = UDim2.new(
+						startPos.X.Scale, 
+						startPos.X.Offset + delta.X / UIScale,
+						startPos.Y.Scale, 
+						startPos.Y.Offset + delta.Y / UIScale
+					)
+					CreateTween({frame, "Position", newPos, 0.2})
+				end
+				dragging = false
+			end
+		end)
+		
+		frame.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = false
+			end
+		end)
+	end)
+	
+	return frame
+end
 
-    local Minimized = false
-    MinBtn.MouseButton1Click:Connect(function()
-        Minimized = not Minimized
-        if Minimized then
-            Main.Size = UDim2.new(0,600,0,40)
-        else
-            Main.Size = UDim2.new(0,600,0,400)
-        end
-    end)
+local function SaveConfig()
+	if writefile then
+		local config = {
+			WindowSize = AxiomX.Save.WindowSize,
+			SidebarSize = AxiomX.Save.SidebarSize,
+			Theme = AxiomX.Save.Theme,
+			AutoSave = AxiomX.Save.AutoSave
+		}
+		local success, json = pcall(function()
+			return HttpService:JSONEncode(config)
+		end)
+		if success then
+			pcall(writefile, "axiomx_config.json", json)
+		end
+	end
+end
 
-    -- Tabs
-    local TabsFrame = Instance.new("Frame", Main)
-    TabsFrame.Size = UDim2.new(0,150,1,-40)
-    TabsFrame.Position = UDim2.new(0,0,0,40)
-    TabsFrame.BackgroundColor3 = Color3.fromRGB(25,25,35)
+local currentTheme = AxiomX.Themes[AxiomX.Save.Theme]
 
-    local Pages = Instance.new("Frame", Main)
-    Pages.Size = UDim2.new(1,-150,1,-40)
-    Pages.Position = UDim2.new(0,150,0,40)
-    Pages.BackgroundTransparency = 1
+local function CreateCorner(parent, radius)
+	return Create("UICorner", parent, {
+		CornerRadius = radius or UDim.new(0, 6)
+	})
+end
 
-    local TabList = Instance.new("UIListLayout", TabsFrame)
-    TabList.Padding = UDim.new(0,5)
+local function CreateStroke(parent, ...)
+	local args = {...}
+	local color = args[1] or currentTheme["Color Stroke"]
+	local thickness = args[2] or 1
+	
+	return InsertTheme(Create("UIStroke", parent, {
+		Color = color,
+		Thickness = thickness,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	}), "Stroke")
+end
 
-    local WindowFunctions = {}
+local function CreateGradient(parent, ...)
+	local args = {...}
+	return InsertTheme(Create("UIGradient", parent, {
+		Color = args[1] or currentTheme["Color Main 1"],
+		Rotation = args[2] or 45
+	}), "Gradient")
+end
 
-    function WindowFunctions:CreateTab(name)
-        local TabButton = Instance.new("TextButton", TabsFrame)
-        TabButton.Size = UDim2.new(1,0,0,35)
-        TabButton.Text = name
-        TabButton.BackgroundColor3 = Color3.fromRGB(35,35,45)
-        TabButton.TextColor3 = Color3.new(1,1,1)
+local function CreateButton(parent, ...)
+	local args = {...}
+	local button = InsertTheme(Create("TextButton", parent, {
+		Text = "",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = currentTheme["Color Main 2"],
+		AutoButtonColor = false
+	}), "Frame")
+	
+	button.MouseEnter:Connect(function()
+		button.BackgroundTransparency = 0.3
+	end)
+	button.MouseLeave:Connect(function()
+		button.BackgroundTransparency = 0
+	end)
+	
+	if args[1] then
+		button.Activated:Connect(args[1])
+	end
+	
+	return button
+end
 
-        local Page = Instance.new("ScrollingFrame", Pages)
-        Page.Size = UDim2.new(1,0,1,0)
-        Page.CanvasSize = UDim2.new(0,0,0,0)
-        Page.ScrollBarThickness = 4
-        Page.Visible = false
+local function CreateOptionFrame(parent, title, description, size)
+	local titleLabel = InsertTheme(Create("TextLabel", {
+		Font = Enum.Font.GothamMedium,
+		TextColor3 = currentTheme["Color Text"],
+		Size = UDim2.new(1, -20),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Position = UDim2.new(0, 0, 0.5),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundTransparency = 1,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		TextSize = 11,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
+		RichText = true
+	}), "Text")
+	
+	local descLabel = InsertTheme(Create("TextLabel", {
+		Font = Enum.Font.Gotham,
+		TextColor3 = currentTheme["Color Dark Text"],
+		Size = UDim2.new(1, -20),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Position = UDim2.new(0, 12, 0, 15),
+		BackgroundTransparency = 1,
+		TextWrapped = true,
+		TextSize = 9,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
+		RichText = true
+	}), "DarkText")
+	
+	local frame = CreateButton(parent, nil)
+	frame.Size = UDim2.new(1, 0, 0, 26)
+	frame.AutomaticSize = Enum.AutomaticSize.Y
+	frame.Name = "Option"
+	CreateCorner(frame, UDim.new(0, 5))
+	
+	local labelHolder = Create("Frame", frame, {
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+		Size = size,
+		Position = UDim2.new(0, 8, 0),
+		AnchorPoint = Vector2.new(0, 0)
+	}, {
+		Create("UIListLayout", {
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 2)
+		}),
+		Create("UIPadding", {
+			PaddingBottom = UDim.new(0, 4),
+			PaddingTop = UDim.new(0, 4)
+		}),
+		titleLabel,
+		descLabel
+	})
+	
+	local methods = {}
+	
+	function methods:SetTitle(newTitle)
+		if type(newTitle) == "string" and #newTitle:gsub("%s", "") > 0 then
+			titleLabel.Text = newTitle
+		end
+	end
+	
+	function methods:SetDescription(newDesc)
+		if type(newDesc) == "string" and #newDesc:gsub("%s", "") > 0 then
+			descLabel.Visible = true
+			descLabel.Text = newDesc
+			labelHolder.Position = UDim2.new(0, 8, 0)
+			labelHolder.AnchorPoint = Vector2.new(0, 0)
+		else
+			descLabel.Visible = false
+			descLabel.Text = ""
+			labelHolder.Position = UDim2.new(0, 8, 0.5)
+			labelHolder.AnchorPoint = Vector2.new(0, 0.5)
+		end
+	end
+	
+	methods:SetTitle(title)
+	methods:SetDescription(description)
+	
+	return frame, methods
+end
 
-        local Layout = Instance.new("UIListLayout", Page)
-        Layout.Padding = UDim.new(0,6)
+function AxiomX:GetIcon(name)
+	if type(name) ~= "string" or name:find("rbxassetid://") or #name == 0 then
+		return name
+	end
+	
+	local search = string.lower(name):gsub("icon", ""):gsub("-", "")
+	
+	if self.Icons[search] then
+		return self.Icons[search]
+	end
+	
+	for iconName, iconId in pairs(self.Icons) do
+		if iconName:find(search, 1, true) then
+			return iconId
+		end
+	end
+	
+	return name
+end
 
-        TabButton.MouseButton1Click:Connect(function()
-            for _,v in pairs(Pages:GetChildren()) do
-                if v:IsA("ScrollingFrame") then
-                    v.Visible = false
-                end
-            end
-            Page.Visible = true
-        end)
+function AxiomX:SetTheme(themeName)
+	if not self.Themes[themeName] then return end
+	
+	AxiomX.Save.Theme = themeName
+	SaveConfig()
+	currentTheme = self.Themes[themeName]
+	
+	self:FireConnection("ThemeChanged", themeName)
+	
+	for _, data in ipairs(self.Instances) do
+		local instance = data.Instance
+		local type = data.Type
+		
+		if type == "Gradient" then
+			instance.Color = currentTheme["Color Main 1"]
+		elseif type == "Frame" then
+			instance.BackgroundColor3 = currentTheme["Color Main 2"]
+		elseif type == "Stroke" then
+			instance.Color = currentTheme["Color Stroke"]
+		elseif type == "Accent" then
+			if instance:IsA("Frame") then
+				instance.BackgroundColor3 = currentTheme["Color Accent"]
+			elseif instance:IsA("TextLabel") then
+				instance.TextColor3 = currentTheme["Color Accent"]
+			elseif instance:IsA("ImageLabel") then
+				instance.ImageColor3 = currentTheme["Color Accent"]
+			end
+		elseif type == "Text" then
+			instance.TextColor3 = currentTheme["Color Text"]
+		elseif type == "DarkText" then
+			instance.TextColor3 = currentTheme["Color Dark Text"]
+		elseif type == "ScrollBar" then
+			instance.ScrollBarImageColor3 = currentTheme["Color Accent"]
+		end
+	end
+end
 
-        local TabFunctions = {}
+function AxiomX:SetScale(scale)
+	local newScale = ViewportSize.Y / math.clamp(scale, 300, 2000)
+	UIScale = newScale
+	ScreenGui.UIScale.Scale = newScale
+end
 
-        function TabFunctions:CreateButton(text, callback)
-            local Btn = Instance.new("TextButton", Page)
-            Btn.Size = UDim2.new(1,-10,0,35)
-            Btn.Text = text
-            Btn.BackgroundColor3 = Color3.fromRGB(40,40,55)
-            Btn.TextColor3 = Color3.new(1,1,1)
-
-            Btn.MouseButton1Click:Connect(function()
-                if callback then callback() end
-            end)
-        end
-
-        function TabFunctions:CreateSlider(text, min, max, callback)
-            local SliderBtn = Instance.new("TextButton", Page)
-            SliderBtn.Size = UDim2.new(1,-10,0,35)
-            SliderBtn.Text = text .. " : "..min
-            SliderBtn.BackgroundColor3 = Color3.fromRGB(40,40,55)
-            SliderBtn.TextColor3 = Color3.new(1,1,1)
-
-            local value = min
-
-            SliderBtn.MouseButton1Click:Connect(function()
-                value = value + 1
-                if value > max then value = min end
-                SliderBtn.Text = text .. " : "..value
-                if callback then callback(value) end
-            end)
-        end
-
-        return TabFunctions
-    end
-
-    return WindowFunctions
+function AxiomX:MakeWindow(config)
+	local title = config[1] or config.Title or config.Name or "AxiomX"
+	local subtitle = config[2] or config.Subtitle or config.SubTitle or "v2.0.0"
+	local saveFile = config[3] or config.SaveFile or config.SaveFolder or false
+	
+	if saveFile and readfile and isfile then
+		local success, data = pcall(function()
+			return readfile(saveFile)
+		end)
+		if success and type(data) == "string" then
+			local success, decoded = pcall(function()
+				return HttpService:JSONDecode(data)
+			end)
+			if success then
+				Flags = decoded
+			end
+		end
+	end
+	
+	local windowWidth, windowHeight = unpack(AxiomX.Save.WindowSize)
+	
+	local mainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
+		Size = UDim2.fromOffset(windowWidth, windowHeight),
+		Position = UDim2.new(0.5, -windowWidth/2, 0.5, -windowHeight/2),
+		BackgroundTransparency = 0.05,
+		Name = "MainWindow",
+		AutoButtonColor = false
+	}), "Frame")
+	
+	CreateGradient(mainFrame)
+	CreateCorner(mainFrame, UDim.new(0, 8))
+	MakeDraggable(mainFrame)
+	
+	local components = Create("Folder", mainFrame, {
+		Name = "Components"
+	})
+	
+	local topBar = Create("Frame", components, {
+		Size = UDim2.new(1, 0, 0, 30),
+		BackgroundTransparency = 1,
+		Name = "TopBar"
+	})
+	
+	local titleLabel = InsertTheme(Create("TextLabel", topBar, {
+		Position = UDim2.new(0, 12, 0.5),
+		AnchorPoint = Vector2.new(0, 0.5),
+		AutomaticSize = Enum.AutomaticSize.XY,
+		Text = title,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextSize = 14,
+		TextColor3 = currentTheme["Color Text"],
+		BackgroundTransparency = 1,
+		Font = Enum.Font.GothamMedium,
+		Name = "Title"
+	}, {
+		InsertTheme(Create("TextLabel", {
+			Size = UDim2.new(0, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.X,
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(1, 6, 0.9),
+			Text = subtitle,
+			TextColor3 = currentTheme["Color Dark Text"],
+			BackgroundTransparency = 1,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextYAlignment = Enum.TextYAlignment.Bottom,
+			TextSize = 10,
+			Font = Enum.Font.Gotham,
+			Name = "Subtitle"
+		}), "DarkText")
+	}), "Text")
+	
+	local sidebar = InsertTheme(Create("ScrollingFrame", components, {
+		Size = UDim2.new(0, AxiomX.Save.SidebarSize, 1, -topBar.Size.Y.Offset),
+		ScrollBarImageColor3 = currentTheme["Color Accent"],
+		Position = UDim2.new(0, 0, 1, 0),
+		AnchorPoint = Vector2.new(0, 1),
+		ScrollBarThickness = 2,
+		BackgroundTransparency = 1,
+		ScrollBarImageTransparency = 0.2,
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		BorderSizePixel = 0,
+		Name = "Sidebar"
+	}, {
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8),
+			PaddingTop = UDim.new(0, 8),
+			PaddingBottom = UDim.new(0, 8)
+		}),
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 4),
+			SortOrder = Enum.SortOrder.LayoutOrder
+		})
+	}), "ScrollBar")
+	
+	local contentArea = Create("Frame", components, {
+		Size = UDim2.new(1, -sidebar.Size.X.Offset, 1, -topBar.Size.Y.Offset),
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
+		Name = "ContentArea"
+	})
+	
+	local resizeHandle = MakeDraggable(Create("ImageButton", mainFrame, {
+		Size = UDim2.new(0, 20, 0, 20),
+		Position = UDim2.new(1, -10, 1, -10),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://10747384552",
+		ImageColor3 = currentTheme["Color Dark Text"],
+		Name = "ResizeHandle"
+	}))
+	
+	local function updateSize()
+		local pos = resizeHandle.Position
+		local newWidth = math.clamp(pos.X.Offset, 400, 1000)
+		local newHeight = math.clamp(pos.Y.Offset, 250, 600)
+		
+		mainFrame.Size = UDim2.fromOffset(newWidth, newHeight)
+		sidebar.Size = UDim2.new(0, AxiomX.Save.SidebarSize, 1, -topBar.Size.Y.Offset)
+		contentArea.Size = UDim2.new(1, -sidebar.Size.X.Offset, 1, -topBar.Size.Y.Offset)
+		
+		AxiomX.Save.WindowSize = {newWidth, newHeight}
+		AxiomX:FireConnection("WindowResized", newWidth, newHeight)
+	end
+	
+	resizeHandle:GetPropertyChangedSignal("Position"):Connect(updateSize)
+	
+	resizeHandle.MouseButton1Up:Connect(function()
+		SaveConfig()
+	end)
+	
+	local buttonContainer = Create("Frame", topBar, {
+		Size = UDim2.new(0, 60, 1, 0),
+		Position = UDim2.new(1, -10, 0.5),
+		AnchorPoint = Vector2.new(1, 0.5),
+		BackgroundTransparency = 1,
+		Name = "WindowButtons"
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8)
+		})
+	})
+	
+	local minimizeBtn = Create("ImageButton", buttonContainer, {
+		Size = UDim2.new(0, 16, 0, 16),
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://10734896206",
+		ImageColor3 = currentTheme["Color Dark Text"],
+		Name = "Minimize"
+	})
+	
+	local closeBtn = Create("ImageButton", buttonContainer, {
+		Size = UDim2.new(0, 16, 0, 16),
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://10747384394",
+		ImageColor3 = currentTheme["Color Dark Text"],
+		Name = "Close"
+	})
+	
+	local minimized = false
+	local originalSize
+	
+	minimizeBtn.MouseEnter:Connect(function()
+		minimizeBtn.ImageColor3 = currentTheme["Color Accent"]
+	end)
+	minimizeBtn.MouseLeave:Connect(function()
+		minimizeBtn.ImageColor3 = currentTheme["Color Dark Text"]
+	end)
+	
+	closeBtn.MouseEnter:Connect(function()
+		closeBtn.ImageColor3 = currentTheme["Color Error"]
+	end)
+	closeBtn.MouseLeave:Connect(function()
+		closeBtn.ImageColor3 = currentTheme["Color Dark Text"]
+	end)
+	
+	local window = {
+		Minimized = false
+	}
+	
+	function window:Minimize()
+		if window.Minimized then
+			CreateTween({mainFrame, "Size", originalSize, 0.25})
+			minimizeBtn.Image = "rbxassetid://10734896206"
+			resizeHandle.Visible = true
+			window.Minimized = false
+		else
+			originalSize = mainFrame.Size
+			CreateTween({mainFrame, "Size", UDim2.fromOffset(mainFrame.Size.X.Offset, 30), 0.25})
+			minimizeBtn.Image = "rbxassetid://10734924532"
+			resizeHandle.Visible = false
+			window.Minimized = true
+		end
+	end
+	
+	function window:Toggle()
+		mainFrame.Visible = not mainFrame.Visible
+	end
+	
+	function window:SetTitle(newTitle)
+		titleLabel.Text = newTitle
+	end
+	
+	function window:SetSubtitle(newSubtitle)
+		titleLabel.Subtitle.Text = newSubtitle
+	end
+	
+	function window:Dialog(config)
+		if mainFrame:FindFirstChild("DialogOverlay") then return end
+		
+		local dialogTitle = config[1] or config.Title or "Dialog"
+		local dialogText = config[2] or config.Text or ""
+		local dialogOptions = config[3] or config.Options or {}
+		
+		local overlay = Create("Frame", mainFrame, {
+			BackgroundTransparency = 0.5,
+			BackgroundColor3 = Color3.new(0, 0, 0),
+			Size = UDim2.new(1, 0, 1, 0),
+			Active = true,
+			Name = "DialogOverlay"
+		})
+		
+		local dialog = Create("Frame", overlay, {
+			Size = UDim2.fromOffset(250, 150),
+			Position = UDim2.fromScale(0.5, 0.5),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 0.1
+		}, {
+			CreateGradient({}, nil, 90),
+			CreateCorner({}, UDim.new(0, 6)),
+			CreateStroke({}),
+			Create("TextLabel", {
+				Font = Enum.Font.GothamBold,
+				Size = UDim2.new(1, -20, 0, 20),
+				Position = UDim2.fromOffset(10, 8),
+				Text = dialogTitle,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextColor3 = currentTheme["Color Text"],
+				TextSize = 14,
+				BackgroundTransparency = 1
+			}),
+			Create("TextLabel", {
+				Font = Enum.Font.Gotham,
+				Size = UDim2.new(1, -20, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				Position = UDim2.fromOffset(10, 32),
+				Text = dialogText,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextColor3 = currentTheme["Color Dark Text"],
+				TextSize = 11,
+				BackgroundTransparency = 1,
+				TextWrapped = true
+			})
+		})
+		
+		local buttonHolder = Create("Frame", dialog, {
+			Size = UDim2.new(1, -20, 0, 30),
+			Position = UDim2.new(0.5, 0, 1, -8),
+			AnchorPoint = Vector2.new(0.5, 1),
+			BackgroundTransparency = 1
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 8)
+			})
+		})
+		
+		CreateTween({dialog, "Size", UDim2.fromOffset(240, 140), 0.2})
+		
+		local dialogMethods = {}
+		
+		function dialogMethods:AddButton(btnConfig)
+			local btnText = btnConfig[1] or btnConfig.Text or "Button"
+			local btnCallback = btnConfig[2] or btnConfig.Callback or function() end
+			
+			local btn = Create("TextButton", buttonHolder, {
+				Size = UDim2.new(0, 60, 0, 24),
+				Text = btnText,
+				Font = Enum.Font.GothamBold,
+				TextSize = 11,
+				TextColor3 = currentTheme["Color Text"],
+				BackgroundColor3 = currentTheme["Color Main 2"]
+			})
+			CreateCorner(btn, UDim.new(0, 4))
+			
+			btn.MouseEnter:Connect(function()
+				btn.BackgroundColor3 = currentTheme["Color Accent"]
+			end)
+			btn.MouseLeave:Connect(function()
+				btn.BackgroundColor3 = currentTheme["Color Main 2"]
+			end)
+			
+			btn.Activated:Connect(function()
+				btnCallback()
+				dialogMethods:Close()
+			end)
+		end
+		
+		function dialogMethods:Close()
+			CreateTween({overlay, "BackgroundTransparency", 1, 0.2, true})
+			overlay:Destroy()
+		end
+		
+		for _, option in ipairs(dialogOptions) do
+			if type(option) == "table" then
+				dialogMethods:AddButton({
+					Text = option[1] or "Button",
+					Callback = option[2] or function() end
+				})
+			end
+		end
+		
+		return dialogMethods
+	end
+	
+	minimizeBtn.Activated:Connect(function()
+		window:Minimize()
+	end)
+	
+	closeBtn.Activated:Connect(function()
+		window:Dialog({
+			Title = "Close",
+			Text = "Are you sure you want to close?",
+			Options = {
+				{"Yes", function() ScreenGui:Destroy() end},
+				{"No"}
+			}
+		})
+	end)
+	
+	local tabs = {}
+	local containers = {}
+	local activeTab = nil
+	
+	function window:CreateTab(config)
+		local tabName = config[1] or config.Name or config.Title or "Tab"
+		local tabIcon = config[2] or config.Icon or ""
+		
+		tabIcon = self:GetIcon(tabIcon)
+		if tabIcon and not tabIcon:find("rbxassetid://") then
+			tabIcon = false
+		end
+		
+		local tabButton = CreateButton(sidebar, nil)
+		tabButton.Size = UDim2.new(1, 0, 0, 28)
+		tabButton.AutomaticSize = Enum.AutomaticSize.None
+		
+		local iconLabel
+		if tabIcon then
+			iconLabel = InsertTheme(Create("ImageLabel", tabButton, {
+				Size = UDim2.new(0, 16, 0, 16),
+				Position = UDim2.new(0, 6, 0.5),
+				AnchorPoint = Vector2.new(0, 0.5),
+				Image = tabIcon,
+				BackgroundTransparency = 1,
+				ImageColor3 = currentTheme["Color Text"]
+			}), "Text")
+		end
+		
+		local nameLabel = InsertTheme(Create("TextLabel", tabButton, {
+			Size = UDim2.new(1, tabIcon and -28 or -16, 1, 0),
+			Position = UDim2.new(0, tabIcon and 28 or 16, 0),
+			BackgroundTransparency = 1,
+			Font = Enum.Font.GothamMedium,
+			Text = tabName,
+			TextColor3 = currentTheme["Color Text"],
+			TextSize = 11,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			TextTransparency = activeTab and 0.3 or 0
+		}), "Text")
+		
+		local indicator = InsertTheme(Create("Frame", tabButton, {
+			Size = UDim2.new(0, 3, 0, activeTab and 16 or 4),
+			Position = UDim2.new(0, 0, 0.5),
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundColor3 = currentTheme["Color Accent"],
+			BackgroundTransparency = activeTab and 0 or 0.5
+		}), "Accent")
+		CreateCorner(indicator, UDim.new(0.5, 0))
+		
+		local container = InsertTheme(Create("ScrollingFrame", {
+			Size = UDim2.new(1, 0, 1, 0),
+			Position = UDim2.new(0, 0, 1),
+			AnchorPoint = Vector2.new(0, 1),
+			ScrollBarThickness = 2,
+			BackgroundTransparency = 1,
+			ScrollBarImageTransparency = 0.2,
+			ScrollBarImageColor3 = currentTheme["Color Accent"],
+			AutomaticCanvasSize = Enum.AutomaticSize.Y,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+			BorderSizePixel = 0,
+			CanvasSize = UDim2.new(),
+			Name = ("Tab_%s"):format(tabName)
+		}, {
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, 8),
+				PaddingRight = UDim.new(0, 8),
+				PaddingTop = UDim.new(0, 8),
+				PaddingBottom = UDim.new(0, 8)
+			}),
+			Create("UIListLayout", {
+				Padding = UDim.new(0, 6),
+				SortOrder = Enum.SortOrder.LayoutOrder
+			})
+		}), "ScrollBar")
+		
+		table.insert(containers, container)
+		
+		if not activeTab then
+			activeTab = container
+			container.Parent = contentArea
+		end
+		
+		local function selectTab()
+			if container.Parent then return end
+			
+			for _, cont in ipairs(containers) do
+				cont.Parent = nil
+			end
+			container.Parent = contentArea
+			
+			for _, tab in ipairs(tabs) do
+				if tab.Container ~= container then
+					if tab.Indicator then
+						CreateTween({tab.Indicator, "Size", UDim2.new(0, 3, 0, 4), 0.25})
+						CreateTween({tab.Indicator, "BackgroundTransparency", 0.5, 0.25})
+					end
+					if tab.NameLabel then
+						CreateTween({tab.NameLabel, "TextTransparency", 0.3, 0.25})
+					end
+					if tab.IconLabel then
+						CreateTween({tab.IconLabel, "ImageTransparency", 0.3, 0.25})
+					end
+				end
+			end
+			
+			CreateTween({indicator, "Size", UDim2.new(0, 3, 0, 16), 0.25})
+			CreateTween({indicator, "BackgroundTransparency", 0, 0.25})
+			CreateTween({nameLabel, "TextTransparency", 0, 0.25})
+			if iconLabel then
+				CreateTween({iconLabel, "ImageTransparency", 0, 0.25})
+			end
+		end
+		
+		tabButton.Activated:Connect(selectTab)
+		
+		local tab = {
+			Container = container,
+			Button = tabButton,
+			Indicator = indicator,
+			NameLabel = nameLabel,
+			IconLabel = iconLabel,
+			Name = tabName
+		}
+		
+		table.insert(tabs, tab)
+		
+		function tab:AddSection(sectionConfig)
+			local sectionName = type(sectionConfig) == "string" and sectionConfig or sectionConfig[1] or sectionConfig.Name or "Section"
+			
+			local sectionFrame = Create("Frame", container, {
+				Size = UDim2.new(1, 0, 0, 22),
+				BackgroundTransparency = 1,
+				Name = "Section"
+			})
+			
+			local sectionLabel = InsertTheme(Create("TextLabel", sectionFrame, {
+				Font = Enum.Font.GothamBold,
+				Text = sectionName,
+				TextColor3 = currentTheme["Color Text"],
+				Size = UDim2.new(1, -20, 1, 0),
+				Position = UDim2.new(0, 6),
+				BackgroundTransparency = 1,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				TextSize = 13,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}), "Text")
+			
+			local sectionMethods = {}
+			
+			function sectionMethods:SetText(newText)
+				sectionLabel.Text = GetString(newText)
+			end
+			
+			function sectionMethods:SetVisible(state)
+				sectionFrame.Visible = state == nil and not sectionFrame.Visible or state
+			end
+			
+			function sectionMethods:Destroy()
+				sectionFrame:Destroy()
+			end
+			
+			return sectionMethods
+		end
+		
+		function tab:AddParagraph(paraConfig)
+			local paraTitle = paraConfig[1] or paraConfig.Title or "Paragraph"
+			local paraText = paraConfig[2] or paraConfig.Text or ""
+			
+			local frame, labelMethods = CreateOptionFrame(container, paraTitle, paraText, UDim2.new(1, -20))
+			
+			local methods = {}
+			
+			function methods:SetTitle(newTitle)
+				labelMethods:SetTitle(GetString(newTitle))
+			end
+			
+			function methods:SetText(newText)
+				labelMethods:SetDescription(GetString(newText))
+			end
+			
+			function methods:Set(newTitle, newText)
+				if newTitle and newText then
+					labelMethods:SetTitle(GetString(newTitle))
+					labelMethods:SetDescription(GetString(newText))
+				elseif newTitle then
+					labelMethods:SetDescription(GetString(newTitle))
+				end
+			end
+			
+			function methods:SetVisible(state)
+				frame.Visible = state == nil and not frame.Visible or state
+			end
+			
+			function methods:Destroy()
+				frame:Destroy()
+			end
+			
+			return methods
+		end
+		
+		function tab:AddButton(btnConfig)
+			local btnTitle = btnConfig[1] or btnConfig.Name or btnConfig.Title or "Button"
+			local btnDesc = btnConfig.Desc or btnConfig.Description or ""
+			local callback = Functions:GetCallback(btnConfig, 2)
+			
+			local frame, labelMethods = CreateOptionFrame(container, btnTitle, btnDesc, UDim2.new(1, -40))
+			
+			local icon = Create("ImageLabel", frame, {
+				Size = UDim2.new(0, 16, 0, 16),
+				Position = UDim2.new(1, -12, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://10709791437",
+				ImageColor3 = currentTheme["Color Dark Text"]
+			})
+			
+			frame.Activated:Connect(function()
+				Functions:FireCallback(callback)
+			end)
+			
+			local methods = {}
+			
+			function methods:SetTitle(newTitle)
+				labelMethods:SetTitle(GetString(newTitle))
+			end
+			
+			function methods:SetDescription(newDesc)
+				labelMethods:SetDescription(GetString(newDesc))
+			end
+			
+			function methods:SetCallback(newCallback)
+				callback = {newCallback}
+			end
+			
+			function methods:SetVisible(state)
+				frame.Visible = state == nil and not frame.Visible or state
+			end
+			
+			function methods:Destroy()
+				frame:Destroy()
+			end
+			
+			return methods
+		end
+		
+		function tab:AddToggle(togConfig)
+			local togTitle = togConfig[1] or togConfig.Name or togConfig.Title or "Toggle"
+			local togDesc = togConfig.Desc or togConfig.Description or ""
+			local callback = Functions:GetCallback(togConfig, 3)
+			local flag = togConfig[4] or togConfig.Flag or false
+			local defaultValue = togConfig[2] or togConfig.Default or false
+			
+			if flag and GetFlag(flag) ~= nil then
+				defaultValue = GetFlag(flag)
+			end
+			
+			local frame, labelMethods = CreateOptionFrame(container, togTitle, togDesc, UDim2.new(1, -50))
+			
+			local toggleHolder = InsertTheme(Create("Frame", frame, {
+				Size = UDim2.new(0, 40, 0, 20),
+				Position = UDim2.new(1, -12, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundColor3 = currentTheme["Color Stroke"]
+			}), "Stroke")
+			CreateCorner(toggleHolder, UDim.new(0.5, 0))
+			
+			local toggleKnob = InsertTheme(Create("Frame", toggleHolder, {
+				Size = UDim2.new(0, 16, 0, 16),
+				Position = UDim2.new(defaultValue and 1 or 0, defaultValue and -2 or 2, 0.5),
+				AnchorPoint = Vector2.new(defaultValue and 1 or 0, 0.5),
+				BackgroundColor3 = currentTheme["Color Accent"],
+				BackgroundTransparency = defaultValue and 0 or 0.5
+			}), "Accent")
+			CreateCorner(toggleKnob, UDim.new(0.5, 0))
+			
+			local toggling = false
+			local currentState = defaultValue
+			
+			local function setState(state)
+				if toggling then return end
+				toggling = true
+				
+				currentState = state
+				
+				if flag then
+					SetFlag(flag, currentState)
+				end
+				
+				Functions:FireCallback(callback, currentState)
+				
+				if currentState then
+					CreateTween({toggleKnob, "Position", UDim2.new(1, -2, 0.5), 0.2})
+					CreateTween({toggleKnob, "AnchorPoint", Vector2.new(1, 0.5), 0.2})
+					CreateTween({toggleKnob, "BackgroundTransparency", 0, 0.2})
+				else
+					CreateTween({toggleKnob, "Position", UDim2.new(0, 2, 0.5), 0.2})
+					CreateTween({toggleKnob, "AnchorPoint", Vector2.new(0, 0.5), 0.2})
+					CreateTween({toggleKnob, "BackgroundTransparency", 0.5, 0.2})
+				end
+				
+				toggling = false
+			end
+			
+			frame.Activated:Connect(function()
+				setState(not currentState)
+			end)
+			
+			local methods = {}
+			
+			function methods:Set(state)
+				setState(state)
+			end
+			
+			function methods:Get()
+				return currentState
+			end
+			
+			function methods:SetTitle(newTitle)
+				labelMethods:SetTitle(GetString(newTitle))
+			end
+			
+			function methods:SetDescription(newDesc)
+				labelMethods:SetDescription(GetString(newDesc))
+			end
+			
+			function methods:SetCallback(newCallback)
+				callback = {newCallback}
+			end
+			
+			function methods:SetVisible(state)
+				frame.Visible = state == nil and not frame.Visible or state
+			end
+			
+			function methods:Destroy()
+				frame:Destroy()
+			end
+			
+			return methods
+		end
+		
+		function tab:AddSlider(sliderConfig)
+			local sliderTitle = sliderConfig[1] or sliderConfig.Name or sliderConfig.Title or "Slider"
+			local sliderDesc = sliderConfig.Desc or sliderConfig.Description or ""
+			local minValue = sliderConfig[2] or sliderConfig.Min or 0
+			local maxValue = sliderConfig[3] or sliderConfig.Max or 100
+			local increment = sliderConfig[4] or sliderConfig.Increment or 1
+			local callback = Functions:GetCallback(sliderConfig, 6)
+			local flag = sliderConfig[7] or sliderConfig.Flag or false
+			local defaultValue = sliderConfig[5] or sliderConfig.Default or minValue
+			
+			if flag and GetFlag(flag) ~= nil then
+				defaultValue = GetFlag(flag)
+			end
+			
+			local frame, labelMethods = CreateOptionFrame(container, sliderTitle, sliderDesc, UDim2.new(1, -100))
+			
+			local sliderContainer = Create("Frame", frame, {
+				Size = UDim2.new(0, 90, 0, 20),
+				Position = UDim2.new(1, -12, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 1
+			})
+			
+			local sliderBar = InsertTheme(Create("Frame", sliderContainer, {
+				Size = UDim2.new(1, -16, 0, 4),
+				Position = UDim2.new(0, 0, 0.5),
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundColor3 = currentTheme["Color Stroke"]
+			}), "Stroke")
+			CreateCorner(sliderBar, UDim.new(0.5, 0))
+			
+			local sliderFill = InsertTheme(Create("Frame", sliderBar, {
+				Size = UDim2.new(0, 0, 1, 0),
+				BackgroundColor3 = currentTheme["Color Accent"]
+			}), "Accent")
+			CreateCorner(sliderFill, UDim.new(0.5, 0))
+			
+			local sliderKnob = InsertTheme(Create("Frame", sliderBar, {
+				Size = UDim2.new(0, 8, 0, 12),
+				Position = UDim2.new(0, 0, 0.5),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundColor3 = currentTheme["Color Text"],
+				BackgroundTransparency = 0.2
+			}), "Text")
+			CreateCorner(sliderKnob, UDim.new(0.5, 0))
+			
+			local valueLabel = InsertTheme(Create("TextLabel", sliderContainer, {
+				Size = UDim2.new(0, 30, 0, 16),
+				Position = UDim2.new(1, 0, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.GothamBold,
+				TextSize = 9,
+				TextColor3 = currentTheme["Color Text"],
+				Text = tostring(defaultValue)
+			}), "Text")
+			
+			local dragging = false
+			local currentValue = defaultValue
+			
+			local function updatePosition(value)
+				local percent = (value - minValue) / (maxValue - minValue)
+				percent = math.clamp(percent, 0, 1)
+				
+				local barWidth = sliderBar.AbsoluteSize.X
+				local pos = percent * barWidth
+				
+				sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+				sliderKnob.Position = UDim2.new(percent, 0, 0.5)
+				
+				valueLabel.Text = tostring(math.floor(value * 100) / 100)
+			end
+			
+			local function updateFromMouse()
+				local mousePos = PlayerMouse.X
+				local barPos = sliderBar.AbsolutePosition.X
+				local barWidth = sliderBar.AbsoluteSize.X
+				
+				local percent = (mousePos - barPos) / barWidth
+				percent = math.clamp(percent, 0, 1)
+				
+				local value = minValue + (percent * (maxValue - minValue))
+				value = math.floor(value / increment + 0.5) * increment
+				value = math.clamp(value, minValue, maxValue)
+				
+				if value ~= currentValue then
+					currentValue = value
+					updatePosition(value)
+					
+					if flag then
+						SetFlag(flag, value)
+					end
+					
+					Functions:FireCallback(callback, value)
+				end
+			end
+			
+			sliderContainer.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					dragging = true
+					updateFromMouse()
+				end
+			end)
+			
+			sliderContainer.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					dragging = false
+				end
+			end)
+			
+			UserInputService.InputChanged:Connect(function(input)
+				if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+					updateFromMouse()
+				end
+			end)
+			
+			updatePosition(defaultValue)
+			
+			local methods = {}
+			
+			function methods:Set(value)
+				currentValue = math.clamp(value, minValue, maxValue)
+				updatePosition(currentValue)
+			end
+			
+			function methods:Get()
+				return currentValue
+			end
+			
+			function methods:SetTitle(newTitle)
+				labelMethods:SetTitle(GetString(newTitle))
+			end
+			
+			function methods:SetDescription(newDesc)
+				labelMethods:SetDescription(GetString(newDesc))
+			end
+			
+			function methods:SetVisible(state)
+				frame.Visible = state == nil and not frame.Visible or state
+			end
+			
+			function methods:Destroy()
+				frame:Destroy()
+			end
+			
+			return methods
+		end
+		
+		function tab:AddDropdown(dropConfig)
+			local dropTitle = dropConfig[1] or dropConfig.Name or dropConfig.Title or "Dropdown"
+			local dropDesc = dropConfig.Desc or dropConfig.Description or ""
+			local options = dropConfig[2] or dropConfig.Options or {}
+			local callback = Functions:GetCallback(dropConfig, 4)
+			local flag = dropConfig[5] or dropConfig.Flag or false
+			local multiSelect = dropConfig.MultiSelect or false
+			local default = dropConfig[3] or dropConfig.Default or (multiSelect and {} or options[1])
+			
+			if flag and GetFlag(flag) ~= nil then
+				default = GetFlag(flag)
+			end
+			
+			local frame, labelMethods = CreateOptionFrame(container, dropTitle, dropDesc, UDim2.new(1, -120))
+			
+			local dropdownBtn = InsertTheme(Create("Frame", frame, {
+				Size = UDim2.new(0, 100, 0, 22),
+				Position = UDim2.new(1, -12, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundColor3 = currentTheme["Color Stroke"]
+			}), "Stroke")
+			CreateCorner(dropdownBtn, UDim.new(0, 4))
+			
+			local selectedLabel = InsertTheme(Create("TextLabel", dropdownBtn, {
+				Size = UDim2.new(1, -18, 1, 0),
+				Position = UDim2.new(0, 4, 0),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.Gotham,
+				TextSize = 9,
+				TextColor3 = currentTheme["Color Text"],
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Text = multiSelect and "..." or tostring(default)
+			}), "Text")
+			
+			local arrow = Create("ImageLabel", dropdownBtn, {
+				Size = UDim2.new(0, 12, 0, 12),
+				Position = UDim2.new(1, -4, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://10709791523",
+				ImageColor3 = currentTheme["Color Dark Text"]
+			})
+			
+			local dropdownOverlay = Create("TextButton", ScreenGui, {
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Visible = false,
+				Text = "",
+				ZIndex = 5
+			})
+			
+			local dropdownMenu = Create("Frame", dropdownOverlay, {
+				Size = UDim2.new(0, 120, 0, 0),
+				BackgroundTransparency = 0.1,
+				ClipsDescendants = true,
+				ZIndex = 6
+			}, {
+				CreateGradient({}, nil, 60),
+				CreateCorner({}, UDim.new(0, 4)),
+				CreateStroke({})
+			})
+			
+			local menuList = Create("ScrollingFrame", dropdownMenu, {
+				Size = UDim2.new(1, 0, 1, 0),
+				ScrollBarThickness = 2,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				CanvasSize = UDim2.new(),
+				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				ScrollingDirection = Enum.ScrollingDirection.Y,
+				ZIndex = 7
+			}, {
+				Create("UIPadding", {
+					PaddingLeft = UDim.new(0, 4),
+					PaddingRight = UDim.new(0, 4),
+					PaddingTop = UDim.new(0, 4),
+					PaddingBottom = UDim.new(0, 4)
+				}),
+				Create("UIListLayout", {
+					Padding = UDim.new(0, 2)
+				})
+			})
+			
+			local selected = multiSelect and {} or default
+			local optionButtons = {}
+			
+			local function updateSelected()
+				if multiSelect then
+					local names = {}
+					for opt, selected in pairs(selected) do
+						if selected then
+							table.insert(names, opt)
+						end
+					end
+					selectedLabel.Text = #names > 0 and table.concat(names, ", ") or "..."
+				else
+					selectedLabel.Text = tostring(selected)
+				end
+			end
+			
+			local function createOption(opt)
+				local btn = Create("TextButton", menuList, {
+					Size = UDim2.new(1, 0, 0, 22),
+					Text = "",
+					BackgroundColor3 = currentTheme["Color Main 2"],
+					BackgroundTransparency = 0.5,
+					ZIndex = 8
+				})
+				CreateCorner(btn, UDim.new(0, 3))
+				
+				local check = Create("Frame", btn, {
+					Size = UDim2.new(0, 4, 0, 4),
+					Position = UDim2.new(0, 4, 0.5),
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundColor3 = currentTheme["Color Accent"],
+					BackgroundTransparency = 1
+				})
+				CreateCorner(check, UDim.new(0.5, 0))
+				
+				local label = Create("TextLabel", btn, {
+					Size = UDim2.new(1, -16, 1, 0),
+					Position = UDim2.new(0, 12, 0),
+					BackgroundTransparency = 1,
+					Font = Enum.Font.Gotham,
+					TextSize = 9,
+					TextColor3 = currentTheme["Color Text"],
+					TextXAlignment = Enum.TextXAlignment.Left,
+					Text = opt
+				})
+				
+				if multiSelect then
+					if selected[opt] then
+						check.BackgroundTransparency = 0
+						check.Size = UDim2.new(0, 8, 0, 8)
+					end
+				else
+					if selected == opt then
+						check.BackgroundTransparency = 0
+						check.Size = UDim2.new(0, 8, 0, 8)
+					end
+				end
+				
+				btn.MouseEnter:Connect(function()
+					btn.BackgroundTransparency = 0.2
+				end)
+				btn.MouseLeave:Connect(function()
+					btn.BackgroundTransparency = 0.5
+				end)
+				
+				btn.Activated:Connect(function()
+					if multiSelect then
+						selected[opt] = not selected[opt]
+						if selected[opt] then
+							check.BackgroundTransparency = 0
+							CreateTween({check, "Size", UDim2.new(0, 8, 0, 8), 0.2})
+						else
+							check.BackgroundTransparency = 1
+							CreateTween({check, "Size", UDim2.new(0, 4, 0, 4), 0.2})
+						end
+					else
+						selected = opt
+						for _, btnData in pairs(optionButtons) do
+							btnData.check.BackgroundTransparency = 1
+							CreateTween({btnData.check, "Size", UDim2.new(0, 4, 0, 4), 0.2})
+						end
+						check.BackgroundTransparency = 0
+						CreateTween({check, "Size", UDim2.new(0, 8, 0, 8), 0.2})
+					end
+					
+					updateSelected()
+					
+					if flag then
+						SetFlag(flag, selected)
+					end
+					
+					Functions:FireCallback(callback, selected)
+				end)
+				
+				optionButtons[opt] = {
+					button = btn,
+					check = check,
+					label = label
+				}
+			end
+			
+			for _, opt in ipairs(options) do
+				createOption(opt)
+			end
+			
+			local menuOpen = false
+			
+			local function updateMenuPosition()
+				local btnPos = dropdownBtn.AbsolutePosition
+				local btnSize = dropdownBtn.AbsoluteSize
+				local screenSize = ScreenGui.AbsoluteSize
+				
+				local menuWidth = 120
+				local menuHeight = math.min(#options * 26, 150)
+				
+				local x = math.clamp(btnPos.X, 0, screenSize.X - menuWidth)
+				local y = math.clamp(btnPos.Y + btnSize.Y + 2, 0, screenSize.Y - menuHeight)
+				
+				dropdownMenu.Position = UDim2.fromOffset(x, y)
+				dropdownMenu.Size = UDim2.fromOffset(menuWidth, menuHeight)
+			end
+			
+			frame.Activated:Connect(function()
+				if menuOpen then
+					dropdownOverlay.Visible = false
+					arrow.Image = "rbxassetid://10709791523"
+					menuOpen = false
+				else
+					updateMenuPosition()
+					dropdownOverlay.Visible = true
+					arrow.Image = "rbxassetid://10709790948"
+					menuOpen = true
+				end
+			end)
+			
+			dropdownOverlay.Activated:Connect(function()
+				dropdownOverlay.Visible = false
+				arrow.Image = "rbxassetid://10709791523"
+				menuOpen = false
+			end)
+			
+			local methods = {}
+			
+			function methods:SetOptions(newOptions)
+				for _, btn in pairs(optionButtons) do
+					btn.button:Destroy()
+				end
+				optionButtons = {}
+				
+				for _, opt in ipairs(newOptions) do
+					createOption(opt)
+				end
+			end
+			
+			function methods:SetValue(value)
+				if multiSelect and type(value) == "table" then
+					selected = value
+					for opt, btnData in pairs(optionButtons) do
+						if selected[opt] then
+							btnData.check.BackgroundTransparency = 0
+							btnData.check.Size = UDim2.new(0, 8, 0, 8)
+						else
+							btnData.check.BackgroundTransparency = 1
+							btnData.check.Size = UDim2.new(0, 4, 0, 4)
+						end
+					end
+				else
+					selected = value
+					for opt, btnData in pairs(optionButtons) do
+						if opt == selected then
+							btnData.check.BackgroundTransparency = 0
+							btnData.check.Size = UDim2.new(0, 8, 0, 8)
+						else
+							btnData.check.BackgroundTransparency = 1
+							btnData.check.Size = UDim2.new(0, 4, 0, 4)
+						end
+					end
+				end
+				updateSelected()
+			end
+			
+			function methods:GetValue()
+				return selected
+			end
+			
+			function methods:SetTitle(newTitle)
+				labelMethods:SetTitle(GetString(newTitle))
+			end
+			
+			function methods:SetVisible(state)
+				frame.Visible = state == nil and not frame.Visible or state
+			end
+			
+			function methods:Destroy()
+				frame:Destroy()
+				dropdownOverlay:Destroy()
+			end
+			
+			return methods
+		end
+		
+		return tab
+	end
+	
+	return window
 end
 
 return AxiomX
