@@ -1,8 +1,8 @@
 --[[
     AxiomX - Biblioteca de Interface Moderna para Roblox
-    Versão: 2.0.0
+    Versão: 2.5.0
     Autor: Assistente
-    Estilo: Similar ao redzlib
+    Estilo: Similar ao redzlib com melhorias
 ]]
 
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -30,22 +30,24 @@ local AxiomX = {
 			["Color Dark Text"] = Color3.fromRGB(180, 180, 180),
 			["Color Success"] = Color3.fromRGB(50, 200, 100),
 			["Color Error"] = Color3.fromRGB(255, 80, 80),
-			["Color Warning"] = Color3.fromRGB(255, 180, 50)
+			["Color Warning"] = Color3.fromRGB(255, 180, 50),
+			["Color Info"] = Color3.fromRGB(50, 150, 255)
 		},
 		Dark = {
 			["Color Main 1"] = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(30, 30, 30)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 10, 10)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(25, 25, 25)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 10, 10))
 			}),
-			["Color Main 2"] = Color3.fromRGB(25, 25, 25),
-			["Color Stroke"] = Color3.fromRGB(10, 10, 10),
-			["Color Accent"] = Color3.fromRGB(0, 160, 255),
+			["Color Main 2"] = Color3.fromRGB(20, 20, 20),
+			["Color Stroke"] = Color3.fromRGB(30, 30, 30),
+			["Color Accent"] = Color3.fromRGB(0, 200, 255),
 			["Color Text"] = Color3.fromRGB(255, 255, 255),
-			["Color Dark Text"] = Color3.fromRGB(160, 160, 160),
-			["Color Success"] = Color3.fromRGB(0, 200, 0),
-			["Color Error"] = Color3.fromRGB(255, 50, 50),
-			["Color Warning"] = Color3.fromRGB(255, 165, 0)
+			["Color Dark Text"] = Color3.fromRGB(150, 150, 150),
+			["Color Success"] = Color3.fromRGB(0, 255, 100),
+			["Color Error"] = Color3.fromRGB(255, 70, 70),
+			["Color Warning"] = Color3.fromRGB(255, 180, 50),
+			["Color Info"] = Color3.fromRGB(70, 130, 255)
 		},
 		Light = {
 			["Color Main 1"] = ColorSequence.new({
@@ -57,36 +59,56 @@ local AxiomX = {
 			["Color Stroke"] = Color3.fromRGB(200, 200, 200),
 			["Color Accent"] = Color3.fromRGB(0, 120, 255),
 			["Color Text"] = Color3.fromRGB(20, 20, 20),
-			["Color Dark Text"] = Color3.fromRGB(80, 80, 80),
+			["Color Dark Text"] = Color3.fromRGB(100, 100, 100),
 			["Color Success"] = Color3.fromRGB(0, 150, 0),
 			["Color Error"] = Color3.fromRGB(200, 0, 0),
-			["Color Warning"] = Color3.fromRGB(200, 120, 0)
+			["Color Warning"] = Color3.fromRGB(200, 120, 0),
+			["Color Info"] = Color3.fromRGB(0, 100, 200)
 		},
 		Midnight = {
 			["Color Main 1"] = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 5, 20)),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(25, 15, 35)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 5, 20))
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(5, 0, 15)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(20, 10, 30)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(5, 0, 15))
 			}),
-			["Color Main 2"] = Color3.fromRGB(20, 10, 30),
-			["Color Stroke"] = Color3.fromRGB(5, 0, 10),
+			["Color Main 2"] = Color3.fromRGB(15, 5, 25),
+			["Color Stroke"] = Color3.fromRGB(30, 20, 40),
 			["Color Accent"] = Color3.fromRGB(150, 50, 255),
 			["Color Text"] = Color3.fromRGB(255, 255, 255),
-			["Color Dark Text"] = Color3.fromRGB(200, 200, 255),
+			["Color Dark Text"] = Color3.fromRGB(200, 180, 255),
 			["Color Success"] = Color3.fromRGB(100, 255, 150),
 			["Color Error"] = Color3.fromRGB(255, 100, 100),
-			["Color Warning"] = Color3.fromRGB(255, 200, 100)
+			["Color Warning"] = Color3.fromRGB(255, 200, 100),
+			["Color Info"] = Color3.fromRGB(100, 150, 255)
+		},
+		Ocean = {
+			["Color Main 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 20, 30)),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 40, 60)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 20, 30))
+			}),
+			["Color Main 2"] = Color3.fromRGB(0, 30, 45),
+			["Color Stroke"] = Color3.fromRGB(0, 60, 80),
+			["Color Accent"] = Color3.fromRGB(0, 200, 255),
+			["Color Text"] = Color3.fromRGB(255, 255, 255),
+			["Color Dark Text"] = Color3.fromRGB(150, 220, 255),
+			["Color Success"] = Color3.fromRGB(100, 255, 150),
+			["Color Error"] = Color3.fromRGB(255, 100, 100),
+			["Color Warning"] = Color3.fromRGB(255, 200, 100),
+			["Color Info"] = Color3.fromRGB(100, 200, 255)
 		}
 	},
 	Info = {
-		Version = "2.0.0",
+		Version = "2.5.0",
 		Name = "AxiomX Library"
 	},
 	Save = {
-		WindowSize = {600, 400},
+		WindowSize = {600, 450},
 		SidebarSize = 180,
 		Theme = "Default",
-		AutoSave = true
+		AutoSave = true,
+		Animations = true,
+		BlurEnabled = true
 	},
 	Settings = {},
 	Connections = {},
@@ -305,6 +327,8 @@ local SetProps, SetChildren, InsertTheme, Create do
 					AxiomX.Save.Theme = decode.Theme 
 				end
 				if decode.AutoSave ~= nil then AxiomX.Save.AutoSave = decode.AutoSave end
+				if decode.Animations ~= nil then AxiomX.Save.Animations = decode.Animations end
+				if decode.BlurEnabled ~= nil then AxiomX.Save.BlurEnabled = decode.BlurEnabled end
 			end
 		end
 	end
@@ -367,6 +391,34 @@ local Functions = {} do
 		end
 		
 		return connection
+	end
+	
+	function Functions:CreateTween(config)
+		local instance = config[1] or config.Instance
+		local property = config[2] or config.Property
+		local goal = config[3] or config.Goal
+		local duration = config[4] or config.Duration or 0.3
+		local wait = config[5] or config.Wait or false
+		local easingStyle = config[6] or config.Easing or Enum.EasingStyle.Quint
+		local easingDirection = config[7] or config.Direction or Enum.EasingDirection.Out
+		
+		if not AxiomX.Save.Animations then
+			instance[property] = goal
+			if wait then
+				task.wait(duration)
+			end
+			return
+		end
+		
+		local tweenInfo = TweenInfo.new(duration, easingStyle, easingDirection)
+		local tween = TweenService:Create(instance, tweenInfo, {[property] = goal})
+		tween:Play()
+		
+		if wait then
+			tween.Completed:Wait()
+		end
+		
+		return tween
 	end
 end
 
@@ -436,13 +488,28 @@ end
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
 	Name = "AxiomX_Library",
-	DisplayOrder = 10
+	DisplayOrder = 10,
+	ResetOnSpawn = false
 }, {
 	Create("UIScale", {
 		Scale = UIScale,
 		Name = "UIScale"
 	})
 })
+
+if AxiomX.Save.BlurEnabled then
+	local blur = Instance.new("BlurEffect")
+	blur.Size = 0
+	blur.Parent = game:GetService("Lighting")
+	
+	game:GetService("RunService"):BindToRenderStep("AxiomXBlur", 1, function()
+		if ScreenGui and ScreenGui.Enabled then
+			blur.Size = 12
+		else
+			blur.Size = 0
+		end
+	end)
+end
 
 local Existing = CoreGui:FindFirstChild(ScreenGui.Name)
 if Existing and Existing ~= ScreenGui then
@@ -456,74 +523,15 @@ local function GetString(value)
 	return value
 end
 
-local function CreateTween(config)
-	local instance = config[1] or config.Instance
-	local property = config[2] or config.Property
-	local goal = config[3] or config.Goal
-	local duration = config[4] or config.Duration or 0.3
-	local wait = config[5] or config.Wait or false
-	local easingStyle = config[6] or config.Easing or Enum.EasingStyle.Quint
-	
-	local tweenInfo = TweenInfo.new(duration, easingStyle)
-	local tween = TweenService:Create(instance, tweenInfo, {[property] = goal})
-	tween:Play()
-	
-	if wait then
-		tween.Completed:Wait()
-	end
-	
-	return tween
-end
-
-local function MakeDraggable(frame)
-	task.spawn(function()
-		SetProps(frame, {
-			Active = true,
-			AutoButtonColor = false
-		})
-		
-		local dragging = false
-		local dragStart = nil
-		local startPos = nil
-		
-		frame.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				dragging = true
-				startPos = frame.Position
-				dragStart = input.Position
-				
-				while dragging and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-					RunService.Heartbeat:Wait()
-					local delta = input.Position - dragStart
-					local newPos = UDim2.new(
-						startPos.X.Scale, 
-						startPos.X.Offset + delta.X / UIScale,
-						startPos.Y.Scale, 
-						startPos.Y.Offset + delta.Y / UIScale
-					)
-					CreateTween({frame, "Position", newPos, 0.2})
-				end
-				dragging = false
-			end
-		end)
-		
-		frame.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				dragging = false
-			end
-		end)
-	end)
-	
-	return frame
-end
-
 local function SaveConfig()
 	if writefile then
 		local config = {
 			WindowSize = AxiomX.Save.WindowSize,
 			SidebarSize = AxiomX.Save.SidebarSize,
 			Theme = AxiomX.Save.Theme,
-			AutoSave = AxiomX.Save.AutoSave
+			AutoSave = AxiomX.Save.AutoSave,
+			Animations = AxiomX.Save.Animations,
+			BlurEnabled = AxiomX.Save.BlurEnabled
 		}
 		local success, json = pcall(function()
 			return HttpService:JSONEncode(config)
@@ -572,10 +580,10 @@ local function CreateButton(parent, ...)
 	}), "Frame")
 	
 	button.MouseEnter:Connect(function()
-		button.BackgroundTransparency = 0.3
+		Functions:CreateTween({button, "BackgroundTransparency", 0.3, 0.2})
 	end)
 	button.MouseLeave:Connect(function()
-		button.BackgroundTransparency = 0
+		Functions:CreateTween({button, "BackgroundTransparency", 0, 0.2})
 	end)
 	
 	if args[1] then
@@ -669,6 +677,48 @@ local function CreateOptionFrame(parent, title, description, size)
 	return frame, methods
 end
 
+local function MakeDraggable(frame)
+	task.spawn(function()
+		SetProps(frame, {
+			Active = true,
+			AutoButtonColor = false
+		})
+		
+		local dragging = false
+		local dragStart = nil
+		local startPos = nil
+		
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = true
+				startPos = frame.Position
+				dragStart = input.Position
+				
+				while dragging and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+					RunService.Heartbeat:Wait()
+					local delta = input.Position - dragStart
+					local newPos = UDim2.new(
+						startPos.X.Scale, 
+						startPos.X.Offset + delta.X / UIScale,
+						startPos.Y.Scale, 
+						startPos.Y.Offset + delta.Y / UIScale
+					)
+					frame.Position = newPos
+				end
+				dragging = false
+			end
+		end)
+		
+		frame.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = false
+			end
+		end)
+	end)
+	
+	return frame
+end
+
 function AxiomX:GetIcon(name)
 	if type(name) ~= "string" or name:find("rbxassetid://") or #name == 0 then
 		return name
@@ -722,6 +772,24 @@ function AxiomX:SetTheme(themeName)
 			instance.TextColor3 = currentTheme["Color Dark Text"]
 		elseif type == "ScrollBar" then
 			instance.ScrollBarImageColor3 = currentTheme["Color Accent"]
+		elseif type == "Success" then
+			if instance:IsA("Frame") then
+				instance.BackgroundColor3 = currentTheme["Color Success"]
+			elseif instance:IsA("TextLabel") then
+				instance.TextColor3 = currentTheme["Color Success"]
+			end
+		elseif type == "Error" then
+			if instance:IsA("Frame") then
+				instance.BackgroundColor3 = currentTheme["Color Error"]
+			elseif instance:IsA("TextLabel") then
+				instance.TextColor3 = currentTheme["Color Error"]
+			end
+		elseif type == "Warning" then
+			if instance:IsA("Frame") then
+				instance.BackgroundColor3 = currentTheme["Color Warning"]
+			elseif instance:IsA("TextLabel") then
+				instance.TextColor3 = currentTheme["Color Warning"]
+			end
 		end
 	end
 end
@@ -732,9 +800,19 @@ function AxiomX:SetScale(scale)
 	ScreenGui.UIScale.Scale = newScale
 end
 
+function AxiomX:ToggleBlur(state)
+	AxiomX.Save.BlurEnabled = state
+	SaveConfig()
+	
+	local blur = game:GetService("Lighting"):FindFirstChildOfClass("BlurEffect")
+	if blur then
+		blur.Size = state and 12 or 0
+	end
+end
+
 function AxiomX:MakeWindow(config)
 	local title = config[1] or config.Title or config.Name or "AxiomX"
-	local subtitle = config[2] or config.Subtitle or config.SubTitle or "v2.0.0"
+	local subtitle = config[2] or config.Subtitle or config.SubTitle or "v2.5.0"
 	local saveFile = config[3] or config.SaveFile or config.SaveFolder or false
 	
 	if saveFile and readfile and isfile then
@@ -758,11 +836,13 @@ function AxiomX:MakeWindow(config)
 		Position = UDim2.new(0.5, -windowWidth/2, 0.5, -windowHeight/2),
 		BackgroundTransparency = 0.05,
 		Name = "MainWindow",
-		AutoButtonColor = false
+		AutoButtonColor = false,
+		ClipsDescendants = true
 	}), "Frame")
 	
 	CreateGradient(mainFrame)
 	CreateCorner(mainFrame, UDim.new(0, 8))
+	CreateStroke(mainFrame, currentTheme["Color Stroke"], 1.5)
 	MakeDraggable(mainFrame)
 	
 	local components = Create("Folder", mainFrame, {
@@ -770,18 +850,18 @@ function AxiomX:MakeWindow(config)
 	})
 	
 	local topBar = Create("Frame", components, {
-		Size = UDim2.new(1, 0, 0, 30),
+		Size = UDim2.new(1, 0, 0, 35),
 		BackgroundTransparency = 1,
 		Name = "TopBar"
 	})
 	
 	local titleLabel = InsertTheme(Create("TextLabel", topBar, {
-		Position = UDim2.new(0, 12, 0.5),
+		Position = UDim2.new(0, 15, 0.5),
 		AnchorPoint = Vector2.new(0, 0.5),
 		AutomaticSize = Enum.AutomaticSize.XY,
 		Text = title,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextSize = 14,
+		TextSize = 15,
 		TextColor3 = currentTheme["Color Text"],
 		BackgroundTransparency = 1,
 		Font = Enum.Font.GothamMedium,
@@ -791,13 +871,13 @@ function AxiomX:MakeWindow(config)
 			Size = UDim2.new(0, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.X,
 			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(1, 6, 0.9),
+			Position = UDim2.new(1, 8, 0.9),
 			Text = subtitle,
 			TextColor3 = currentTheme["Color Dark Text"],
 			BackgroundTransparency = 1,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Bottom,
-			TextSize = 10,
+			TextSize = 11,
 			Font = Enum.Font.Gotham,
 			Name = "Subtitle"
 		}), "DarkText")
@@ -808,7 +888,7 @@ function AxiomX:MakeWindow(config)
 		ScrollBarImageColor3 = currentTheme["Color Accent"],
 		Position = UDim2.new(0, 0, 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
-		ScrollBarThickness = 2,
+		ScrollBarThickness = 3,
 		BackgroundTransparency = 1,
 		ScrollBarImageTransparency = 0.2,
 		CanvasSize = UDim2.new(),
@@ -820,42 +900,43 @@ function AxiomX:MakeWindow(config)
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, 8),
 			PaddingRight = UDim.new(0, 8),
-			PaddingTop = UDim.new(0, 8),
-			PaddingBottom = UDim.new(0, 8)
+			PaddingTop = UDim.new(0, 10),
+			PaddingBottom = UDim.new(0, 10)
 		}),
 		Create("UIListLayout", {
-			Padding = UDim.new(0, 4),
+			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder
 		})
 	}), "ScrollBar")
 	
 	local contentArea = Create("Frame", components, {
-		Size = UDim2.new(1, -sidebar.Size.X.Offset, 1, -topBar.Size.Y.Offset),
+		Size = UDim2.new(1, -sidebar.Size.X.Offset - 10, 1, -topBar.Size.Y.Offset - 10),
 		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, 0, 1, 0),
+		Position = UDim2.new(1, -5, 1, -5),
 		BackgroundTransparency = 1,
 		ClipsDescendants = true,
 		Name = "ContentArea"
 	})
 	
-	local resizeHandle = MakeDraggable(Create("ImageButton", mainFrame, {
-		Size = UDim2.new(0, 20, 0, 20),
-		Position = UDim2.new(1, -10, 1, -10),
+	local resizeHandle = Create("ImageButton", mainFrame, {
+		Size = UDim2.new(0, 24, 0, 24),
+		Position = UDim2.new(1, -12, 1, -12),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
 		Image = "rbxassetid://10747384552",
 		ImageColor3 = currentTheme["Color Dark Text"],
-		Name = "ResizeHandle"
-	}))
+		Name = "ResizeHandle",
+		Active = true
+	})
 	
 	local function updateSize()
 		local pos = resizeHandle.Position
-		local newWidth = math.clamp(pos.X.Offset, 400, 1000)
-		local newHeight = math.clamp(pos.Y.Offset, 250, 600)
+		local newWidth = math.clamp(pos.X.Offset, 450, 1200)
+		local newHeight = math.clamp(pos.Y.Offset, 300, 800)
 		
 		mainFrame.Size = UDim2.fromOffset(newWidth, newHeight)
 		sidebar.Size = UDim2.new(0, AxiomX.Save.SidebarSize, 1, -topBar.Size.Y.Offset)
-		contentArea.Size = UDim2.new(1, -sidebar.Size.X.Offset, 1, -topBar.Size.Y.Offset)
+		contentArea.Size = UDim2.new(1, -sidebar.Size.X.Offset - 10, 1, -topBar.Size.Y.Offset - 10)
 		
 		AxiomX.Save.WindowSize = {newWidth, newHeight}
 		AxiomX:FireConnection("WindowResized", newWidth, newHeight)
@@ -867,9 +948,19 @@ function AxiomX:MakeWindow(config)
 		SaveConfig()
 	end)
 	
+	resizeHandle.MouseEnter:Connect(function()
+		Functions:CreateTween({resizeHandle, "ImageColor3", currentTheme["Color Accent"], 0.2})
+		Functions:CreateTween({resizeHandle, "Rotation", 90, 0.3})
+	end)
+	
+	resizeHandle.MouseLeave:Connect(function()
+		Functions:CreateTween({resizeHandle, "ImageColor3", currentTheme["Color Dark Text"], 0.2})
+		Functions:CreateTween({resizeHandle, "Rotation", 0, 0.3})
+	end)
+	
 	local buttonContainer = Create("Frame", topBar, {
-		Size = UDim2.new(0, 60, 1, 0),
-		Position = UDim2.new(1, -10, 0.5),
+		Size = UDim2.new(0, 70, 1, 0),
+		Position = UDim2.new(1, -15, 0.5),
 		AnchorPoint = Vector2.new(1, 0.5),
 		BackgroundTransparency = 1,
 		Name = "WindowButtons"
@@ -878,12 +969,12 @@ function AxiomX:MakeWindow(config)
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Right,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 8)
+			Padding = UDim.new(0, 10)
 		})
 	})
 	
 	local minimizeBtn = Create("ImageButton", buttonContainer, {
-		Size = UDim2.new(0, 16, 0, 16),
+		Size = UDim2.new(0, 18, 0, 18),
 		BackgroundTransparency = 1,
 		Image = "rbxassetid://10734896206",
 		ImageColor3 = currentTheme["Color Dark Text"],
@@ -891,7 +982,7 @@ function AxiomX:MakeWindow(config)
 	})
 	
 	local closeBtn = Create("ImageButton", buttonContainer, {
-		Size = UDim2.new(0, 16, 0, 16),
+		Size = UDim2.new(0, 18, 0, 18),
 		BackgroundTransparency = 1,
 		Image = "rbxassetid://10747384394",
 		ImageColor3 = currentTheme["Color Dark Text"],
@@ -902,17 +993,21 @@ function AxiomX:MakeWindow(config)
 	local originalSize
 	
 	minimizeBtn.MouseEnter:Connect(function()
-		minimizeBtn.ImageColor3 = currentTheme["Color Accent"]
+		Functions:CreateTween({minimizeBtn, "ImageColor3", currentTheme["Color Accent"], 0.2})
+		Functions:CreateTween({minimizeBtn, "Rotation", 180, 0.3})
 	end)
 	minimizeBtn.MouseLeave:Connect(function()
-		minimizeBtn.ImageColor3 = currentTheme["Color Dark Text"]
+		Functions:CreateTween({minimizeBtn, "ImageColor3", currentTheme["Color Dark Text"], 0.2})
+		Functions:CreateTween({minimizeBtn, "Rotation", 0, 0.3})
 	end)
 	
 	closeBtn.MouseEnter:Connect(function()
-		closeBtn.ImageColor3 = currentTheme["Color Error"]
+		Functions:CreateTween({closeBtn, "ImageColor3", currentTheme["Color Error"], 0.2})
+		Functions:CreateTween({closeBtn, "Rotation", 90, 0.3})
 	end)
 	closeBtn.MouseLeave:Connect(function()
-		closeBtn.ImageColor3 = currentTheme["Color Dark Text"]
+		Functions:CreateTween({closeBtn, "ImageColor3", currentTheme["Color Dark Text"], 0.2})
+		Functions:CreateTween({closeBtn, "Rotation", 0, 0.3})
 	end)
 	
 	local window = {
@@ -921,13 +1016,13 @@ function AxiomX:MakeWindow(config)
 	
 	function window:Minimize()
 		if window.Minimized then
-			CreateTween({mainFrame, "Size", originalSize, 0.25})
+			Functions:CreateTween({mainFrame, "Size", originalSize, 0.3})
 			minimizeBtn.Image = "rbxassetid://10734896206"
 			resizeHandle.Visible = true
 			window.Minimized = false
 		else
 			originalSize = mainFrame.Size
-			CreateTween({mainFrame, "Size", UDim2.fromOffset(mainFrame.Size.X.Offset, 30), 0.25})
+			Functions:CreateTween({mainFrame, "Size", UDim2.fromOffset(mainFrame.Size.X.Offset, 35), 0.3})
 			minimizeBtn.Image = "rbxassetid://10734924532"
 			resizeHandle.Visible = false
 			window.Minimized = true
@@ -946,91 +1041,139 @@ function AxiomX:MakeWindow(config)
 		titleLabel.Subtitle.Text = newSubtitle
 	end
 	
+	function window:SetTheme(themeName)
+		AxiomX:SetTheme(themeName)
+	end
+	
 	function window:Dialog(config)
 		if mainFrame:FindFirstChild("DialogOverlay") then return end
 		
 		local dialogTitle = config[1] or config.Title or "Dialog"
 		local dialogText = config[2] or config.Text or ""
 		local dialogOptions = config[3] or config.Options or {}
+		local dialogType = config.Type or "default" -- default, success, error, warning, info
 		
 		local overlay = Create("Frame", mainFrame, {
 			BackgroundTransparency = 0.5,
 			BackgroundColor3 = Color3.new(0, 0, 0),
 			Size = UDim2.new(1, 0, 1, 0),
 			Active = true,
-			Name = "DialogOverlay"
+			Name = "DialogOverlay",
+			ZIndex = 10
 		})
 		
+		local accentColor = currentTheme["Color Accent"]
+		if dialogType == "success" then
+			accentColor = currentTheme["Color Success"]
+		elseif dialogType == "error" then
+			accentColor = currentTheme["Color Error"]
+		elseif dialogType == "warning" then
+			accentColor = currentTheme["Color Warning"]
+		elseif dialogType == "info" then
+			accentColor = currentTheme["Color Info"]
+		end
+		
 		local dialog = Create("Frame", overlay, {
-			Size = UDim2.fromOffset(250, 150),
+			Size = UDim2.fromOffset(280, 160),
 			Position = UDim2.fromScale(0.5, 0.5),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundTransparency = 0.1
+			BackgroundTransparency = 0.1,
+			ZIndex = 11
 		}, {
 			CreateGradient({}, nil, 90),
-			CreateCorner({}, UDim.new(0, 6)),
-			CreateStroke({}),
+			CreateCorner({}, UDim.new(0, 8)),
+			CreateStroke({}, currentTheme["Color Stroke"], 1.5),
+			Create("Frame", {
+				Size = UDim2.new(1, 0, 0, 3),
+				BackgroundColor3 = accentColor,
+				Position = UDim2.new(0, 0, 0, 0),
+				BorderSizePixel = 0,
+				ZIndex = 12
+			}),
 			Create("TextLabel", {
 				Font = Enum.Font.GothamBold,
-				Size = UDim2.new(1, -20, 0, 20),
-				Position = UDim2.fromOffset(10, 8),
+				Size = UDim2.new(1, -20, 0, 24),
+				Position = UDim2.fromOffset(10, 12),
 				Text = dialogTitle,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextColor3 = currentTheme["Color Text"],
-				TextSize = 14,
-				BackgroundTransparency = 1
+				TextSize = 16,
+				BackgroundTransparency = 1,
+				ZIndex = 12
 			}),
 			Create("TextLabel", {
 				Font = Enum.Font.Gotham,
 				Size = UDim2.new(1, -20, 0, 0),
 				AutomaticSize = Enum.AutomaticSize.Y,
-				Position = UDim2.fromOffset(10, 32),
+				Position = UDim2.fromOffset(10, 40),
 				Text = dialogText,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextColor3 = currentTheme["Color Dark Text"],
-				TextSize = 11,
+				TextSize = 12,
 				BackgroundTransparency = 1,
-				TextWrapped = true
+				TextWrapped = true,
+				ZIndex = 12
 			})
 		})
 		
 		local buttonHolder = Create("Frame", dialog, {
-			Size = UDim2.new(1, -20, 0, 30),
-			Position = UDim2.new(0.5, 0, 1, -8),
+			Size = UDim2.new(1, -20, 0, 32),
+			Position = UDim2.new(0.5, 0, 1, -10),
 			AnchorPoint = Vector2.new(0.5, 1),
-			BackgroundTransparency = 1
+			BackgroundTransparency = 1,
+			ZIndex = 12
 		}, {
 			Create("UIListLayout", {
 				FillDirection = Enum.FillDirection.Horizontal,
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				VerticalAlignment = Enum.VerticalAlignment.Center,
-				Padding = UDim.new(0, 8)
+				Padding = UDim.new(0, 10)
 			})
 		})
 		
-		CreateTween({dialog, "Size", UDim2.fromOffset(240, 140), 0.2})
+		overlay.BackgroundTransparency = 1
+		dialog.Size = UDim2.fromOffset(300, 180)
+		dialog.BackgroundTransparency = 1
+		
+		Functions:CreateTween({overlay, "BackgroundTransparency", 0.5, 0.2})
+		Functions:CreateTween({dialog, "Size", UDim2.fromOffset(280, 160), 0.3})
+		Functions:CreateTween({dialog, "BackgroundTransparency", 0.1, 0.3})
 		
 		local dialogMethods = {}
 		
 		function dialogMethods:AddButton(btnConfig)
 			local btnText = btnConfig[1] or btnConfig.Text or "Button"
 			local btnCallback = btnConfig[2] or btnConfig.Callback or function() end
+			local btnType = btnConfig.Type or "default" -- default, accent, success, error
+			
+			local btnColor = currentTheme["Color Main 2"]
+			if btnType == "accent" then
+				btnColor = currentTheme["Color Accent"]
+			elseif btnType == "success" then
+				btnColor = currentTheme["Color Success"]
+			elseif btnType == "error" then
+				btnColor = currentTheme["Color Error"]
+			end
 			
 			local btn = Create("TextButton", buttonHolder, {
-				Size = UDim2.new(0, 60, 0, 24),
+				Size = UDim2.new(0, 70, 0, 28),
 				Text = btnText,
 				Font = Enum.Font.GothamBold,
-				TextSize = 11,
+				TextSize = 12,
 				TextColor3 = currentTheme["Color Text"],
-				BackgroundColor3 = currentTheme["Color Main 2"]
+				BackgroundColor3 = btnColor,
+				BackgroundTransparency = 0.2,
+				ZIndex = 13
 			})
-			CreateCorner(btn, UDim.new(0, 4))
+			CreateCorner(btn, UDim.new(0, 5))
 			
 			btn.MouseEnter:Connect(function()
-				btn.BackgroundColor3 = currentTheme["Color Accent"]
+				Functions:CreateTween({btn, "BackgroundTransparency", 0, 0.2})
+				Functions:CreateTween({btn, "Size", UDim2.new(0, 74, 0, 30), 0.2})
 			end)
 			btn.MouseLeave:Connect(function()
-				btn.BackgroundColor3 = currentTheme["Color Main 2"]
+				Functions:CreateTween({btn, "BackgroundTransparency", 0.2, 0.2})
+				Functions:CreateTween({btn, "Size", UDim2.new(0, 70, 0, 28), 0.2})
 			end)
 			
 			btn.Activated:Connect(function()
@@ -1040,7 +1183,9 @@ function AxiomX:MakeWindow(config)
 		end
 		
 		function dialogMethods:Close()
-			CreateTween({overlay, "BackgroundTransparency", 1, 0.2, true})
+			Functions:CreateTween({dialog, "Size", UDim2.fromOffset(300, 180), 0.2})
+			Functions:CreateTween({dialog, "BackgroundTransparency", 1, 0.2})
+			Functions:CreateTween({overlay, "BackgroundTransparency", 1, 0.2, true})
 			overlay:Destroy()
 		end
 		
@@ -1048,7 +1193,8 @@ function AxiomX:MakeWindow(config)
 			if type(option) == "table" then
 				dialogMethods:AddButton({
 					Text = option[1] or "Button",
-					Callback = option[2] or function() end
+					Callback = option[2] or function() end,
+					Type = option[3] or "default"
 				})
 			end
 		end
@@ -1064,9 +1210,10 @@ function AxiomX:MakeWindow(config)
 		window:Dialog({
 			Title = "Close",
 			Text = "Are you sure you want to close?",
+			Type = "warning",
 			Options = {
-				{"Yes", function() ScreenGui:Destroy() end},
-				{"No"}
+				{"Yes", function() ScreenGui:Destroy() end, "error"},
+				{"No", function() end, "default"}
 			}
 		})
 	end)
@@ -1085,14 +1232,15 @@ function AxiomX:MakeWindow(config)
 		end
 		
 		local tabButton = CreateButton(sidebar, nil)
-		tabButton.Size = UDim2.new(1, 0, 0, 28)
+		tabButton.Size = UDim2.new(1, 0, 0, 32)
 		tabButton.AutomaticSize = Enum.AutomaticSize.None
+		tabButton.BackgroundTransparency = 0.2
 		
 		local iconLabel
 		if tabIcon then
 			iconLabel = InsertTheme(Create("ImageLabel", tabButton, {
-				Size = UDim2.new(0, 16, 0, 16),
-				Position = UDim2.new(0, 6, 0.5),
+				Size = UDim2.new(0, 18, 0, 18),
+				Position = UDim2.new(0, 8, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				Image = tabIcon,
 				BackgroundTransparency = 1,
@@ -1101,22 +1249,22 @@ function AxiomX:MakeWindow(config)
 		end
 		
 		local nameLabel = InsertTheme(Create("TextLabel", tabButton, {
-			Size = UDim2.new(1, tabIcon and -28 or -16, 1, 0),
-			Position = UDim2.new(0, tabIcon and 28 or 16, 0),
+			Size = UDim2.new(1, tabIcon and -34 or -16, 1, 0),
+			Position = UDim2.new(0, tabIcon and 34 or 16, 0),
 			BackgroundTransparency = 1,
 			Font = Enum.Font.GothamMedium,
 			Text = tabName,
 			TextColor3 = currentTheme["Color Text"],
-			TextSize = 11,
+			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			TextTransparency = activeTab and 0.3 or 0
 		}), "Text")
 		
 		local indicator = InsertTheme(Create("Frame", tabButton, {
-			Size = UDim2.new(0, 3, 0, activeTab and 16 or 4),
-			Position = UDim2.new(0, 0, 0.5),
-			AnchorPoint = Vector2.new(0, 0.5),
+			Size = UDim2.new(0, 4, 0, activeTab and 20 or 0),
+			Position = UDim2.new(1, -2, 0.5),
+			AnchorPoint = Vector2.new(1, 0.5),
 			BackgroundColor3 = currentTheme["Color Accent"],
 			BackgroundTransparency = activeTab and 0 or 0.5
 		}), "Accent")
@@ -1126,7 +1274,7 @@ function AxiomX:MakeWindow(config)
 			Size = UDim2.new(1, 0, 1, 0),
 			Position = UDim2.new(0, 0, 1),
 			AnchorPoint = Vector2.new(0, 1),
-			ScrollBarThickness = 2,
+			ScrollBarThickness = 3,
 			BackgroundTransparency = 1,
 			ScrollBarImageTransparency = 0.2,
 			ScrollBarImageColor3 = currentTheme["Color Accent"],
@@ -1137,13 +1285,13 @@ function AxiomX:MakeWindow(config)
 			Name = ("Tab_%s"):format(tabName)
 		}, {
 			Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 8),
-				PaddingRight = UDim.new(0, 8),
-				PaddingTop = UDim.new(0, 8),
-				PaddingBottom = UDim.new(0, 8)
+				PaddingLeft = UDim.new(0, 10),
+				PaddingRight = UDim.new(0, 10),
+				PaddingTop = UDim.new(0, 10),
+				PaddingBottom = UDim.new(0, 10)
 			}),
 			Create("UIListLayout", {
-				Padding = UDim.new(0, 6),
+				Padding = UDim.new(0, 8),
 				SortOrder = Enum.SortOrder.LayoutOrder
 			})
 		}), "ScrollBar")
@@ -1163,26 +1311,29 @@ function AxiomX:MakeWindow(config)
 			end
 			container.Parent = contentArea
 			
+			Functions:CreateTween({container, "Position", UDim2.new(0, 0, 1), 0.1})
+			Functions:CreateTween({container, "Position", UDim2.new(0, 0, 0), 0.3})
+			
 			for _, tab in ipairs(tabs) do
 				if tab.Container ~= container then
 					if tab.Indicator then
-						CreateTween({tab.Indicator, "Size", UDim2.new(0, 3, 0, 4), 0.25})
-						CreateTween({tab.Indicator, "BackgroundTransparency", 0.5, 0.25})
+						Functions:CreateTween({tab.Indicator, "Size", UDim2.new(0, 4, 0, 0), 0.25})
+						Functions:CreateTween({tab.Indicator, "BackgroundTransparency", 0.5, 0.25})
 					end
 					if tab.NameLabel then
-						CreateTween({tab.NameLabel, "TextTransparency", 0.3, 0.25})
+						Functions:CreateTween({tab.NameLabel, "TextTransparency", 0.3, 0.25})
 					end
 					if tab.IconLabel then
-						CreateTween({tab.IconLabel, "ImageTransparency", 0.3, 0.25})
+						Functions:CreateTween({tab.IconLabel, "ImageTransparency", 0.3, 0.25})
 					end
 				end
 			end
 			
-			CreateTween({indicator, "Size", UDim2.new(0, 3, 0, 16), 0.25})
-			CreateTween({indicator, "BackgroundTransparency", 0, 0.25})
-			CreateTween({nameLabel, "TextTransparency", 0, 0.25})
+			Functions:CreateTween({indicator, "Size", UDim2.new(0, 4, 0, 20), 0.25})
+			Functions:CreateTween({indicator, "BackgroundTransparency", 0, 0.25})
+			Functions:CreateTween({nameLabel, "TextTransparency", 0, 0.25})
 			if iconLabel then
-				CreateTween({iconLabel, "ImageTransparency", 0, 0.25})
+				Functions:CreateTween({iconLabel, "ImageTransparency", 0, 0.25})
 			end
 		end
 		
@@ -1203,20 +1354,28 @@ function AxiomX:MakeWindow(config)
 			local sectionName = type(sectionConfig) == "string" and sectionConfig or sectionConfig[1] or sectionConfig.Name or "Section"
 			
 			local sectionFrame = Create("Frame", container, {
-				Size = UDim2.new(1, 0, 0, 22),
+				Size = UDim2.new(1, 0, 0, 25),
 				BackgroundTransparency = 1,
 				Name = "Section"
 			})
+			
+			local line = Create("Frame", sectionFrame, {
+				Size = UDim2.new(1, -20, 0, 2),
+				Position = UDim2.new(0, 10, 1, -10),
+				BackgroundColor3 = currentTheme["Color Stroke"],
+				BackgroundTransparency = 0.5
+			})
+			CreateCorner(line, UDim.new(0.5, 0))
 			
 			local sectionLabel = InsertTheme(Create("TextLabel", sectionFrame, {
 				Font = Enum.Font.GothamBold,
 				Text = sectionName,
 				TextColor3 = currentTheme["Color Text"],
 				Size = UDim2.new(1, -20, 1, 0),
-				Position = UDim2.new(0, 6),
+				Position = UDim2.new(0, 10, 0),
 				BackgroundTransparency = 1,
 				TextTruncate = Enum.TextTruncate.AtEnd,
-				TextSize = 13,
+				TextSize = 14,
 				TextXAlignment = Enum.TextXAlignment.Left
 			}), "Text")
 			
@@ -1277,20 +1436,48 @@ function AxiomX:MakeWindow(config)
 			local btnTitle = btnConfig[1] or btnConfig.Name or btnConfig.Title or "Button"
 			local btnDesc = btnConfig.Desc or btnConfig.Description or ""
 			local callback = Functions:GetCallback(btnConfig, 2)
+			local btnType = btnConfig.Type or "default" -- default, accent, success, error, warning
 			
-			local frame, labelMethods = CreateOptionFrame(container, btnTitle, btnDesc, UDim2.new(1, -40))
+			local frame, labelMethods = CreateOptionFrame(container, btnTitle, btnDesc, UDim2.new(1, -50))
 			
-			local icon = Create("ImageLabel", frame, {
-				Size = UDim2.new(0, 16, 0, 16),
-				Position = UDim2.new(1, -12, 0.5),
+			local btnColor = currentTheme["Color Main 2"]
+			if btnType == "accent" then
+				btnColor = currentTheme["Color Accent"]
+			elseif btnType == "success" then
+				btnColor = currentTheme["Color Success"]
+			elseif btnType == "error" then
+				btnColor = currentTheme["Color Error"]
+			elseif btnType == "warning" then
+				btnColor = currentTheme["Color Warning"]
+			end
+			
+			local actionBtn = Create("TextButton", frame, {
+				Size = UDim2.new(0, 60, 0, 22),
+				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundTransparency = 1,
-				Image = "rbxassetid://10709791437",
-				ImageColor3 = currentTheme["Color Dark Text"]
+				BackgroundColor3 = btnColor,
+				BackgroundTransparency = 0.2,
+				Text = "Click",
+				Font = Enum.Font.GothamBold,
+				TextSize = 10,
+				TextColor3 = currentTheme["Color Text"],
+				ZIndex = 2
 			})
+			CreateCorner(actionBtn, UDim.new(0, 4))
+			
+			actionBtn.MouseEnter:Connect(function()
+				Functions:CreateTween({actionBtn, "BackgroundTransparency", 0, 0.2})
+				Functions:CreateTween({actionBtn, "Size", UDim2.new(0, 64, 0, 24), 0.2})
+			end)
+			actionBtn.MouseLeave:Connect(function()
+				Functions:CreateTween({actionBtn, "BackgroundTransparency", 0.2, 0.2})
+				Functions:CreateTween({actionBtn, "Size", UDim2.new(0, 60, 0, 22), 0.2})
+			end)
 			
 			frame.Activated:Connect(function()
 				Functions:FireCallback(callback)
+				Functions:CreateTween({actionBtn, "BackgroundTransparency", 0.5, 0.1})
+				Functions:CreateTween({actionBtn, "BackgroundTransparency", 0.2, 0.1})
 			end)
 			
 			local methods = {}
@@ -1329,29 +1516,46 @@ function AxiomX:MakeWindow(config)
 				defaultValue = GetFlag(flag)
 			end
 			
-			local frame, labelMethods = CreateOptionFrame(container, togTitle, togDesc, UDim2.new(1, -50))
+			local frame, labelMethods = CreateOptionFrame(container, togTitle, togDesc, UDim2.new(1, -70))
 			
-			local toggleHolder = InsertTheme(Create("Frame", frame, {
-				Size = UDim2.new(0, 40, 0, 20),
+			-- Toggle moderno estilo iOS
+			local toggleContainer = Create("Frame", frame, {
+				Size = UDim2.new(0, 50, 0, 26),
 				Position = UDim2.new(1, -12, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = currentTheme["Color Stroke"]
-			}), "Stroke")
-			CreateCorner(toggleHolder, UDim.new(0.5, 0))
+				BackgroundTransparency = 1,
+				Name = "ToggleContainer"
+			})
 			
-			local toggleKnob = InsertTheme(Create("Frame", toggleHolder, {
-				Size = UDim2.new(0, 16, 0, 16),
+			local toggleBg = InsertTheme(Create("Frame", toggleContainer, {
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundColor3 = defaultValue and currentTheme["Color Accent"] or currentTheme["Color Stroke"],
+				BackgroundTransparency = defaultValue and 0.1 or 0.3
+			}), defaultValue and "Accent" or "Stroke")
+			CreateCorner(toggleBg, UDim.new(0.5, 0))
+			
+			local toggleKnob = Create("Frame", toggleContainer, {
+				Size = UDim2.new(0, 22, 0, 22),
 				Position = UDim2.new(defaultValue and 1 or 0, defaultValue and -2 or 2, 0.5),
 				AnchorPoint = Vector2.new(defaultValue and 1 or 0, 0.5),
-				BackgroundColor3 = currentTheme["Color Accent"],
-				BackgroundTransparency = defaultValue and 0 or 0.5
-			}), "Accent")
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundTransparency = 0
+			})
 			CreateCorner(toggleKnob, UDim.new(0.5, 0))
+			
+			-- Efeito de brilho
+			local glow = Create("Frame", toggleContainer, {
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundColor3 = currentTheme["Color Accent"],
+				BackgroundTransparency = 1,
+				ZIndex = 0
+			})
+			CreateCorner(glow, UDim.new(0.5, 0))
 			
 			local toggling = false
 			local currentState = defaultValue
 			
-			local function setState(state)
+			local function setState(state, animate)
 				if toggling then return end
 				toggling = true
 				
@@ -1364,30 +1568,61 @@ function AxiomX:MakeWindow(config)
 				Functions:FireCallback(callback, currentState)
 				
 				if currentState then
-					CreateTween({toggleKnob, "Position", UDim2.new(1, -2, 0.5), 0.2})
-					CreateTween({toggleKnob, "AnchorPoint", Vector2.new(1, 0.5), 0.2})
-					CreateTween({toggleKnob, "BackgroundTransparency", 0, 0.2})
+					-- Animação do toggle
+					Functions:CreateTween({toggleKnob, "Position", UDim2.new(1, -2, 0.5), 0.25})
+					Functions:CreateTween({toggleKnob, "AnchorPoint", Vector2.new(1, 0.5), 0.25})
+					Functions:CreateTween({toggleBg, "BackgroundColor3", currentTheme["Color Accent"], 0.25})
+					Functions:CreateTween({toggleBg, "BackgroundTransparency", 0.1, 0.25})
+					
+					-- Efeito de brilho
+					if animate then
+						Functions:CreateTween({glow, "BackgroundTransparency", 0.7, 0.15})
+						task.wait(0.15)
+						Functions:CreateTween({glow, "BackgroundTransparency", 1, 0.3})
+					end
+					
+					InsertTheme(toggleBg, "Accent")
 				else
-					CreateTween({toggleKnob, "Position", UDim2.new(0, 2, 0.5), 0.2})
-					CreateTween({toggleKnob, "AnchorPoint", Vector2.new(0, 0.5), 0.2})
-					CreateTween({toggleKnob, "BackgroundTransparency", 0.5, 0.2})
+					Functions:CreateTween({toggleKnob, "Position", UDim2.new(0, 2, 0.5), 0.25})
+					Functions:CreateTween({toggleKnob, "AnchorPoint", Vector2.new(0, 0.5), 0.25})
+					Functions:CreateTween({toggleBg, "BackgroundColor3", currentTheme["Color Stroke"], 0.25})
+					Functions:CreateTween({toggleBg, "BackgroundTransparency", 0.3, 0.25})
+					
+					InsertTheme(toggleBg, "Stroke")
 				end
 				
 				toggling = false
 			end
 			
 			frame.Activated:Connect(function()
-				setState(not currentState)
+				setState(not currentState, true)
+			end)
+			
+			-- Efeito hover no toggle
+			frame.MouseEnter:Connect(function()
+				if not toggling then
+					Functions:CreateTween({toggleKnob, "Size", UDim2.new(0, 24, 0, 24), 0.2})
+				end
+			end)
+			
+			frame.MouseLeave:Connect(function()
+				if not toggling then
+					Functions:CreateTween({toggleKnob, "Size", UDim2.new(0, 22, 0, 22), 0.2})
+				end
 			end)
 			
 			local methods = {}
 			
 			function methods:Set(state)
-				setState(state)
+				setState(state, true)
 			end
 			
 			function methods:Get()
 				return currentState
+			end
+			
+			function methods:Toggle()
+				setState(not currentState, true)
 			end
 			
 			function methods:SetTitle(newTitle)
@@ -1422,52 +1657,65 @@ function AxiomX:MakeWindow(config)
 			local callback = Functions:GetCallback(sliderConfig, 6)
 			local flag = sliderConfig[7] or sliderConfig.Flag or false
 			local defaultValue = sliderConfig[5] or sliderConfig.Default or minValue
+			local suffix = sliderConfig.Suffix or "" -- Ex: "%", "px", etc
+			local showNumber = sliderConfig.ShowNumber ~= false
 			
 			if flag and GetFlag(flag) ~= nil then
 				defaultValue = GetFlag(flag)
 			end
 			
-			local frame, labelMethods = CreateOptionFrame(container, sliderTitle, sliderDesc, UDim2.new(1, -100))
+			local frame, labelMethods = CreateOptionFrame(container, sliderTitle, sliderDesc, UDim2.new(1, -120))
 			
 			local sliderContainer = Create("Frame", frame, {
-				Size = UDim2.new(0, 90, 0, 20),
+				Size = UDim2.new(0, 110, 0, 30),
 				Position = UDim2.new(1, -12, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundTransparency = 1
 			})
 			
-			local sliderBar = InsertTheme(Create("Frame", sliderContainer, {
-				Size = UDim2.new(1, -16, 0, 4),
+			local sliderBg = InsertTheme(Create("Frame", sliderContainer, {
+				Size = UDim2.new(1, -30, 0, 4),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = currentTheme["Color Stroke"]
 			}), "Stroke")
-			CreateCorner(sliderBar, UDim.new(0.5, 0))
+			CreateCorner(sliderBg, UDim.new(0.5, 0))
 			
-			local sliderFill = InsertTheme(Create("Frame", sliderBar, {
+			local sliderFill = InsertTheme(Create("Frame", sliderBg, {
 				Size = UDim2.new(0, 0, 1, 0),
 				BackgroundColor3 = currentTheme["Color Accent"]
 			}), "Accent")
 			CreateCorner(sliderFill, UDim.new(0.5, 0))
 			
-			local sliderKnob = InsertTheme(Create("Frame", sliderBar, {
-				Size = UDim2.new(0, 8, 0, 12),
+			local sliderKnob = Create("Frame", sliderBg, {
+				Size = UDim2.new(0, 14, 0, 14),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				BackgroundColor3 = currentTheme["Color Text"],
-				BackgroundTransparency = 0.2
-			}), "Text")
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundTransparency = 0
+			})
 			CreateCorner(sliderKnob, UDim.new(0.5, 0))
 			
+			-- Sombra do knob
+			local knobShadow = Create("Frame", sliderKnob, {
+				Size = UDim2.new(1, 4, 1, 4),
+				Position = UDim2.new(0.5, 0, 0.5, 0),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundColor3 = Color3.new(0, 0, 0),
+				BackgroundTransparency = 0.7,
+				ZIndex = -1
+			})
+			CreateCorner(knobShadow, UDim.new(0.5, 0))
+			
 			local valueLabel = InsertTheme(Create("TextLabel", sliderContainer, {
-				Size = UDim2.new(0, 30, 0, 16),
+				Size = UDim2.new(0, 30, 0, 18),
 				Position = UDim2.new(1, 0, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundTransparency = 1,
 				Font = Enum.Font.GothamBold,
-				TextSize = 9,
+				TextSize = 10,
 				TextColor3 = currentTheme["Color Text"],
-				Text = tostring(defaultValue)
+				Text = tostring(defaultValue) .. suffix
 			}), "Text")
 			
 			local dragging = false
@@ -1477,19 +1725,18 @@ function AxiomX:MakeWindow(config)
 				local percent = (value - minValue) / (maxValue - minValue)
 				percent = math.clamp(percent, 0, 1)
 				
-				local barWidth = sliderBar.AbsoluteSize.X
+				local barWidth = sliderBg.AbsoluteSize.X
 				local pos = percent * barWidth
 				
 				sliderFill.Size = UDim2.new(percent, 0, 1, 0)
 				sliderKnob.Position = UDim2.new(percent, 0, 0.5)
-				
-				valueLabel.Text = tostring(math.floor(value * 100) / 100)
+				valueLabel.Text = tostring(math.floor(value * 100) / 100) .. suffix
 			end
 			
 			local function updateFromMouse()
 				local mousePos = PlayerMouse.X
-				local barPos = sliderBar.AbsolutePosition.X
-				local barWidth = sliderBar.AbsoluteSize.X
+				local barPos = sliderBg.AbsolutePosition.X
+				local barWidth = sliderBg.AbsoluteSize.X
 				
 				local percent = (mousePos - barPos) / barWidth
 				percent = math.clamp(percent, 0, 1)
@@ -1513,6 +1760,7 @@ function AxiomX:MakeWindow(config)
 			sliderContainer.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					dragging = true
+					Functions:CreateTween({sliderKnob, "Size", UDim2.new(0, 18, 0, 18), 0.2})
 					updateFromMouse()
 				end
 			end)
@@ -1520,6 +1768,7 @@ function AxiomX:MakeWindow(config)
 			sliderContainer.InputEnded:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					dragging = false
+					Functions:CreateTween({sliderKnob, "Size", UDim2.new(0, 14, 0, 14), 0.2})
 				end
 			end)
 			
@@ -1569,35 +1818,39 @@ function AxiomX:MakeWindow(config)
 			local flag = dropConfig[5] or dropConfig.Flag or false
 			local multiSelect = dropConfig.MultiSelect or false
 			local default = dropConfig[3] or dropConfig.Default or (multiSelect and {} or options[1])
+			local searchable = dropConfig.Searchable or false
 			
 			if flag and GetFlag(flag) ~= nil then
 				default = GetFlag(flag)
 			end
 			
-			local frame, labelMethods = CreateOptionFrame(container, dropTitle, dropDesc, UDim2.new(1, -120))
+			local frame, labelMethods = CreateOptionFrame(container, dropTitle, dropDesc, UDim2.new(1, -140))
 			
 			local dropdownBtn = InsertTheme(Create("Frame", frame, {
-				Size = UDim2.new(0, 100, 0, 22),
+				Size = UDim2.new(0, 120, 0, 26),
 				Position = UDim2.new(1, -12, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = currentTheme["Color Stroke"]
-			}), "Stroke")
-			CreateCorner(dropdownBtn, UDim.new(0, 4))
+				BackgroundColor3 = currentTheme["Color Main 2"],
+				BackgroundTransparency = 0.2
+			}), "Frame")
+			CreateCorner(dropdownBtn, UDim.new(0, 5))
+			CreateStroke(dropdownBtn, currentTheme["Color Stroke"], 1)
 			
 			local selectedLabel = InsertTheme(Create("TextLabel", dropdownBtn, {
-				Size = UDim2.new(1, -18, 1, 0),
-				Position = UDim2.new(0, 4, 0),
+				Size = UDim2.new(1, -22, 1, 0),
+				Position = UDim2.new(0, 6, 0),
 				BackgroundTransparency = 1,
 				Font = Enum.Font.Gotham,
-				TextSize = 9,
+				TextSize = 10,
 				TextColor3 = currentTheme["Color Text"],
 				TextXAlignment = Enum.TextXAlignment.Left,
-				Text = multiSelect and "..." or tostring(default)
+				Text = multiSelect and "Select..." or tostring(default),
+				TextTruncate = Enum.TextTruncate.AtEnd
 			}), "Text")
 			
 			local arrow = Create("ImageLabel", dropdownBtn, {
-				Size = UDim2.new(0, 12, 0, 12),
-				Position = UDim2.new(1, -4, 0.5),
+				Size = UDim2.new(0, 14, 0, 14),
+				Position = UDim2.new(1, -6, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundTransparency = 1,
 				Image = "rbxassetid://10709791523",
@@ -1609,29 +1862,50 @@ function AxiomX:MakeWindow(config)
 				BackgroundTransparency = 1,
 				Visible = false,
 				Text = "",
-				ZIndex = 5
+				ZIndex = 50,
+				Active = true
 			})
 			
 			local dropdownMenu = Create("Frame", dropdownOverlay, {
-				Size = UDim2.new(0, 120, 0, 0),
+				Size = UDim2.new(0, 160, 0, 0),
 				BackgroundTransparency = 0.1,
 				ClipsDescendants = true,
-				ZIndex = 6
+				ZIndex = 51
 			}, {
 				CreateGradient({}, nil, 60),
-				CreateCorner({}, UDim.new(0, 4)),
-				CreateStroke({})
+				CreateCorner({}, UDim.new(0, 6)),
+				CreateStroke({}, currentTheme["Color Stroke"], 1.5)
 			})
 			
+			local searchBox
+			if searchable then
+				searchBox = Create("TextBox", dropdownMenu, {
+					Size = UDim2.new(1, -8, 0, 24),
+					Position = UDim2.new(0, 4, 0, 4),
+					BackgroundColor3 = currentTheme["Color Main 2"],
+					BackgroundTransparency = 0.3,
+					PlaceholderText = "Search...",
+					PlaceholderColor3 = currentTheme["Color Dark Text"],
+					Text = "",
+					TextColor3 = currentTheme["Color Text"],
+					Font = Enum.Font.Gotham,
+					TextSize = 10,
+					ClearTextOnFocus = false,
+					ZIndex = 52
+				})
+				CreateCorner(searchBox, UDim.new(0, 4))
+			end
+			
 			local menuList = Create("ScrollingFrame", dropdownMenu, {
-				Size = UDim2.new(1, 0, 1, 0),
-				ScrollBarThickness = 2,
+				Size = UDim2.new(1, 0, searchable and 1 or 1, searchable and -28 or 0),
+				Position = searchable and UDim2.new(0, 0, 0, 28) or UDim2.new(0, 0, 0, 0),
+				ScrollBarThickness = 3,
 				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
 				CanvasSize = UDim2.new(),
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
 				ScrollingDirection = Enum.ScrollingDirection.Y,
-				ZIndex = 7
+				ZIndex = 52
 			}, {
 				Create("UIPadding", {
 					PaddingLeft = UDim.new(0, 4),
@@ -1650,30 +1924,44 @@ function AxiomX:MakeWindow(config)
 			local function updateSelected()
 				if multiSelect then
 					local names = {}
-					for opt, selected in pairs(selected) do
-						if selected then
+					for opt, selectedState in pairs(selected) do
+						if selectedState then
 							table.insert(names, opt)
 						end
 					end
-					selectedLabel.Text = #names > 0 and table.concat(names, ", ") or "..."
+					selectedLabel.Text = #names > 0 and table.concat(names, ", ") or "Select..."
 				else
 					selectedLabel.Text = tostring(selected)
 				end
 			end
 			
+			local function filterOptions(searchText)
+				searchText = searchText:lower()
+				for opt, btnData in pairs(optionButtons) do
+					local visible = #searchText == 0 or opt:lower():find(searchText, 1, true)
+					btnData.button.Visible = visible
+				end
+			end
+			
+			if searchBox then
+				searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+					filterOptions(searchBox.Text)
+				end)
+			end
+			
 			local function createOption(opt)
 				local btn = Create("TextButton", menuList, {
-					Size = UDim2.new(1, 0, 0, 22),
+					Size = UDim2.new(1, 0, 0, 26),
 					Text = "",
 					BackgroundColor3 = currentTheme["Color Main 2"],
 					BackgroundTransparency = 0.5,
-					ZIndex = 8
+					ZIndex = 53
 				})
-				CreateCorner(btn, UDim.new(0, 3))
+				CreateCorner(btn, UDim.new(0, 4))
 				
 				local check = Create("Frame", btn, {
-					Size = UDim2.new(0, 4, 0, 4),
-					Position = UDim2.new(0, 4, 0.5),
+					Size = UDim2.new(0, multiSelect and 8 or 6, 0, multiSelect and 8 or 6),
+					Position = UDim2.new(0, 6, 0.5),
 					AnchorPoint = Vector2.new(0, 0.5),
 					BackgroundColor3 = currentTheme["Color Accent"],
 					BackgroundTransparency = 1
@@ -1681,11 +1969,11 @@ function AxiomX:MakeWindow(config)
 				CreateCorner(check, UDim.new(0.5, 0))
 				
 				local label = Create("TextLabel", btn, {
-					Size = UDim2.new(1, -16, 1, 0),
-					Position = UDim2.new(0, 12, 0),
+					Size = UDim2.new(1, -22, 1, 0),
+					Position = UDim2.new(0, 16, 0),
 					BackgroundTransparency = 1,
 					Font = Enum.Font.Gotham,
-					TextSize = 9,
+					TextSize = 10,
 					TextColor3 = currentTheme["Color Text"],
 					TextXAlignment = Enum.TextXAlignment.Left,
 					Text = opt
@@ -1704,30 +1992,30 @@ function AxiomX:MakeWindow(config)
 				end
 				
 				btn.MouseEnter:Connect(function()
-					btn.BackgroundTransparency = 0.2
+					Functions:CreateTween({btn, "BackgroundTransparency", 0.2, 0.2})
 				end)
 				btn.MouseLeave:Connect(function()
-					btn.BackgroundTransparency = 0.5
+					Functions:CreateTween({btn, "BackgroundTransparency", 0.5, 0.2})
 				end)
 				
 				btn.Activated:Connect(function()
 					if multiSelect then
 						selected[opt] = not selected[opt]
 						if selected[opt] then
-							check.BackgroundTransparency = 0
-							CreateTween({check, "Size", UDim2.new(0, 8, 0, 8), 0.2})
+							Functions:CreateTween({check, "BackgroundTransparency", 0, 0.2})
+							Functions:CreateTween({check, "Size", UDim2.new(0, 8, 0, 8), 0.2})
 						else
-							check.BackgroundTransparency = 1
-							CreateTween({check, "Size", UDim2.new(0, 4, 0, 4), 0.2})
+							Functions:CreateTween({check, "BackgroundTransparency", 1, 0.2})
+							Functions:CreateTween({check, "Size", UDim2.new(0, 4, 0, 4), 0.2})
 						end
 					else
 						selected = opt
 						for _, btnData in pairs(optionButtons) do
-							btnData.check.BackgroundTransparency = 1
-							CreateTween({btnData.check, "Size", UDim2.new(0, 4, 0, 4), 0.2})
+							Functions:CreateTween({btnData.check, "BackgroundTransparency", 1, 0.2})
+							Functions:CreateTween({btnData.check, "Size", UDim2.new(0, 4, 0, 4), 0.2})
 						end
-						check.BackgroundTransparency = 0
-						CreateTween({check, "Size", UDim2.new(0, 8, 0, 8), 0.2})
+						Functions:CreateTween({check, "BackgroundTransparency", 0, 0.2})
+						Functions:CreateTween({check, "Size", UDim2.new(0, 8, 0, 8), 0.2})
 					end
 					
 					updateSelected()
@@ -1757,32 +2045,40 @@ function AxiomX:MakeWindow(config)
 				local btnSize = dropdownBtn.AbsoluteSize
 				local screenSize = ScreenGui.AbsoluteSize
 				
-				local menuWidth = 120
-				local menuHeight = math.min(#options * 26, 150)
+				local menuWidth = 160
+				local menuHeight = math.min(#options * 28 + (searchable and 28 or 0) + 8, 200)
 				
 				local x = math.clamp(btnPos.X, 0, screenSize.X - menuWidth)
 				local y = math.clamp(btnPos.Y + btnSize.Y + 2, 0, screenSize.Y - menuHeight)
 				
 				dropdownMenu.Position = UDim2.fromOffset(x, y)
-				dropdownMenu.Size = UDim2.fromOffset(menuWidth, menuHeight)
+				dropdownMenu.Size = UDim2.fromOffset(menuWidth, 0)
 			end
 			
 			frame.Activated:Connect(function()
 				if menuOpen then
+					Functions:CreateTween({dropdownMenu, "Size", UDim2.fromOffset(160, 0), 0.2, true})
 					dropdownOverlay.Visible = false
-					arrow.Image = "rbxassetid://10709791523"
+					Functions:CreateTween({arrow, "Rotation", 0, 0.2})
 					menuOpen = false
 				else
 					updateMenuPosition()
 					dropdownOverlay.Visible = true
-					arrow.Image = "rbxassetid://10709790948"
+					Functions:CreateTween({dropdownMenu, "Size", UDim2.fromOffset(160, math.min(#options * 28 + (searchable and 28 or 0) + 8, 200)), 0.2})
+					Functions:CreateTween({arrow, "Rotation", 180, 0.2})
 					menuOpen = true
+					
+					if searchBox then
+						searchBox.Text = ""
+						filterOptions("")
+					end
 				end
 			end)
 			
 			dropdownOverlay.Activated:Connect(function()
+				Functions:CreateTween({dropdownMenu, "Size", UDim2.fromOffset(160, 0), 0.2, true})
 				dropdownOverlay.Visible = false
-				arrow.Image = "rbxassetid://10709791523"
+				Functions:CreateTween({arrow, "Rotation", 0, 0.2})
 				menuOpen = false
 			end)
 			
